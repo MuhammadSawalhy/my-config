@@ -1,3 +1,7 @@
+function cptodir($path, $dir){
+	cp $path "$dir\$(Split-path $path -leaf)"
+}
 
-cp ./.gitconfig $HOME/.gitconfig
-cp ./Microsoft.PowerShell_profile.ps1 $PROFILE
+cptodir ./.gitconfig $HOME
+cp 	./Microsoft.PowerShell_profile.ps1 $PROFILE
+

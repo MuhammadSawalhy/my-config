@@ -6,6 +6,16 @@ function myp(){
     Set-Location "E:\Programming\_Projects"
 }
 
+$myc = "$($HOME)\my-config"
+
+function cdmyc(){
+	cd $myc
+}
+
+function updatemyc(){
+	&"$($myc)\__moveToLocations.ps1"
+}
+
 function cdlnk($target){
     if($target.EndsWith(".lnk"))
     {
@@ -21,6 +31,10 @@ function cdlnk($target){
 
 function touch($f){
   echo "" > $f
+}
+
+function cptodir($path, $dir){
+	cp $path "$dir\$(Split-path $path -leaf)"
 }
 
 # git shorcuts #################################

@@ -37,6 +37,16 @@ function cptodir($path, $dir){
 	cp $path "$dir\$(Split-path $path -leaf)"
 }
 
+function path-resolve($Dir, $Path){
+	$resolved = [System.IO.Path]::GetFullPath((Join-Path $Dir $Path))
+	echo $resolved
+};
+
+function path-relative($Path){
+	path-resolve $PWD.path $Path
+};
+
+
 # git shorcuts #################################
 
 function gfpo(){

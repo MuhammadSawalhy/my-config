@@ -21,14 +21,14 @@
 	email = ms.2052001@gmail.com
 	name = Mohammed Samir
 	username = ms2052001
-	signingkey = 8BAEF1208F8FEDFF377D
+	signingkey = 8BAEF1208F8FEDFF377D22F72BCC8456CA36B4BE
 
 [merge "npm-merge-driver"]
 	name = automatically merge npm lockfiles
 	driver = npx npm-merge-driver merge %A %O %B %P
 [core]
 	autocrlf = true
-	excludesfile = C:\\Users\\ms205\\gitignore_global.txt
+	excludesfile = C:\\Users\\ms205\\.gitignore_global
 [difftool "sourcetree"]
 	cmd = '' \"$LOCAL\" \"$REMOTE\"
 [mergetool "sourcetree"]

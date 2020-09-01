@@ -60,10 +60,13 @@ function git-flow-push($remote){
 }
 
 function git-bash($c){
-    ii "C:\Program Files\Git\git-bash.exe"
-    if($c -eq "gfpo"){
-        echo "eval `$(ssh-agent -s) && ssh-add ~/.ssh/github_rsa_key && git push -u origin master develop --tags" | clip
-    } elseif ($c -eq "ssh") {
-        echo "eval `$(ssh-agent -s) && ssh-add ~/.ssh/github_rsa_key" | clip
-    }
+	if($c -eq "gfpo"){
+		$cmd = "eval `$(ssh-agent -s) && ssh-add ~/.ssh/github_rsa_key && git push -u origin master develop --tags"
+	} elseif ($c -eq "ssh") {
+		$cmd = "eval `$(ssh-agent -s) && ssh-add ~/.ssh/github_rsa_key"
+	}
+	if($cmd){
+		echo $cmd | clip
+	}
+	&"C:\Program Files\Git\git-bash.exe"
 }

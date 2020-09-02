@@ -2,18 +2,40 @@ Import-Module posh-git
 Import-Module oh-my-posh
 Set-Theme robbyrussell
 
-function myp(){
-    Set-Location "E:\Programming\_Projects"
+$myp = "E:\Programming\_Projects\"
+
+function cdmyp{
+    cd $myp
 }
 
-$myc = "$($HOME)\my-config"
+$myc = "$HOME\my-config"
 
-function cdmyc(){
+function cdmyc{
 	cd $myc
 }
 
-function updatemyc(){
-	&"$($myc)\__moveToLocations.ps1"
+function updatemyc{
+    [CmdletBinding()]
+    param ([string]$file, [string]$f)
+    if($file){ $f = $file }
+
+    function log{
+        param([string]$msg)
+        echo ""
+        echo "=================="
+        echo $msg
+        echo "=================="
+        echo ""
+    }
+
+    if($f -ieq "ps") { $f = "Powershell_profile.ps1" }
+    elseif($f -ieq "git") { $f = ".gitconfig" }
+    elseif($f -ieq "npm") { $f = ".npmrc" }
+
+    if($f -ne ""){ log -msg "Updating configs: $f" }
+    else { log -msg "Updating all configs!" } 
+
+    &"$myc\__moveToLocations.ps1" -f $f
 }
 
 function cdlnk($target){
@@ -30,21 +52,25 @@ function cdlnk($target){
 }
 
 function touch($f){
-  echo "" > $f
+  New-Item -Path $f -ItemType File
 }
 
 function cptodir($path, $dir){
-	cp $path "$dir\$(Split-path $path -leaf)"
+    if($dir){
+	    cp $path "$dir\$(Split-path $path -leaf)"
+    } else {
+        throw "dir is not defined"
+    }
 }
 
 function path-resolve($Dir, $Path){
 	$resolved = [System.IO.Path]::GetFullPath((Join-Path $Dir $Path))
-	echo $resolved
-};
+	write-output $resolved
+}
 
 function path-relative($Path){
-	path-resolve $PWD.path $Path
-};
+	write-output (path-resolve $PWD.path $Path)
+}
 
 
 # git shorcuts #################################

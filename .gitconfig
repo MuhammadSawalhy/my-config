@@ -1,4 +1,4 @@
-# notice: source tree.exe is setup on windows, if not, remove related config here below
+# notice: "source tree.exe" is setup on windows, if not, remove related config here below
 [alias]
 	s = status
 	co = checkout

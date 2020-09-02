@@ -1,4 +1,4 @@
-# notice: source tree.exe is setup on windows, if not, remove related config here below
+# notice: "source tree.exe" is setup on windows, if not, remove related config here below
 [alias]
 	s = status
 	co = checkout
@@ -12,6 +12,7 @@
 	f = flow
 	ff = flow feature
 	fr = flow release
+	fh = flow hotfix
 	csm = commit -S -m
 	cam = commit --amend -m
 	ca = commit --amend

@@ -1,3 +1,6 @@
+param ([string]$f)
+
+
 function cptodir($path, $dir){
     cp $path "$dir\$(Split-Path $path -leaf)"
 }
@@ -16,17 +19,20 @@ function path-resolve($Dir, $Path){
 };
 
 function path-relative($Path){
-	path-resolve $PWD.path $Path
+	path-resolve $PSScriptRoot $Path
 };
 
 $configs = @(
 	[pscustomobject]@{FileName='.gitconfig'; Dest=$HOME}
 	[pscustomobject]@{FileName='.gitignore_global'; Dest=$HOME}
 	[pscustomobject]@{FileName='.npmrc'; Dest=$HOME}
-	[pscustomobject]@{FileName='Microsoft.PowerShell_profile.ps1'; Dest=(Split-Path $PROFILE)}
+	[pscustomobject]@{FileName='PowerShell_profile.ps1'; Dest=$PROFILE}
 )
 
 For ($i=0; $i -lt $configs.Length; $i++) {
+	if($f -and (get-filename $f) -ne (get-filename $configs[$i].FileName)){
+		continue;
+	}
 	if(split-path $configs[$i].Dest -IsAbsolute){
 		$file = path-relative $configs[$i].FileName
 		$dest = $configs[$i].Dest

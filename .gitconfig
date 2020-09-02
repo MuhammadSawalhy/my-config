@@ -6,7 +6,7 @@
 	cm = commit -m
 	mr = merge
 	ms = merge --squash
-	mnff = merge --n-ff
+	mnff = merge --no-ff
 	br = branch
 	ll = log --oneline
 	f = flow

@@ -1,0 +1,16 @@
+# files to be hard-linked
+# make sure the correct user is who exec './linux-hard-link.bash'
+
+~/.config/nvim/
+!~/.config/nvim/plugins/
+
+~/.config/ranger/rc.conf
+
+~/.tmux.conf
+~/.zshrc
+~/.bash_profile
+~/.profile
+
+# it include auth token
+# ~/.npmrc
+

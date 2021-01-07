@@ -1,0 +1,23 @@
+{
+  "name": "myconfig",
+  "version": "1.0.0",
+  "description": "As-salamu alaykum, here is my story. I was struggling to automate synchronization of my configurations, until I had an idea. I wanted to hard-link my config files putting them is a sub-directory `linux` in a repo also containing my window's configs.",
+  "main": "linux-linked-files.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ms2052001/my-config.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ms2052001/my-config/issues"
+  },
+  "homepage": "https://github.com/ms2052001/my-config#readme",
+  "dependencies": {
+    "ignore-file": "^1.1.3"
+  }
+}

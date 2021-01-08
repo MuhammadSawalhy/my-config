@@ -9,11 +9,15 @@ let filter =
 let files = new Set();
 let dirs = new Set();
 let isDry = process.env.DRY === '1';
+let isReverse = process.env.REVERSE === '1';
 
 function addFile(f) {
   let rel = path.relative(process.env.HOME, f);
   if(rel.startsWith("../")) throw "patterns should be inside the $HOME directory";
-  dirs.add(path.resolve('./linux', path.dirname(rel)));
+  dirs.add(path.resolve(
+    isReverse ? process.env.HOME : './linux',
+    path.dirname(rel))
+  );
   files.add(rel);
 }
 

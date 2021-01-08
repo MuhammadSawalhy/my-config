@@ -2,19 +2,10 @@
 
 As-salamu alaykum, this was my approach in the past: I was struggling to automate synchronization of my configurations, until I had an idea. I wanted to hard-link my config files putting them is a sub-directory `linux` in a repo also containing my window's configs.
 
-But it seems easier to just `git init` in my ~, `$HOME`.
+But it seems easier to just `git init` in my ~, `$HOME`, ignore all files, exclude my config files. Unfortunately, there was some problems:
+1. When I open my editor `neovim`, I have a filemanager called `NERDTree`, the workspace directory is set by default to the directory containing `.git`, in which we have `git init`ed, in our case it is `$HOME`.
+2. I was using zsh in my terminal, there is a git plugin to show my current status and branch, it will always be there even if your are in `Desktop` for example.
 
-Content of `.gitignore` file:
-
-1. Ignore all: `/*`
-2. Exclude a config dir, `!.config`
-3. Ignore all what is inside it: `.config/*`
-4. Exclude a config sub-dir, `!.config/nvim`
-5. Ignore any other unnecessary stuff: `.config/nvim/plugins`
-
-The 5th step could be replaced by add another `.gitignore` inside `~/.config/nvim`.
-
-But what about now.
 
 ## How I Manage Linux's config
 

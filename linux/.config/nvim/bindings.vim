@@ -3,6 +3,9 @@
 """ native in vim
 """"""" -------------------------------------------------------
 
+nnoremap Q <Nop>
+vnoremap Q <Nop>
+
 """ tabs --------------------------
 map <tab>j :tabnext<CR>
 map <tab>k :tabprevious<CR>

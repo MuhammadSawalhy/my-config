@@ -12,9 +12,7 @@ call plug#begin(plug_home)
 """ For Editing
 """ --------------------------
 
-Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
-" Plug 'jiangmiao/auto-pairs'
-" Plug 'Raimondi/delimitMate'
+Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
 Plug 'justinmk/vim-sneak'
 Plug 'lervag/vimtex'

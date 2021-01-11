@@ -53,16 +53,30 @@ memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || 
 
 # list all + exclude
 lae() {
-  ls -a | sed -e "/$1/ d" | sed '1,2d'
+  if [ "$#" -gt 1 ]; then
+    ls -a "$1" | sed -e "/$2/ d" -e '1,2d'
+    return 0
+  fi
+  ls -a | sed -e "/$1/ d" -e '1,2d'
+}
+
+wgc() {
+  local err
+  # validation
+  if [ ! $1 ]; then err="you have to pass the filename!";
+  elif [ ! -e "$1.c" ]; then err="file not found: ./$1"; fi
+  if [ $err ]; then echo $err >&2; return 1; fi
+  # command to watch and compile
+  nodemon -w $1.c -e c -x "echo \"------ starting ------\" && gcc $1.c -o $1 && ./$1 && echo \"------ ending ------\""
 }
 
 wgcc() {
-  local err=""
+  local err
   # validation
-  if [ ! $1 ]; then err="at least, you have to pass a filepath!";
-  elif [ ! -e $1 ]; then err="file not found: $1"; fi
+  if [ ! $1 ]; then err="you have to pass the filename!";
+  elif [ ! -e "$1.c" ]; then err="file not found: ./$1"; fi
   if [ $err ]; then echo $err >&2; return 1; fi
   # command to watch and compile
-  nodemon -w $1 -e c -x gcc "$@"
+  nodemon -w $1.cc -e cc -x "echo \"------ starting ------\" && g++ -c $1.cc && g++ -o $1 $1.o && ./$1 && echo \"------ ending ------\""
 }
 

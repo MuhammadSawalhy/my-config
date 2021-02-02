@@ -6,6 +6,7 @@
 
 source ~/.config/nvim/plugins.vim
 source ~/.config/nvim/plugin-configs/coc.vim
+source ~/.config/nvim/plugin-configs/ccls.vim
 source ~/.config/nvim/plugin-configs/sneak.vim
 source ~/.config/nvim/plugin-configs/signify.vim
 
@@ -25,14 +26,13 @@ source ~/.config/nvim/buf-only.vim
 " set runtimepath^=~/.vim runtimepath+=~/.vim/after
 " let &packpath = &runtimepath
 
-" highlight comment in json files
-" autocmd FileType json syntax match Comment +\/\/.*|\/\*(.|\s)*\*\/$+
+set termguicolors
+syntax enable
+colo one
+set cursorline
+set nohlsearch
 
 set splitbelow splitright
-
-set cursorline
-
-set nohlsearch
 
 " indentation
 set tabstop=2

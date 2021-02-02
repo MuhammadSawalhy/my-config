@@ -16,11 +16,13 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
 Plug 'justinmk/vim-sneak'
 Plug 'lervag/vimtex'
-Plug 'mattn/emmet-vim', { 'for': 'html' }
+Plug 'mattn/emmet-vim' " , { 'for': 'html' }
 Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install()}, 'branch': 'release' }
-Plug 'nsf/gocode', { 'tag': 'v.20150303', 'rtp': 'vim' }
+Plug 'nsf/gocode'
 Plug 'preservim/nerdcommenter'
 Plug 'preservim/tagbar'
+Plug 'AndrewRadev/splitjoin.vim'
+" Plug 'fatih/vim-go'
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 " Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
 " Plug 'LaTeX-Box-Team/LaTeX-Box'
@@ -43,7 +45,6 @@ Plug 'kevinhwang91/rnvimr', {'do': 'make sync'}
 Plug 'mileszs/ack.vim'
 Plug 'preservim/nerdtree'
 Plug 'voldikss/vim-floaterm'
-" Plug 'fatih/vim-go', { 'tag': '*' }
 " Plug 'ryanoasis/vim-devicons'
 
 """ --------------------------
@@ -106,17 +107,10 @@ let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='ayu_mirage'
 
 """"""" ----------------------------------------
-""""""" THEME
-""""""" ----------------------------------------
-
-set termguicolors
-syntax enable
-colo PaperColor
-
-""""""" ----------------------------------------
 """"""" rainbow-colorizer
 """"""" ----------------------------------------
 
+set termguicolors
 lua require 'plug-colorizer'
 let g:rainbow#max_level = 16
 let g:rainbow#pairs = [['(', ')'], ['[', ']'], ['{', '}']]
@@ -180,12 +174,6 @@ augroup END
 " let g:indent_guides_enable_on_vim_startup = 1
 " let g:indent_guides_start_level = 2
 " let g:indent_guides_guide_size = 1
-
-""""""" ----------------------------------------
-""""""" emmet-vim
-""""""" ----------------------------------------
-
-let g:user_emmet_leader_key='%' " when inserting this 2 times, the pattern emmits
 
 """"""" ----------------------------------------
 """"""" fzf

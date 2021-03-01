@@ -1,3 +1,5 @@
+# seek help: man info apropos whatis tldr
+
 #!/bin/bash
 
 ################ ---------------------
@@ -53,11 +55,17 @@ memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || 
 
 # list all + exclude
 lae() {
-  if [ "$#" -gt 1 ]; then
-    ls -a "$1" | sed -e "/$2/ d" -e '1,2d'
-    return 0
+  if [ "$#" -lt 2 ]; then
+    echo invalid number of arguments >&2
+    return 2
   fi
-  ls -a | sed -e "/$1/ d" -e '1,2d'
+  dir=$1; shift
+  patterns="\\($1\\)"; shift
+  while [ "$#" -gt 0 ]; do
+    patterns+="\\|\\($1\\)"; shift
+  done
+  # list the first arg, and exclude the reset
+  ls -A "$dir" | sed "/$patterns/ d"
 }
 
 wgc() {
@@ -79,4 +87,5 @@ wgcc() {
   # command to watch and compile
   nodemon -w $1.cc -e cc -x "echo \"------ starting ------\" && g++ -c $1.cc && g++ -o $1 $1.o && ./$1 && echo \"------ ending ------\""
 }
-
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

@@ -28,11 +28,13 @@ Plug 'AndrewRadev/splitjoin.vim'
 " Plug 'LaTeX-Box-Team/LaTeX-Box'
 " Plug 'vimwiki/vimwiki'
 
+Plug 'andymass/vim-matchup'
 Plug 'leafgarland/typescript-vim'
 Plug 'dylon/vim-antlr'
 Plug 'PProvost/vim-ps1'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'alunny/pegjs-vim'
+Plug 'digitaltoad/vim-pug'
 
 """ --------------------------
 """ Navigation
@@ -78,12 +80,6 @@ Plug 'Yggdroot/indentLine'
 " Plug 'mhartington/oceanic-next'
 " Plug 'morhetz/gruvbox'
 
-""" --------------------------
-""" For Fun
-""" --------------------------
-
-Plug 'johngrib/vim-game-snake'
-
 call plug#end()
 
 """"""" #######################################################
@@ -92,6 +88,14 @@ call plug#end()
 """"""" -------------------------------------------------------
 """"""" #######################################################
 
+""""""" ----------------------------------------
+""""""" vim-easy-align
+""""""" ----------------------------------------
+
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
 
 """"""" ----------------------------------------
 """"""" ack.vim

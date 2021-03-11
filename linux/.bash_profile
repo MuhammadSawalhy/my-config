@@ -8,9 +8,9 @@
 
 alias r="ranger"
 alias gpo="git push -u origin"
-alias myp="cd ~/Desktop/myp/"
+alias myp="cd ~/myp/"
 alias myc="cd ~/myconfig"
-alias edu="cd ~/Desktop/edu/edu1"
+alias edu="cd ~/edu/edu1"
 alias saveimage="xclip -sel clip -t image/png -o" 
 
 alias antlr4='java -jar /usr/local/lib/antlr-4.9-complete.jar'

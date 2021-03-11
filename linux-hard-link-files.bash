@@ -28,22 +28,22 @@ done
 getrealpatterns() {
   for p in "$@"; do
     local neg= # reset it as it still has the previous value
-    [ $(expr index "$p" '!') == 1 ] && neg=1 # put any value, it doesn't matter
-    test $neg && _p=${p:1} || _p=$p
-    test $neg && _neg='!' || _neg=''
+    [ $(expr index "$p" '!') == 1 ] && _neg='!' || _neg='' # put any value, it doesn't matter
+    test $_neg && _p=${p:1} || _p=$p
     # it may be more than one path
     awk_expr="\"$_neg\"\$i\"\\n\"" # e.g.: "!"$i"\n"
     _p=`eval echo "$_p" | awk "{for (i=1; i<=NF; i++) printf $awk_expr}"`
-    echo "$_p"
+    echo $_p
   done
 }
 
-[ ! $is_dry ] && [ ! $is_reverse ] && rm -rf ./linux/ # not dry && remove dir
+[ ! $is_dry ] && [ ! $is_reverse ] && rm -rf linux/ # not dry && remove dir
 
 NODE_DRY=$(test $is_dry && echo 1)
 NODE_REVERSE=$(test $is_reverse && echo 1)
 
-patterns=`getrealpatterns $(sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt)`
+patterns=$(sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt) # remove void lines and comments
+patterns=`getrealpatterns $patterns` # expand wildcard patterns
 files=(`DRY=$NODE_DRY REVERSE=$NODE_REVERSE node ./linux-linked-files.js $patterns`) # indexed array
 
 for f in "${files[@]}"; do

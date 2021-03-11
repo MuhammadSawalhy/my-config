@@ -18,10 +18,10 @@ Plug 'justinmk/vim-sneak'
 Plug 'lervag/vimtex'
 Plug 'mattn/emmet-vim' " , { 'for': 'html' }
 Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install()}, 'branch': 'release' }
-Plug 'nsf/gocode'
 Plug 'preservim/nerdcommenter'
 Plug 'preservim/tagbar'
 Plug 'AndrewRadev/splitjoin.vim'
+" Plug 'nsf/gocode'
 " Plug 'fatih/vim-go'
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 " Plug 'tpope/vim-fireplace', { 'for': 'clojure' }

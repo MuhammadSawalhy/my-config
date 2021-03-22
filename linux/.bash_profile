@@ -6,6 +6,10 @@
 ### aliases
 ################ ---------------------
 
+alias o=xdg-open
+alias ls=exa
+alias l='exa -la'
+alias ll='exa -l'
 alias r="ranger"
 alias gpo="git push -u origin"
 alias myp="cd ~/myp/"
@@ -65,7 +69,7 @@ lae() {
     patterns+="\\|\\($1\\)"; shift
   done
   # list the first arg, and exclude the reset
-  ls -A "$dir" | sed "/$patterns/ d"
+  ls -A "$dir" | sed "/^$patterns$/ d"
 }
 
 wgc() {
@@ -89,3 +93,5 @@ wgcc() {
 }
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+source /home/ms/.config/broot/launcher/bash/br

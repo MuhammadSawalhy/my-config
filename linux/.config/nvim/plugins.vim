@@ -124,7 +124,7 @@ augroup rainbow_lisp
   autocmd!
   autocmd filetype * :RainbowParentheses!
   autocmd filetype scss,js,css,python,json :RainbowParentheses
-augroup end
+augroup END
 
 """"""" ----------------------------------------
 """"""" NERDtree
@@ -166,9 +166,10 @@ let g:NERDToggleCheckAllLines = 1
 
 let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 " json: conceal ", tex: conceal, e.g., \textbf{}
-augroup indent_line
-  autocmd!
-  au Filetype json,tex set conceallevel=0
+au filetype json,tex :set conceallevel=0
+augroup disable_concealing
+  au!
+  au filetype json,tex :set conceallevel=0
 augroup END
 
 """"""" ----------------------------------------

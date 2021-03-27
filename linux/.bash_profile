@@ -8,14 +8,18 @@
 
 alias o=xdg-open
 alias ls=exa
-alias l='exa -la'
-alias ll='exa -l'
+alias l='exa -la --icons --sort=type'
+alias ll='exa -l --icons --sort=type'
 alias r="ranger"
 alias gpo="git push -u origin"
 alias myp="cd ~/myp/"
 alias myc="cd ~/myconfig"
 alias edu="cd ~/edu/edu1"
 alias saveimage="xclip -sel clip -t image/png -o" 
+
+alias yws="yarn workspace"
+alias ywsf="yarn workspaces foreach"
+alias ywsi="yarn workspaces foreach --include"
 
 alias antlr4='java -jar /usr/local/lib/antlr-4.9-complete.jar'
 alias grun='java org.antlr.v4.gui.TestRig'
@@ -91,7 +95,7 @@ wgcc() {
   # command to watch and compile
   nodemon -w $1.cc -e cc -x "echo \"------ starting ------\" && g++ -c $1.cc && g++ -o $1 $1.o && ./$1 && echo \"------ ending ------\""
 }
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
 
 source /home/ms/.config/broot/launcher/bash/br
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

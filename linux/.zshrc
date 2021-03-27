@@ -117,9 +117,9 @@ source $ZSH/oh-my-zsh.sh
 export PATH=/home/ms/.fnm:$PATH
 eval "`fnm env --multi`"
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 PATH="/home/ms/perl5/bin${PATH:+:${PATH}}"; export PATH;
 PERL5LIB="/home/ms/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
@@ -133,7 +133,7 @@ if [ -f /home/ms/.tnsrc ]; then
     source /home/ms/.tnsrc 
 fi
 ###-tns-completion-end-###
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
 
 source /home/ms/.config/broot/launcher/bash/br
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

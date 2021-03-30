@@ -16,39 +16,40 @@ for o in "$@"; do
   [ "$o" = "--dry" ] && is_dry=1 && continue
   [ "$o" = "-r" ] && is_reverse=1 && continue
   [ "$o" = "--reverse" ] && is_reverse=1 && continue
-  [ "$o" = "-f" ] && is_force=1 && continue
+  [ "$o" = "-f" ] && is_fill=1 && continue
+  [ "$o" = "--fill" ] && is_fill=1 && continue
   [ "$o" = "--force" ] && is_force=1 && continue
   [ $(is_merged_arg $o r d) ] && is_dry=1 && is_reverse=1 && continue
-  [ $(is_merged_arg $o r f) ] && is_force=1 && is_reverse=1 && continue
-  [ $(is_merged_arg $o d f) ] && is_dry=1 && is_force=1 && continue
-  [ $(is_merged_arg $o r d f) ] && is_dry=1 && is_force=1 && is_reverse=1 && continue
+  [ $(is_merged_arg $o r f) ] && is_fill=1 && is_reverse=1 && continue
+  [ $(is_merged_arg $o d f) ] && is_dry=1 && is_fill=1 && continue
+  [ $(is_merged_arg $o r d f) ] && is_dry=1 && is_fill=1 && is_reverse=1 && continue
   echo unknown options \"$o\" >&2; exit 1
 done
 
-getrealpatterns() {
-  for p in "$@"; do
-    local neg= # reset it as it still has the previous value
-    [ $(expr index "$p" '!') == 1 ] && _neg='!' || _neg='' # put any value, it doesn't matter
-    test $_neg && _p=${p:1} || _p=$p
-    # it may be more than one path
-    awk_expr="\"$_neg\"\$i\"\\n\"" # e.g.: "!"$i"\n"
-    _p=`eval echo "$_p" | awk "{for (i=1; i<=NF; i++) printf $awk_expr}"`
-    echo $_p
-  done
-}
+if [ $is_fill ] && [ $is_force ]; then
+  >&2 echo can\'t pass both force and fill options!
+  exit 1
+elif [ ! $is_force ] && [ ! $is_reverse ]; then
+  is_fill=1
+fi
 
-[ ! $is_dry ] && [ ! $is_reverse ] && rm -rf linux/ # not dry && remove dir
+[ $is_reverse ] && \
+patterns=(`find linux -type f | sed 's/^linux\///'`) || \
+patterns=(`sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt`) # remove void lines and comments
 
-NODE_DRY=$(test $is_dry && echo 1)
-NODE_REVERSE=$(test $is_reverse && echo 1)
+# echo ${patterns[@]}; exit
+# echo DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill; exit
 
-patterns=$(sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt) # remove void lines and comments
-patterns=`getrealpatterns $patterns` # expand wildcard patterns
-files=(`DRY=$NODE_DRY REVERSE=$NODE_REVERSE node ./linux-linked-files.js $patterns`) # indexed array
+files=(`DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \
+  node ./linux-linked-files.js "${patterns[@]}"`) # indexed array
+
+# echo ${files[@]}; exit
+
+force_opt=`test $is_force && echo '-f'`
 
 for f in "${files[@]}"; do
   echo "$f"
   [ $is_dry ] && continue
-  [ ! $is_reverse ] && ln "$HOME/$f" "./linux/$f" || ln "./linux/$f" "$HOME/$f"
+  [ ! $is_reverse ] && ln $force_opt "$HOME/$f" "./linux/$f" || ln $force_opt "./linux/$f" "$HOME/$f"
 done
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+start="$1"; shift
+duration="$1"; shift
+
+if [ $# -eq 1 ]; then
+  ffmpeg -i holy-texts.webm -ss $start -t $duration -c copy "$1"
+else
+  ffmpeg -i holy-texts.webm -ss $start -t $duration -c copy - | \
+    ffmpeg -i - -filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed" "$1"
+fi
+

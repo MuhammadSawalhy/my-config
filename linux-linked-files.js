@@ -33,7 +33,8 @@ function isIgnored(p) {
       ignorePattern = resolve(ignorePattern.slice(1));
       p = resolve(p);
       if (ignorePattern === p) return true;
-      if (p.startsWith(ignorePattern)) return true;
+      if (fs.statSync(ignorePattern).isDirectory() &&
+        !path.relative(ignorePattern, p).startsWith("..")) return true;
     }) > -1
   );
 }
@@ -46,7 +47,7 @@ function handleFile(f) {
   let relPath = resolve(f);
   if (!isReverse) {
     relPath = path.relative(process.env.HOME, relPath);
-    if (relPath.startsWith("../"))
+    if (relPath.startsWith(".."))
       throw "patterns should be inside the $HOME directory";
   }
   let linksRootDir = isReverse ? process.env.HOME : "./linux";
@@ -88,12 +89,10 @@ while (patterns.length) {
         .readdirSync(linkingData.path, { withFileTypes: true })
         .map((dirent) => resolve(linkingData.path, dirent.name))
         .filter(filter);
-      debugger
       patterns.push(...content);
     }
   }
 }
 
-debugger
 !isDry && linkDirs.forEach((d) => fs.mkdirSync(d, { recursive: true }));
 console.log(Array.from(relPaths).join("\n"));

@@ -1,6 +1,8 @@
 # files to be hard-linked
 # make sure the correct user is who exec './linux-hard-link.bash'
 
+~/._بسم_الله_الرحمن_الرحيم
+
 ~/bin
 ~/.config/nvim/
 !~/.config/nvim/plugins/

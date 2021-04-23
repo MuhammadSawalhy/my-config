@@ -73,7 +73,7 @@ lae() {
     patterns+="\\|\\($1\\)"; shift
   done
   # list the first arg, and exclude the reset
-  ls -A "$dir" | sed "/^$patterns$/ d"
+  /bin/ls -A "$dir" | sed "/^$patterns$/ d"
 }
 
 wgc() {

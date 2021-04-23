@@ -39,6 +39,8 @@ patterns=(`sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt`) # remove void lines
 
 # echo ${patterns[@]}; exit
 # echo DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill; exit
+# DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \
+#   node inspect ./linux-linked-files.js "${patterns[@]}"; exit
 
 files=(`DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \
   node ./linux-linked-files.js "${patterns[@]}"`) # indexed array
@@ -50,6 +52,8 @@ force_opt=`test $is_force && echo '-f'`
 for f in "${files[@]}"; do
   echo "$f"
   [ $is_dry ] && continue
-  [ ! $is_reverse ] && ln $force_opt "$HOME/$f" "./linux/$f" || ln $force_opt "./linux/$f" "$HOME/$f"
+  [ ! $is_reverse ] && 
+    ln $force_opt "$HOME/$f" "./linux/$f" ||
+    ln $force_opt "./linux/$f" "$HOME/$f"
 done
 

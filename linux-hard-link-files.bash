@@ -1,5 +1,13 @@
 #!/bin/bash
 
+print_help () {
+  echo 'OPTIONS:
+    --force       | all files will be linked forcely "ln -f"
+    --dry, -d     | no real physical changes will happen
+    --fill, -f    | only missing files will be linked (default when HOME -> ./linux)
+    --reverse, -r | files in ./linux will be linked to your $HOME (--fill is not activated)'
+}
+
 # detecting options
 is_merged_arg() {
   arg=${1:1}; shift
@@ -11,6 +19,7 @@ is_merged_arg() {
 }
 
 for o in "$@"; do
+
   [ "$o" = "-d" ] && is_dry=1 && continue
   [ "$o" = "--dry" ] && is_dry=1 && continue
   [ "$o" = "--dry" ] && is_dry=1 && continue
@@ -19,12 +28,27 @@ for o in "$@"; do
   [ "$o" = "-f" ] && is_fill=1 && continue
   [ "$o" = "--fill" ] && is_fill=1 && continue
   [ "$o" = "--force" ] && is_force=1 && continue
+
   [ $(is_merged_arg $o r d) ] && is_dry=1 && is_reverse=1 && continue
   [ $(is_merged_arg $o r f) ] && is_fill=1 && is_reverse=1 && continue
   [ $(is_merged_arg $o d f) ] && is_dry=1 && is_fill=1 && continue
   [ $(is_merged_arg $o r d f) ] && is_dry=1 && is_fill=1 && is_reverse=1 && continue
+
+  [ "$o" = "-h" ] && is_help=1 && continue
+  [ "$o" = "--help" ] && is_help=1 && continue
+  [ $(is_merged_arg $o r h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o f h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o d h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o r d h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o r f h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o d f h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o r d f h) ] && is_help=1 && continue
+
   echo unknown options \"$o\" >&2; exit 1
+
 done
+
+((is_help)) && print_help && exit
 
 if [ $is_fill ] && [ $is_force ]; then
   >&2 echo can\'t pass both force and fill options!

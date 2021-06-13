@@ -44,8 +44,9 @@ function filter(p) {
 }
 
 function handleFile(f) {
-  let relPath = resolve(f);
+  let relPath = f;
   if (!isReverse) {
+    relPath = resolve(f); // it stats with ~, resolve it to get the full path
     relPath = path.relative(process.env.HOME, relPath);
     if (relPath.startsWith(".."))
       throw "patterns should be inside the $HOME directory";
@@ -81,7 +82,7 @@ while (patterns.length) {
       }
       relPaths.add(linkingData.relPath);
       linkDirs.add(linkingData.linkDir);
-    } 
+    }
 
     // it is directory
     else {
@@ -89,7 +90,7 @@ while (patterns.length) {
         .readdirSync(linkingData.path, { withFileTypes: true })
         .map((dirent) => resolve(linkingData.path, dirent.name))
         .filter(filter);
-      patterns.push(...content);
+      patterns.unshift(...content); // put the at the beginning of our patterns, FIFO
     }
   }
 }

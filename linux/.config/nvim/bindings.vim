@@ -15,14 +15,14 @@ map <tab><tab> :tabnew<Space>
 
 """ windows --------------------------
 " move
-map <A-Up>    <C-w>k
-map <A-k>     <C-w>k
-map <A-Down>  <C-w>j
-map <A-j>     <C-w>j
-map <A-Right> <C-w>l
-map <A-l>     <C-w>l
-map <A-Left>  <C-w>h
-map <A-h>     <C-w>h
+map <C-Up>    <C-w>k
+map <C-k>     <C-w>k
+map <C-Down>  <C-w>j
+map <C-j>     <C-w>j
+map <C-Right> <C-w>l
+map <C-l>     <C-w>l
+map <C-Left>  <C-w>h
+map <C-h>     <C-w>h
 " resize
 map <C-A-Up> <C-w>-
 map <C-A-k> <C-w>-

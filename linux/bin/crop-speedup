@@ -1,12 +1,39 @@
 #!/usr/bin/env bash
 
+[ ! $# -eq 5 ] && >&2 echo error: invalid number of arguments && exit 2
+
+input="$1"; shift
 start="$1"; shift
 duration="$1"; shift
+speed="$1"; shift
+output="$1"; shift
 
-if [ $# -eq 1 ]; then
-  ffmpeg -i holy-texts.webm -ss $start -t $duration -c copy "$1"
-else
-  ffmpeg -i holy-texts.webm -ss $start -t $duration -c copy - | \
-    ffmpeg -i - -filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed" "$1"
+ext() {
+  basename=$(basename "$1")
+  echo "${basename##*.}"
+}
+
+input_ext=`ext "$input"`
+output_ext=`ext "$output"`
+
+[ ! "$input_ext" = "$output_ext" ] && \
+  >&2 echo error: input\'s ext doesn\'t match output\'s ext && exit 2
+
+tmp_file="/tmp/asd_$RANDOM.$input_ext"
+
+echo ✂️  ... cut part of the video from $start with length $duration
+echo --------------------------------------------------------------
+echo
+
+ffmpeg -i "$input" -ss $start -t $duration -c:a copy "$tmp_file"
+
+if [ $? -eq 0 ]; then
+  echo ⏩️ ... speedup the cut video x$speed
+  echo --------------------------------------------------------------
+  echo
+  ffmpeg -i "$tmp_file" -filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed" "$output"
 fi
+
+# remove the temp file
+[ -f "$tmp_file" ] && rm -f "$tmp_file"
 

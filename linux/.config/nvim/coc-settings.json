@@ -1,20 +1,31 @@
 {
+  "eslint.options": {
+    "envs": ["node", "browser", "es2021"]
+  },
   "flow.enable": false,
-  "python.formatting.autopep8Path": "/home/ms/.local/lib/python3.6/site-packages",
   "languageserver": {
     "ccls": {
       "command": "ccls",
-      "filetypes": ["c", "cpp", "cuda", "objc", "objcpp"],
-      "rootPatterns": [".ccls-root", "compile_commands.json"],
+      "filetypes": ["c", "cpp", "objc", "objcpp"],
+      "rootPatterns": [
+        ".ccls",
+        "compile_commands.json",
+        ".vim/",
+        ".git/",
+        ".hg/"
+      ],
       "initializationOptions": {
-        "cache": {
-          "directory": ".ccls-cache"
+        // ...
+        // This will re-index the file on buffer change which is definitely a performance hit. See if it works for you
+        "index": {
+          "onChange": true
         },
-        "client": {
-          "snippetSupport": true
+        // This is mandatory!
+        "highlight": { "lsRanges": true },
+        "cache": {
+          "directory": "/tmp/ccls"
         }
       }
     }
   }
 }
-

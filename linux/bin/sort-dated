@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+num=1
+SAVEIFS=$IFS
+IFS=$'\n'
+
+for i in `ls --sort=date`; do
+  mv "$i" "$((num++)) - $i"
+done
+
+IFS=$SAVEIFS
+

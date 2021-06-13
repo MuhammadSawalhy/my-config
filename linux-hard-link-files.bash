@@ -37,7 +37,7 @@ fi
 patterns=(`find linux -type f | sed 's/^linux\///'`) || \
 patterns=(`sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt`) # remove void lines and comments
 
-# echo ${patterns[@]}; exit
+echo "${patterns[@]}"; exit
 # echo DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill; exit
 
 files=(`DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \

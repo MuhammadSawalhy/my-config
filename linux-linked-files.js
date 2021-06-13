@@ -12,13 +12,13 @@
 const fs = require("fs");
 const path = require("path");
 
-let patterns = process.argv.slice(2);
-let relPaths = new Set();
-let linkDirs = new Set();
-let isDry = process.env.DRY === "1";
-let isForce = process.env.FORCE === "1";
+let patterns  = process.argv.slice(2);
+let relPaths  = new Set();
+let linkDirs  = new Set();
+let isDry     = process.env.DRY     === "1";
+let isForce   = process.env.FORCE   === "1";
 let isReverse = process.env.REVERSE === "1";
-let isFill = process.env.FILL === "1";
+let isFill    = process.env.FILL    === "1";
 
 function resolve(...p) {
   let homeRootPath = p.find(_=>_.startsWith('~'));

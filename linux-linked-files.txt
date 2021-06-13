@@ -5,7 +5,9 @@
 ~/.config/nvim/
 !~/.config/nvim/plugins/
 
-~/.config/ranger/rc.conf
+~/.config/ranger/
+!~/.config/ranger/plugins
+!~/.config/ranger/history
 
 ~/.tmux.conf
 ~/.zshrc

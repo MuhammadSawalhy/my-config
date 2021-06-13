@@ -1,16 +1,13 @@
 let g:plug_home = '~/.config/nvim/plugins'
 
 """"""" #######################################################
-""""""" -------------------------------------------------------
 """""""             Plugins Installation
-""""""" -------------------------------------------------------
 """"""" #######################################################
 
 call plug#begin(plug_home)
 
-""" --------------------------
 """ For Editing
-""" --------------------------
+""" --------------------------------------------------------------
 
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
@@ -18,9 +15,15 @@ Plug 'justinmk/vim-sneak'
 Plug 'lervag/vimtex'
 Plug 'mattn/emmet-vim' " , { 'for': 'html' }
 Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install()}, 'branch': 'release' }
+Plug 'vim-syntastic/syntastic'
 Plug 'preservim/nerdcommenter'
 Plug 'preservim/tagbar'
 Plug 'AndrewRadev/splitjoin.vim'
+Plug 'jackguo380/vim-lsp-cxx-highlight'
+Plug 'rhysd/vim-clang-format'
+Plug 'folke/todo-comments.nvim'
+Plug 'fcpg/vim-complimentary'
+
 " Plug 'nsf/gocode'
 " Plug 'fatih/vim-go'
 " Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
@@ -35,33 +38,45 @@ Plug 'PProvost/vim-ps1'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'alunny/pegjs-vim'
 Plug 'digitaltoad/vim-pug'
+Plug 'dkarter/bullets.vim'
 
-""" --------------------------
+Plug 'sudormrfbin/cheatsheet.nvim'
+Plug 'nvim-lua/popup.nvim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim'
+
+Plug 'Galooshi/vim-import-js'
+Plug 'heavenshell/vim-jsdoc', { 
+  \ 'for': ['javascript', 'javascript.jsx', 'typescript'],
+  \ 'do': 'make install'
+\}
+
+
 """ Navigation
-""" --------------------------
+""" --------------------------------------------------------------
 
 Plug 'airblade/vim-rooter'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-Plug 'kevinhwang91/rnvimr', {'do': 'make sync'}
 Plug 'mileszs/ack.vim'
 Plug 'preservim/nerdtree'
-Plug 'voldikss/vim-floaterm'
+
+" Plug 'kevinhwang91/rnvimr', {'do': 'make sync'}
+" Plug 'voldikss/vim-floaterm'
 " Plug 'ryanoasis/vim-devicons'
 
-""" --------------------------
 """ for git, diff display, show changes, etc... + other utlities
-""" --------------------------
+""" --------------------------------------------------------------
 
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'junegunn/gv.vim'
+Plug 'sindrets/diffview.nvim'
 " Plug 'junegunn/vim-github-dashboard'
 
-""" --------------------------
 """ GUI And Themes
-""" --------------------------
+""" --------------------------------------------------------------
 
 Plug 'junegunn/rainbow_parentheses.vim'
 Plug 'mhinz/vim-startify' " for the welcom pages, after startup nvim
@@ -69,8 +84,10 @@ Plug 'norcalli/nvim-colorizer.lua'
 Plug 'rafi/awesome-vim-colorschemes'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
-Plug 'Lokaltog/vim-monotone'
-Plug 'Yggdroot/indentLine'
+Plug 'shaunsingh/moonlight.nvim'
+" Plug 'Lokaltog/vim-monotone'
+" Plug 'Yggdroot/indentLine'
+
 " Plug 'nathanaelkane/vim-indent-guides'
 " Plug 'machakann/vim-highlightedyank'
 " Plug 'romainl/vim-cool'
@@ -83,12 +100,27 @@ Plug 'Yggdroot/indentLine'
 call plug#end()
 
 """"""" #######################################################
-""""""" -------------------------------------------------------
 """""""          plugins simple configurations
-""""""" -------------------------------------------------------
 """"""" #######################################################
 
-""""""" ----------------------------------------
+"""""" jackguo380/vim-lsp-cxx-highlight
+"""""" ----------------------------------------
+
+" c++ syntax highlighting
+let g:cpp_class_scope_highlight = 1
+let g:cpp_member_variable_highlight = 1
+let g:cpp_class_decl_highlight = 1
+
+"""""" vim-syntastic/syntastic
+"""""" ----------------------------------------
+
+let g:syntastic_cpp_checkers = ['cpplint']
+let g:syntastic_c_checkers = ['cpplint']
+let g:syntastic_cpp_cpplint_exec = 'cpplint'
+" The following two lines are optional. Configure it to your liking!
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
 """"""" vim-easy-align
 """"""" ----------------------------------------
 
@@ -97,20 +129,17 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-""""""" ----------------------------------------
 """"""" ack.vim
 """"""" ----------------------------------------
 
 let g:ackprg = 'ag --vimgrep'
 
-""""""" ----------------------------------------
 """"""" airline - status bar
 """"""" ----------------------------------------
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_theme='ayu_mirage'
 
-""""""" ----------------------------------------
 """"""" rainbow-colorizer
 """"""" ----------------------------------------
 
@@ -126,7 +155,6 @@ augroup rainbow_lisp
   autocmd filetype scss,js,css,python,json :RainbowParentheses
 augroup END
 
-""""""" ----------------------------------------
 """"""" NERDtree
 """"""" ----------------------------------------
 
@@ -139,14 +167,12 @@ let NERDTreeIgnore = ['\~$', '^\.git$', '\.lock$', '\.pyc']
 " let g:webdevicons_conceal_nerdtree_brackets = 0
 " let g:webdevicons_enable_nerdtree = 0
 
-""""""" ----------------------------------------
 """"""" ranger for vim
 """"""" ----------------------------------------
 
 " let g:rnvimr_ex_enable = 1 " Make Ranger replace netrw and be the file explorer
 let g:rnvimr_ranger_cmd = 'ranger --cmd="set draw_borders both"' " Draw border with both
 
-""""""" ----------------------------------------
 """"""" NERDCommenter
 """"""" ----------------------------------------
 
@@ -154,33 +180,20 @@ let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
 let g:NERDToggleCheckAllLines = 1
 
-""""""" ----------------------------------------
 """"""" vimwiki
 """"""" ----------------------------------------
 
 " let g:vimwiki_list = [{ 'syntax': 'markdown', 'ext': '.md' }]
 
-""""""" ----------------------------------------
 """"""" indentLine
 """"""" ----------------------------------------
 
 let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 " json: conceal ", tex: conceal, e.g., \textbf{}
-au filetype json,tex :set conceallevel=0
 augroup disable_concealing
-  au!
-  au filetype json,tex :set conceallevel=0
+  au! BufRead,BufNewFile *.json,*.tex :set conceallevel=0
 augroup END
 
-""""""" ----------------------------------------
-""""""" nathanaelkane/vim-indent-guides
-""""""" ----------------------------------------
-
-" let g:indent_guides_enable_on_vim_startup = 1
-" let g:indent_guides_start_level = 2
-" let g:indent_guides_guide_size = 1
-
-""""""" ----------------------------------------
 """"""" fzf
 """"""" ----------------------------------------
 
@@ -195,7 +208,6 @@ let g:fzf_action = {
 " let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
 
 
-""""""" ----------------------------------------
 """"""" dylon/vim-antlr
 """"""" ----------------------------------------
 

@@ -61,7 +61,7 @@ fi
 patterns=(`find linux -type f | sed 's/^linux\///'`) || \
 patterns=(`sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt`) # remove void lines and comments
 
-echo "${patterns[@]}"; exit
+# echo "${patterns[@]}"; exit
 # echo DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill; exit
 # DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \
 #   node inspect ./linux-linked-files.js "${patterns[@]}"; exit
@@ -70,6 +70,8 @@ files=(`DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \
   node ./linux-linked-files.js "${patterns[@]}"`) # indexed array
 
 # echo ${files[@]}; exit
+
+(($?)) && exit 1 # exit when an error detected
 
 force_opt=`test $is_force && echo '-f'`
 

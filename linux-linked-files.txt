@@ -15,6 +15,7 @@
 ~/.zshrc
 ~/.bash_profile
 ~/.profile
+~/.my.bash
 
 # it include auth token
 # ~/.npmrc

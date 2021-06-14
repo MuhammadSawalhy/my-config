@@ -29,10 +29,12 @@ function resolve(...p) {
 function isIgnored(p) {
   return (
     patterns.findIndex(function (ignorePattern) {
-      if (ignorePattern[0] !== "!") return false;
-      ignorePattern = resolve(ignorePattern.slice(1));
+      if (ignorePattern[0] !== "!") return false; // it is a pattern to include files
+      ignorePattern = resolve(ignorePattern.slice(1)); // get rid of "!"
       p = resolve(p);
-      if (ignorePattern === p) return true;
+      if (ignorePattern === p) return true; // exact match
+      // ignore sub files and directories if the ignore pattern is a directory
+      if (!fs.existsSync(ignorePattern)) return false;
       if (fs.statSync(ignorePattern).isDirectory() &&
         !path.relative(ignorePattern, p).startsWith("..")) return true;
     }) > -1

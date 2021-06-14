@@ -9,7 +9,6 @@
 ~/.zshrc
 ~/.bash_profile
 ~/.profile
-~/.my.bash
 ~/.gitconfig
 
 # it include auth token

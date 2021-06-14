@@ -8,12 +8,14 @@ export ZSH="/home/ms/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="evan"
+ZSH_THEME="arrow"
+ZSH_THEME="eastwood"
+ZSH_THEME="flazz"
+ZSH_THEME="fishy"
 
-fpath+=$HOME/.zsh/pure
-
-autoload -U promptinit; promptinit
-prompt pure
+# fpath+=$HOME/.zsh/pure
+# autoload -U promptinit; promptinit
+# prompt pure
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -103,11 +105,13 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+export GPG_TTY=$(tty)
+
 ##############---------------------------------
 ## import other script files
 ##############---------------------------------
 
-[ -f ~/.my.bash ] && . ~/.my.bash
+[ -f ~/.bash_profile ] && . ~/.bash_profile
 [ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
 
 PATH="/home/ms/perl5/bin${PATH:+:${PATH}}"; export PATH;
@@ -116,6 +120,6 @@ PERL_LOCAL_LIB_ROOT="/home/ms/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT
 PERL_MB_OPT="--install_base \"/home/ms/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/ms/perl5"; export PERL_MM_OPT;
 
-source /home/ms/.config/broot/launcher/bash/br
 export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$HOME/.cargo/bin:$PATH"
+export PATH="$VOLTA_HOME/bin:$PATH"
+

@@ -5,10 +5,10 @@
 """"""" -------------------------------------------------------
 
 source ~/.config/nvim/plugins.vim
-source ~/.config/nvim/plugin-configs/coc.vim
-source ~/.config/nvim/plugin-configs/ccls.vim
-source ~/.config/nvim/plugin-configs/sneak.vim
-source ~/.config/nvim/plugin-configs/signify.vim
+" source ~/.config/nvim/plugin-configs/coc.vim
+" source ~/.config/nvim/plugin-configs/ccls.vim
+" source ~/.config/nvim/plugin-configs/sneak.vim
+" source ~/.config/nvim/plugin-configs/signify.vim
 
 """"""" -------------------------------------------------------
 """ importing vim files for arrangment purpose

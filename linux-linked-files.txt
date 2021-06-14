@@ -4,19 +4,20 @@
 ~/._بسم_الله_الرحمن_الرحيم
 
 ~/bin
-~/.config/nvim/
-!~/.config/nvim/plugins/
-
-~/.config/ranger/
-!~/.config/ranger/plugins
-!~/.config/ranger/history
 
 ~/.tmux.conf
 ~/.zshrc
 ~/.bash_profile
 ~/.profile
 ~/.my.bash
+~/.gitconfig
 
 # it include auth token
 # ~/.npmrc
+
+~/.config/nvim/
+!~/.config/nvim/plugins/
+~/.config/ranger/
+!~/.config/ranger/plugins
+!~/.config/ranger/history
 

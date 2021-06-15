@@ -123,3 +123,5 @@ PERL_MM_OPT="INSTALL_BASE=/home/ms/perl5"; export PERL_MM_OPT;
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
 
+. "$HOME/.cargo/env"
+

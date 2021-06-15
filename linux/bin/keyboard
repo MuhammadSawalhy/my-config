@@ -9,8 +9,7 @@ get_kbdlayout() {
 }
 
 set_kbdlayout() {
-  eval "array=($1)"
-  setxkbmap "${array[@]}"
+  setxkbmap "$1"
   # pgrep i3status | xargs --no-run-if-empty kill -s USR1 # tell i3status to update
 }
 
@@ -21,6 +20,7 @@ cycle() {
   while [ "${layouts[$index]}" != "$current_layout" ] && [ $index -lt "${#layouts[@]}" ]; do index=$[index +1]; done
   next_index=$[index +1]
   next_layout=${layouts[$next_index]}
+  # echo $next_index : $next_layout : $current_layout : "${layouts[@]}"; exit
   set_kbdlayout "$next_layout"
 }
 
@@ -34,7 +34,7 @@ i3status() {
 }
 
 subcommand="$1"
-shift || (echo "Please specify one of: get, set <layout>, cycle <layout1> <layout2> ... <layoutN>, i3status" && exit 2)
+shift || { echo "Please specify one of: get, set <layout>, cycle <layout1> <layout2> ... <layoutN>, i3status" && exit 2; }
 
 case $subcommand in
   "get")

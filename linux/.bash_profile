@@ -20,6 +20,7 @@ alias ydl480='youtube-dl -c -f 248+251'
 alias ydl720='youtube-dl -c -f 271+251'
 alias pasteimage="xclip -sel clip -t image/png -o" 
 alias copyimage="xclip -sel clip -t image/png" 
+alias imgprimtoclip="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
 
 alias myp="cd ~/myp/"
 alias myc="cd ~/myconfig"

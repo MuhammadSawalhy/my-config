@@ -1,23 +1,21 @@
-
-
-""""""" -------------------------------------------------------
+""" -------------------------------------------------------
 """ plugins configuration files
-""""""" -------------------------------------------------------
+""" -------------------------------------------------------
 
 source ~/.config/nvim/plugins.vim
-" source ~/.config/nvim/plugin-configs/coc.vim
-" source ~/.config/nvim/plugin-configs/ccls.vim
-" source ~/.config/nvim/plugin-configs/sneak.vim
-" source ~/.config/nvim/plugin-configs/signify.vim
+source ~/.config/nvim/plugin-configs/coc.vim
+source ~/.config/nvim/plugin-configs/ccls.vim
+source ~/.config/nvim/plugin-configs/sneak.vim
+source ~/.config/nvim/plugin-configs/signify.vim
 
-""""""" -------------------------------------------------------
+""" -------------------------------------------------------
 """ importing vim files for arrangment purpose
-""""""" -------------------------------------------------------
+""" -------------------------------------------------------
 
 source ~/.config/nvim/bindings.vim
 
 """ -------------------------------------------------------
-""" My own config - built in vim configs
+""" My own plugins
 """ -------------------------------------------------------
 
 source ~/.config/nvim/buf-only.vim
@@ -28,7 +26,8 @@ source ~/.config/nvim/buf-only.vim
 
 set termguicolors
 syntax enable
-colo one
+" colo lucid
+colo yellow-moon
 set cursorline
 set nohlsearch
 
@@ -76,3 +75,4 @@ noremap <leader>p :call Preview()<CR><CR><CR>
 
 " map \ + q to compile
 noremap <leader>q :call Compile()<CR><CR>
+

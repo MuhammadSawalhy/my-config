@@ -12,17 +12,18 @@
 const fs = require("fs");
 const path = require("path");
 
-let patterns  = process.argv.slice(2);
-let relPaths  = new Set();
-let linkDirs  = new Set();
-let isDry     = process.env.DRY     === "1";
-let isForce   = process.env.FORCE   === "1";
+let patterns = process.argv.slice(2);
+let relPaths = new Set();
+let linkDirs = new Set();
+let isDry = process.env.DRY === "1";
+let isForce = process.env.FORCE === "1";
 let isReverse = process.env.REVERSE === "1";
-let isFill    = process.env.FILL    === "1";
+let isFill = process.env.FILL === "1";
 
 function resolve(...p) {
-  let homeRootPath = p.find(_=>_.startsWith('~'));
-  if (homeRootPath) return path.resolve(process.env.HOME, homeRootPath.slice(2));
+  let homeRootPath = p.find((_) => _.startsWith("~"));
+  if (homeRootPath)
+    return path.resolve(process.env.HOME, homeRootPath.slice(2));
   return path.resolve(...p);
 }
 
@@ -35,8 +36,11 @@ function isIgnored(p) {
       if (ignorePattern === p) return true; // exact match
       // ignore sub files and directories if the ignore pattern is a directory
       if (!fs.existsSync(ignorePattern)) return false;
-      if (fs.statSync(ignorePattern).isDirectory() &&
-        !path.relative(ignorePattern, p).startsWith("..")) return true;
+      if (
+        fs.statSync(ignorePattern).isDirectory() &&
+        !path.relative(ignorePattern, p).startsWith("..")
+      )
+        return true;
     }) > -1
   );
 }
@@ -60,7 +64,7 @@ function handleFile(f) {
     dir: resolve(srcRootDir, path.dirname(relPath)),
     linkDir: resolve(linksRootDir, path.dirname(relPath)),
     link: resolve(linksRootDir, relPath),
-    relPath
+    relPath,
   };
 }
 
@@ -68,7 +72,7 @@ while (patterns.length) {
   let p = patterns.shift();
   if (filter(p)) {
     let linkingData = handleFile(p);
-    if(!fs.existsSync(linkingData.path)) {
+    if (!fs.existsSync(linkingData.path)) {
       console.error("source path doesn't exist: " + linkingData.path);
       process.exit(1);
     }
@@ -78,7 +82,9 @@ while (patterns.length) {
       if (fs.existsSync(linkingData.link)) {
         if (isFill) continue; // skip this file as it exists
         if (!isForce) {
-          console.error("targetted link will overwrite exsiting file: " + linkingData.link);
+          console.error(
+            "targetted link will overwrite exsiting file: " + linkingData.link
+          );
           process.exit(1);
         }
       }
@@ -98,4 +104,6 @@ while (patterns.length) {
 }
 
 !isDry && linkDirs.forEach((d) => fs.mkdirSync(d, { recursive: true }));
-console.log(Array.from(relPaths).join("\n"));
+relPaths.forEach((f) => console.log(f));
+// console.log(Array.from(relPaths).join("\n"));
+

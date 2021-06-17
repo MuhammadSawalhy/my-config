@@ -23,4 +23,5 @@
 ~/.config/ranger/
 !~/.config/ranger/plugins
 !~/.config/ranger/history
+~/.config/mpv
 

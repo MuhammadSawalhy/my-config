@@ -4,24 +4,30 @@ set -e
 
 get_kbdlayout() {
   layout=$(setxkbmap -query | grep -oP 'layout:\s*\K([\w,]+)')
-  variant=$(setxkbmap -query | grep -oP 'variant:\s*\K(\w+)')
-  echo "$layout" "$variant"
+  echo "$layout"
 }
 
 set_kbdlayout() {
+  echo setting keymap: $1 '\a'
   setxkbmap "$1"
   # pgrep i3status | xargs --no-run-if-empty kill -s USR1 # tell i3status to update
 }
 
 cycle() {
-  current_layout=$(get_kbdlayout | xargs)
-  layouts=("$@" "$1") # add the first one at the end so that it cycles
-  index=0
-  while [ "${layouts[$index]}" != "$current_layout" ] && [ $index -lt "${#layouts[@]}" ]; do index=$[index +1]; done
-  next_index=$[index +1]
-  next_layout=${layouts[$next_index]}
-  # echo $next_index : $next_layout : $current_layout : "${layouts[@]}"; exit
-  set_kbdlayout "$next_layout"
+  current_layout=$(get_kbdlayout)
+  current_layout_first=${current_layout%%,*}
+  if (($#)); then 
+    layouts=("$@" "$1") # add the first one at the end so that it cycles
+    index=0
+    while [ "${layouts[$index]}" != "$current_layout" ] && [ $index -lt "${#layouts[@]}" ]; do index=$[index +1]; done
+    next_index=$[index +1]
+    next_layout=${layouts[$next_index]}
+    set_kbdlayout "$next_layout"
+  else
+    # cycle the configured keymaps, e.g., us,ara,fr -> fr,us,ara -> ara,fr,us
+    next_layout="${current_layout#*,},$current_layout_first"
+    set_kbdlayout "$next_layout"
+  fi
 }
 
 i3status() {

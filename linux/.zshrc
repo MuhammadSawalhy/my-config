@@ -125,3 +125,8 @@ export PATH="$VOLTA_HOME/bin:$PATH"
 
 . "$HOME/.cargo/env"
 
+source /home/ms/.config/broot/launcher/bash/br
+
+export MANPATH="$(manpath -g):/opt/texlive/2021/texmf-dist/doc/man"
+export INFOPATH="$INFOPATH:/opt/texlive/2021/texmf-dist/doc/info"
+export PATH="$PATH:/opt/texlive/2021/bin/x86_64-linux"

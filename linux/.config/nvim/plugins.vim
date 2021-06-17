@@ -15,7 +15,7 @@ Plug 'justinmk/vim-sneak'
 Plug 'lervag/vimtex'
 Plug 'mattn/emmet-vim' " , { 'for': 'html' }
 Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install()}, 'branch': 'release' }
-Plug 'vim-syntastic/syntastic'
+" Plug 'vim-syntastic/syntastic'
 Plug 'preservim/nerdcommenter'
 Plug 'preservim/tagbar'
 Plug 'AndrewRadev/splitjoin.vim'

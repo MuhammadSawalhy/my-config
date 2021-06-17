@@ -5,14 +5,18 @@
 
 ~/bin
 
-~/.tmux.conf
 ~/.zshrc
 ~/.bash_profile
+~/.bashrc
 ~/.profile
 ~/.gitconfig
+~/.tmux.conf
 
 # it include auth token
 # ~/.npmrc
+
+~/.mlterm
+!~/.mlterm/Mlterm-Color-Schames
 
 ~/.config/nvim/
 !~/.config/nvim/plugins/

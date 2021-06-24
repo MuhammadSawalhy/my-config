@@ -24,4 +24,4 @@
 !~/.config/ranger/plugins
 !~/.config/ranger/history
 ~/.config/mpv
-
+~/.config/Typora/themes

@@ -27,7 +27,8 @@ source ~/.config/nvim/buf-only.vim
 set termguicolors
 syntax enable
 " colo lucid
-colo yellow-moon
+" colo yellow-moon
+colo alduin
 set cursorline
 set nohlsearch
 

@@ -18,7 +18,7 @@
 	email = ms.2052001@gmail.com
 	name = Mohammed Samir
 	username = ms2052001
-	signingkey = 8BAEF1208F8FEDFF377D22F72BCC8456CA36B4BE
+	signingKey = 8A1FDFB97C63E41DA58FAE3593F3C52B7DC6E418
 
 [commit]
 	gpgsign = true

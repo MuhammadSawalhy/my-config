@@ -4,8 +4,8 @@ print_help () {
   echo '  USAGE:
     crop-speedup -i <input-video> [...options] <output-video>
   OPTIONS:
-    --help, -h      | should this help message
-    --input, -i     | input video, hsould have the save extension as <output>
+    --help, -h      | show this help message
+    --input, -i     | input video, should have the same extension as <output>
     --start, -s     | start point (leave empty if you want speedup only)
     --duration, -d  | duration, length, of the cropped part (ignored if --start not found)
     --speed         | speed of the output video (multiplier, e.g., 1.75)'

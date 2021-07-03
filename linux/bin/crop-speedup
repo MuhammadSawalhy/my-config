@@ -1,12 +1,40 @@
 #!/usr/bin/env bash
 
-[ ! $# -eq 5 ] && >&2 echo error: invalid number of arguments && exit 2
+print_help () {
+  echo '  USAGE:
+    crop-speedup -i <input-video> [...options] <output-video>
+  OPTIONS:
+    --help, -h      | should this help message
+    --input, -i     | input video, hsould have the save extension as <output>
+    --start, -s     | start point (leave empty if you want speedup only)
+    --duration, -d  | duration, length, of the cropped part (ignored if --start not found)
+    --speed         | speed of the output video (multiplier, e.g., 1.75)'
+}
 
-input="$1"; shift
-start="$1"; shift
-duration="$1"; shift
-speed="$1"; shift
-output="$1"; shift
+while (($#)); do
+  arg=$1; shift
+  [ "$arg" = "--input" ] && input=$1 && shift && continue
+  [ "$arg" = "-i" ] && input=$1 && shift && continue
+  [ "$arg" = "--start" ] && start_point=$1 && shift && continue
+  [ "$arg" = "-s" ] && start_point=$1 && shift && continue
+  [ "$arg" = "--duration" ] && duration=$1 && shift && continue
+  [ "$arg" = "-d" ] && duration=$1 && shift && continue
+  [ "$arg" = "--speed" ] && speed=$1 && shift && continue
+  [ "$arg" = "-h" ] && is_help=1 && continue
+  [ "$arg" = "--help" ] && is_help=1 && continue
+  output=$arg
+  (($#)) && >&2 echo error: invalid number of arguments && exit 2
+done
+
+((is_help)) && print_help && exit 0
+[ ! "$input" ] && echo error: input file is required && exit 2
+[ ! "$output" ] && echo error: output file is required && exit 2
+
+[ ! "$duration" ] && [ "$start" ] && \
+  >&2 echo error: duration must be specified if start is passed && exit 2
+
+[ "$input" = "$output" ] && \
+  >&2 echo error: input should differ from output && exit 2
 
 ext() {
   basename=$(basename "$1")
@@ -19,19 +47,38 @@ output_ext=`ext "$output"`
 [ ! "$input_ext" = "$output_ext" ] && \
   >&2 echo error: input\'s ext doesn\'t match output\'s ext && exit 2
 
-tmp_file="/tmp/asd_$RANDOM.$input_ext"
+crop() {
+  echo ✂️  ... cut part of the video from $start with length $duration
+  echo --------------------------------------------------------------
+  command="ffmpeg -i \"$1\" -ss $2 -t $3 -c:a copy \"$4\""
+  echo $command
+  read -p "continue ? (Y/n): " ans
+  ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
+  [ ! "$ans" = "n" ] && eval $command
+  (($?)) && exit $?
+}
 
-echo ✂️  ... cut part of the video from $start with length $duration
-echo --------------------------------------------------------------
-echo
-
-ffmpeg -i "$input" -ss $start -t $duration -c:a copy "$tmp_file"
-
-if [ $? -eq 0 ]; then
+speedup() {
+  echo
   echo ⏩️ ... speedup the cut video x$speed
   echo --------------------------------------------------------------
-  echo
-  ffmpeg -i "$tmp_file" -filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed" "$output"
+  command="ffmpeg -i \"$1\" -filter:v \"setpts=PTS/$2\" -filter:a \"atempo=$2\" \"$3\""
+  echo $command
+  read -p "continue ? (Y/n): " ans
+  ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
+  [ ! "$ans" = "n" ] && eval $command
+  (($?)) && exit $?
+}
+
+tmp_file="/tmp/asd_$RANDOM.$input_ext"
+
+if [ "$start" ] && [ "$speed" ]; then
+  crop "$input" "$start" "$duration" "$tmp_file"
+  speedup "$tem_file" "$speed" "$output"
+elif [ "$start" ]; then
+  crop "$input" "$start" "$duration" "$output"
+elif [ "$speed" ]; then
+  speedup "$input" "$speed" "$output"
 fi
 
 # remove the temp file

@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+convert_char() {
+  local chr=$1; local archr
+  case $chr in
+    0) archr="٠";;
+    1) archr="١";;
+    2) archr="٢";;
+    3) archr="٣";;
+    4) archr="٤";;
+    5) archr="٥";;
+    6) archr="٦";;
+    7) archr="٧";;
+    8) archr="٨";;
+    9) archr="٩";;
+    *) archr=$chr;;
+  esac
+  echo $archr
+}
+
+num="$([ $# -eq 1 ] && echo $1 || echo $2)"
+arnum=""
+len=${#num}
+
+for i in `seq $len`; do
+  chr=${num:i-1:1} # i is 1-based index
+  archr="$(convert_char $chr)"
+  arnum="${arnum}$archr" 
+done
+
+if [ $# -eq 1 ]; then
+  xdotool type "$arnum"
+  exit 0
+fi
+
+## decide which cli command to use
+
+case "$1" in
+  echo) cmd="echo -n";;
+  # default value
+  type) cmd="xdotool type";;
+  *)
+    >&2 echo error: invalid command \"$1\" && exit 1
+esac
+
+$cmd "$arnum"
+

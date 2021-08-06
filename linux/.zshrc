@@ -105,7 +105,20 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+##############---------------------------------
+## my own config
+##############---------------------------------
+
 export GPG_TTY=$(tty)
+
+# tmux auto session and restore
+SESSIONNAME="auto-session"
+tmux has-session -t $SESSIONNAME &> /dev/null
+if [ $? != 0 ]; then
+    tmux new-session -s $SESSIONNAME -n script -d
+    tmux send-keys -t $SESSIONNAME "~/bin/script" C-m 
+fi
+tmux attach -t $SESSIONNAME
 
 ##############---------------------------------
 ## import other script files

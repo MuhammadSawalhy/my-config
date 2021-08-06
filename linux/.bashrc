@@ -11,6 +11,15 @@ alias ls='ls --color=auto'
 
 export GPG_TTY=$(tty)
 
+# tmux auto session and restore
+SESSIONNAME="auto-session"
+tmux has-session -t $SESSIONNAME &> /dev/null
+if [ $? != 0 ]; then
+    tmux new-session -s $SESSIONNAME -n script -d
+    tmux send-keys -t $SESSIONNAME "~/bin/script" C-m 
+fi
+tmux attach -t $SESSIONNAME
+
 ##############################################
 ### OTHER SCIPRTS AND PROGRAMS BINS
 ##############################################

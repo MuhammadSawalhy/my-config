@@ -5,6 +5,7 @@ collect_arg_and_validate() {
 cat <<- EOF
 USAGE:
   crop-speedup -i <input-video> [...options] <output-video>
+
 OPTIONS:
   --help, -h     | show this help message
   --quiet, -q    | see outputs of ffmpeg while processing

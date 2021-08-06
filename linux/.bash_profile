@@ -15,6 +15,7 @@ alias ls=exa
 alias l='exa -la --icons --sort=type'
 alias ll='exa -l --icons --sort=type'
 alias r="ranger"
+alias prgs='printf "$(git status)"'
 alias ydl360='youtube-dl -c -f 247+251'
 alias ydl480='youtube-dl -c -f 248+251'
 alias ydl720='youtube-dl -c -f 271+251'
@@ -40,14 +41,18 @@ export EDITOR=nvim
 ### my own scripts
 ################ ---------------------
 
-# tmux has to be working
-tmux-ide() {
+tmux-ide-1() {
+  tmux split-window -h -p 25
+  tmux split-window -v -p 50
+}
+
+tmux-ide-2() {
   tmux split-window -v -p 30
   tmux split-window -h -p 66 
   tmux split-window -h -p 50
 }
 
-mem(){ free | awk '/^Mem/ { print $3/$2"%" }' }
+mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }' }
 memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || echo 10) }
 
 # npt() {

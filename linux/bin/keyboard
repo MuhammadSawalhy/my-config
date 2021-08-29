@@ -8,7 +8,7 @@ get_kbdlayout() {
 }
 
 set_kbdlayout() {
-  echo setting keymap: $1 '\a'
+  echo -e "setting keymap: $1 \a"
   setxkbmap "$1"
   # pgrep i3status | xargs --no-run-if-empty kill -s USR1 # tell i3status to update
 }

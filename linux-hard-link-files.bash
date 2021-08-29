@@ -20,28 +20,29 @@ is_merged_arg() {
 
 for o in "$@"; do
 
-  [ "$o" = "-d" ] && is_dry=1 && continue
-  [ "$o" = "--dry" ] && is_dry=1 && continue
-  [ "$o" = "--dry" ] && is_dry=1 && continue
-  [ "$o" = "-r" ] && is_reverse=1 && continue
+  [ "$o" = "-h" ]        && is_help=1    && break
+  [ "$o" = "--help" ]    && is_help=1    && break
+  [ "$o" = "-d" ]        && is_dry=1     && continue
+  [ "$o" = "--dry" ]     && is_dry=1     && continue
+  [ "$o" = "--dry" ]     && is_dry=1     && continue
+  [ "$o" = "-r" ]        && is_reverse=1 && continue
   [ "$o" = "--reverse" ] && is_reverse=1 && continue
-  [ "$o" = "-f" ] && is_fill=1 && continue
-  [ "$o" = "--fill" ] && is_fill=1 && continue
-  [ "$o" = "--force" ] && is_force=1 && continue
+  [ "$o" = "-f" ]        && is_fill=1    && continue
+  [ "$o" = "--fill" ]    && is_fill=1    && continue
+  [ "$o" = "--force" ]   && is_force=1   && continue
 
-  [ $(is_merged_arg $o r d) ] && is_dry=1 && is_reverse=1 && continue
-  [ $(is_merged_arg $o r f) ] && is_fill=1 && is_reverse=1 && continue
-  [ $(is_merged_arg $o d f) ] && is_dry=1 && is_fill=1 && continue
-  [ $(is_merged_arg $o r d f) ] && is_dry=1 && is_fill=1 && is_reverse=1 && continue
+  [ $(is_merged_arg $o r d) ]   && is_dry=1  && is_reverse=1 && continue
+  [ $(is_merged_arg $o r f) ]   && is_fill=1 && is_reverse=1 && continue
+  [ $(is_merged_arg $o d f) ]   && is_dry=1  && is_fill=1    && continue
+  [ $(is_merged_arg $o r d f) ] && is_dry=1  && is_fill=1    &&
+    is_reverse=1 && continue
 
-  [ "$o" = "-h" ] && is_help=1 && continue
-  [ "$o" = "--help" ] && is_help=1 && continue
-  [ $(is_merged_arg $o r h) ] && is_help=1 && continue
-  [ $(is_merged_arg $o f h) ] && is_help=1 && continue
-  [ $(is_merged_arg $o d h) ] && is_help=1 && continue
-  [ $(is_merged_arg $o r d h) ] && is_help=1 && continue
-  [ $(is_merged_arg $o r f h) ] && is_help=1 && continue
-  [ $(is_merged_arg $o d f h) ] && is_help=1 && continue
+  [ $(is_merged_arg $o r h) ]     && is_help=1 && continue
+  [ $(is_merged_arg $o f h) ]     && is_help=1 && continue
+  [ $(is_merged_arg $o d h) ]     && is_help=1 && continue
+  [ $(is_merged_arg $o r d h) ]   && is_help=1 && continue
+  [ $(is_merged_arg $o r f h) ]   && is_help=1 && continue
+  [ $(is_merged_arg $o d f h) ]   && is_help=1 && continue
   [ $(is_merged_arg $o r d f h) ] && is_help=1 && continue
 
   echo unknown options \"$o\" >&2; exit 1

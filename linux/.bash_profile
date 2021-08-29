@@ -15,12 +15,13 @@ alias ls=exa
 alias l='exa -la --icons --sort=type'
 alias ll='exa -l --icons --sort=type'
 alias r="ranger"
+alias alacritty="LIBGL_ALWAYS_SOFTWARE=1 alacritty"
 alias prgs='printf "$(git status)"'
 alias ydl360='youtube-dl -c -f 247+251'
 alias ydl480='youtube-dl -c -f 248+251'
 alias ydl720='youtube-dl -c -f 271+251'
-alias pasteimage="xclip -sel clip -t image/png -o" 
-alias copyimage="xclip -sel clip -t image/png" 
+alias pasteimage="xclip -sel clip -t image/png -o"
+alias copyimage="xclip -sel clip -t image/png"
 alias imgprimtoclip="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
 
 alias myp="cd ~/myp/"
@@ -41,6 +42,9 @@ export EDITOR=nvim
 ### my own scripts
 ################ ---------------------
 
+mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }' }
+memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || echo 10) }
+
 tmux-ide-1() {
   tmux split-window -h -p 25
   tmux split-window -v -p 50
@@ -48,18 +52,31 @@ tmux-ide-1() {
 
 tmux-ide-2() {
   tmux split-window -v -p 30
-  tmux split-window -h -p 66 
+  tmux split-window -h -p 66
   tmux split-window -h -p 50
 }
 
-mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }' }
-memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || echo 10) }
+function t() {
+  arg="$([ -z "$1" ] && echo 1 || echo $1)"
+  set -- $arg
+  SESSIONNAME="ide$1"
+  tmux has-session -t $SESSIONNAME &> /dev/null
+  if [ $? != 0 ]; then
+    tmux new-session -s $SESSIONNAME -n script -d
+    tmux send-keys -t $SESSIONNAME "tmux-ide-$1" C-m
+  fi
+  tmux attach -t $SESSIONNAME
+}
+
+function z() {
+  zellij --layout ~/.config/zellij/layouts/layout1.yaml
+}
 
 # npt() {
 #   prayers=$(ipraytime -lat 30 -lon 31 -b)
 #   current_time=$(expr $(date +%H) \* 60 + $(date +%M))
 #   i=2
-#   for (( ; i<8; i++)); do 
+#   for (( ; i<8; i++)); do
 #     paryer_name=$(echo $prayers | sed "1!d" | awk "{ print \$$i }")
 #     paryer_time=$(echo $prayers | sed "3!d" | awk "{ print \$$i }")
 #     hours=$(echo $prayer_time | sed -r "s/:[0-9]+//")
@@ -83,7 +100,7 @@ function lae() {
     patterns+="\\|\\($1\\)"; shift
   done
   # list the first arg, and exclude the reset
-  /bin/ls -A "$dir" | sed "/^$patterns$/ d"
+  /bin/ls -A "$dir" | sed "/^$patterns$/ d" | awk "{ print \"$dir/\"\$1 }"
 }
 
 # -----------------------------------------
@@ -142,7 +159,7 @@ function rgcc() {
   elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then err="file not found: './$1.cc' and './$1.cpp'" fi
   if [ $err ]; then echo $err >&2; return 1; fi
   # command to watch and compile
-  
+
   file=$1; shift
   [ -f "$file.cc" ] && \
     g++ $file.cc -o $file $@ && ./$file || \

@@ -12,7 +12,9 @@ source ~/.config/nvim/plugin-configs/signify.vim
 """ My own plugins
 """ -------------------------------------------
 
-source ~/.config/nvim/buf-only.vim
+source ~/.config/nvim/my-plugins/buf-only.vim
+source ~/.config/nvim/my-plugins/build-preview.vim
+source ~/.config/nvim/my-plugins/win-zoom.vim
 
 """ -------------------------------------------
 """ importing vim files for arrangment purpose
@@ -24,64 +26,45 @@ source ~/.config/nvim/bindings.vim
 """ my configs
 """ -------------------------------------------
 
-""" set the it as vim
 set runtimepath^=~/.vim-cache runtimepath+=~/.vim-cache/after
 let &packpath = &runtimepath
+set mouse=a
+set smartcase
 
 """ theme, colors
 set termguicolors
 syntax enable
-colo snow
+colo edge
+" colo gruvbox
 " colo paramount
+" colo spring-night
+" colo angr
+" colo snow
 " colo yellow-moon
 " colo lucid
 " colo alduin
-set cursorline
 " set cursorcolumn
+set cursorline
 set nohlsearch
 set splitbelow splitright
 set nowrap
 set number
 set rnu " relativenumber
 
-""" indentation
+""" indentation & whitespaces
+set list
 set autoindent
 set breakindent
-set tabstop=2
+set tabstop=4
 set shiftwidth=2
+set softtabstop=2
 set expandtab
 
 command! -nargs=0 Reload :source ~/.config/nvim/init.vim " reload all configs
-command! Xs :mks! | :xa " save the session, save modified files, and exit
+command! -nargs=0 Xs :mks! | :xa " save the session, save modified files, and exit
 
-""" ----------------------------------------------
-""" build and preview md,tex,ms files as pdf files
-""" ----------------------------------------------
-
-" Call compile
-" Open the PDF from /tmp/
-function! Preview()
-  :call Compile()
-  execute "! zathura /tmp/op.pdf &"
-endfunction
-
-" [1] Get the extension of the file
-" [2] Apply appropriate compilation command
-" [3] Save PDF as /tmp/op.pdf
-function! Compile()
-  let extension = expand('%:e')
-  if extension == "ms"
-    execute "! groff -ms % -T pdf > /tmp/op.pdf"
-  elseif extension == "tex"
-    execute "! pandoc -f latex -t latex % -o /tmp/op.pdf"
-  elseif extension == "md"
-    execute "! pandoc % -s -o /tmp/op.pdf"
-  endif
-endfunction
-
-" map \ + p to preview
-noremap <leader>v :call Preview()<CR><CR><CR>
-
-" map \ + q to compile
-noremap <leader>b :call Compile()<CR><CR>
+augroup AU_AUTO_WRAP
+  autocmd!
+  autocmd BufRead,BufNewFile *.md set wrap
+augroup END
 

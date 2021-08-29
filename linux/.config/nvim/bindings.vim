@@ -1,112 +1,125 @@
-
 """""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-""""""       						native in vim
+""""""                    native in vim
 """""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-""" disabling ---------------------------
+""" ---------- disabling
 
 nnoremap Q <Nop>
 vnoremap Q <Nop>
+nnoremap <C-w>t     :tabedit %<CR>
+nnoremap <C-w><C-t> :tabedit %<CR>
 
-""" tabs --------------------------------
+""" ---------- tabs
 
-map <tab>j :tabnext<CR>
-map <tab>k :tabprevious<CR>
-map <tab>l :tablast<CR>
-map <tab>h :tabfirst<CR>
+map <tab>j     :tabnext<CR>
+map <tab>k     :tabprevious<CR>
+map <tab>l     :tablast<CR>
+map <tab>h     :tabfirst<CR>
 map <tab><tab> :tabnew<Space>
 
-""" windows -----------------------------
-
-" move
-nmap <C-Up>    <C-w>k
-nmap <C-k>     <C-w>k
-nmap <C-Down>  <C-w>j
-nmap <C-j>     <C-w>j
-nmap <C-Right> <C-w>l
-nmap <C-l>     <C-w>l
-nmap <C-Left>  <C-w>h
-nmap <C-h>     <C-w>h
-nmap <BS>      <C-w>h " <C-h>
+""" ---------- windows
 
 " resize
-nmap <C-M-Up> <C-w>-
-nmap <C-M-k> <C-w>-
-nmap <C-M-Down> <C-w>+
-nmap <C-M-j> <C-w>+
-nmap <C-M-Right> <C-w>>
-nmap <C-M-l> <C-w>>
-nmap <C-M-Left> <C-w><
-nmap <M-BS> <C-w><
+nmap <M-C-Up>    <C-w>-
+nmap <M-C-k>     <C-w>-
+nmap <M-C-Down>  <C-w>+
+nmap <M-C-j>     <C-w>+
+nmap <M-C-Right> <C-w>>
+nmap <M-C-l>     <C-w>>
+nmap <M-C-Left>  <C-w><
+nmap <M-C-h>     <C-w><
+nmap <M-BS>      <C-w><
 
-""" move the cursor while insert mode ---
+" move
+nmap <C-k>     <C-w>k
+nmap <C-j>     <C-w>j
+nmap <C-l>     <C-w>l
+nmap <C-h>     <C-w>h
+nmap <BS>      <C-w>h
+
+""" ---------- move the cursor while insert mode
 
 imap <C-l> <Right>
 imap <C-k> <Up>
 imap <C-j> <Down>
-imap <C-h>  <Left>
-imap <BS>  <Left>  " <C-h>
+imap <C-h> <Left>
+imap <BS>  <Left>
 
 """""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-"""""" 											plugins
+""""""                      plugins
 """""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-""" vimfiler ----------------------------
+""" ---------- ./my-plugins/win-zoom.vim
 
-map <C-e><C-e> :NERDTreeToggle<CR>
-map <C-e>e :NERDTreeFocus<CR>
+map <C-w>z     <plug>WinZoom_Toggle
+map <C-w><C-z> <plug>WinZoom_Toggle
 
-""" fzf ---------------------------------
+""" ---------- preservim/nerdtree
+
+" nnoremap <silent> <Space>e <CMD>NERDTreeToggle<CR>
+" nnoremap <silent> <Space>E :NERDTreeFocus<CR>
+
+""" ---------- ms-jpq/chadtree
+
+nnoremap <silent> <Space>e <CMD>CHADopen<CR>
+nnoremap <silent> <Space>E <CMD>CHADopen<CR>
+
+""" ---------- fzf
 
 nnoremap <silent> <space>p :Files<CR>
 nnoremap <silent> <space>g :GFiles<CR>
 nnoremap <silent> <space>o :Buffers<CR>
-nnoremap <M-f> :Ag!<CR>
+" from junegunn/fzf plugin
 nnoremap <C-f> :Rg!<CR>
 
-""" coc-formatter -----------------------
+""" ---------- ranger for vim
 
-vmap <C-S-i> <Plug>(coc-format-selected)
-nmap <C-S-i> <Plug>(coc-format-selected)
-nmap zc :Fold<CR>
+nmap <silent> <space>r :RnvimrToggle<CR>
 
-""" ranger for vim ----------------------
-
-nmap <space>r :RnvimrToggle<CR>
-
-""" sneak -------------------------------
+""" ---------- sneak
 
 " remap so I can use , and ; with f and t
-map gS <Plug>Sneak_,
-map gs <Plug>Sneak_;
+nmap <silent> gS <Plug>Sneak_,
+nmap <silent> gs <Plug>Sneak_;
 " I like quickscope better for this since it keeps me in the scope of a single line
-map f <Plug>Sneak_f
-map F <Plug>Sneak_F
-map t <Plug>Sneak_t
-map T <Plug>Sneak_T
+nmap <silent> f <Plug>Sneak_f
+nmap <silent> F <Plug>Sneak_F
+nmap <silent> t <Plug>Sneak_t
+nmap <silent> T <Plug>Sneak_T
 
-""" floaterm ----------------------------
-
-let g:floaterm_keymap_new    = '<F9>'
-let g:floaterm_keymap_next   = '<F10>'
-let g:floaterm_keymap_prev   = '<F11>'
-let g:floaterm_keymap_toggle = '<F12>'
-
-""" vim-easy-align ----------------------
+""" ---------- vim-easy-align
 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
+
 nmap ga <Plug>(EasyAlign)
 
-""" sbdchd/neoformat --------------------
+""" ---------- sbdchd/neoformat
 
 nmap <leader>nf :Neoformat<CR>
 
-""" rhysd/git-messenger.vim -------------
+""" ---------- rhysd/git-messenger.vim
 
 nmap gm <Plug>(git-messenger)
 
-""" preservim/nerdcommenter -------------
+""" ---------- preservim/nerdcommenter
 
-map <C-_> <plug>NERDCommenterToggle " <C-/>
+map <C-_> <plug>NERDCommenterToggle
+
+""" ---------- preservim/tagbar
+
+nmap <F8> :TagbarToggle<CR>
+
+""" ---------- AndrewRadev/splitjoin.vim
+
+" use native J to join lines
+nmap gj :SplitjoinJoin<CR>
+nmap gk :SplitjoinSplit<CR>
+
+""" ---------- haya14busa/incsearch.vim
+
+" nmap /  <Plug>(incsearch-forward)
+" nmap ?  <Plug>(incsearch-backward)
+" nmap g/ <Plug>(incsearch-stay)
+

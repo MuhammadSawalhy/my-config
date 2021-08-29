@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
+# TODO: collect all options to one ffmpeg command, not more temp files
+
+set -e
 
 collect_arg_and_validate() {
+  set +e
+
   print_help () {
 cat <<- EOF
 USAGE:
-  crop-speedup -i <input-video> [...options] <output-video>
+  crop-speedup -i <input-video> [...options] [output-video]
 
 OPTIONS:
   --help, -h     | show this help message
@@ -18,60 +23,87 @@ OPTIONS:
   --speed, -s    | speed of the output video (multiplier, e.g., 1.75)
   --crop         | speed of the output video, e.g. "in_w:in_h-40",
                    see crop filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
+
+  --gif          | convert to gif, this will set these defaults: --fps 10
+  --gif-loop     | how many loops your gif will do
+  --gif-delay    | how long to delay the gif
+
+  --width        | width of the output (aspect ratio is preserved)
+  --fps          | frames persecond
 EOF
   }
-  
+
   while (($#)); do
     arg=$1; shift
-    
-    [ "$arg" = "--quiet"    ] && is_quiet=1       && continue
-    [ "$arg" = "-q"         ] && is_quiet=1       && continue
-    [ "$arg" = "--help"     ] && is_help=1        && break
-    [ "$arg" = "-h"         ] && is_help=1        && break
-    [ "$arg" = "--input"    ] && input="$1"       && shift && continue
-    [ "$arg" = "-i"         ] && input="$1"       && shift && continue
-    
-    [ "$arg" = "--start"    ] && start_point="$1" && shift && continue
-    [ "$arg" = "-ss"        ] && start_point="$1" && shift && continue
-    [ "$arg" = "--duration" ] && duration="$1"    && shift && continue
-    [ "$arg" = "-d"         ] && duration="$1"    && shift && continue
-    [ "$arg" = "--to"       ] && end_point="$1"   && shift && continue
-    [ "$arg" = "-t"         ] && end_point="$1"   && shift && continue
-    
-    [ "$arg" = "--speed"    ] && speed="$1"       && shift && continue
-    [ "$arg" = "-s"         ] && speed="$1"       && shift && continue
-    [ "$arg" = "--crop"     ] && crop="$1"        && shift && continue
-    
+
+    [ "$arg" = "--quiet"     ] && is_quiet=1       && continue
+    [ "$arg" = "-q"          ] && is_quiet=1       && continue
+    [ "$arg" = "--help"      ] && is_help=1        && break
+    [ "$arg" = "-h"          ] && is_help=1        && break
+    [ "$arg" = "--gif"       ] && is_gif=1         && break
+    [ "$arg" = "--gif-loop"  ] && gif_loop="$1"    && shift && continue
+    [ "$arg" = "--gif-delay" ] && gif_loop="$1"    && shift && continue
+
+    [ "$arg" = "--input"     ] && input="$1"       && shift && continue
+    [ "$arg" = "-i"          ] && input="$1"       && shift && continue
+    [ "$arg" = "--start"     ] && start_point="$1" && shift && continue
+    [ "$arg" = "-ss"         ] && start_point="$1" && shift && continue
+    [ "$arg" = "--duration"  ] && duration="$1"    && shift && continue
+    [ "$arg" = "-d"          ] && duration="$1"    && shift && continue
+    [ "$arg" = "--to"        ] && end_point="$1"   && shift && continue
+    [ "$arg" = "-t"          ] && end_point="$1"   && shift && continue
+    [ "$arg" = "--speed"     ] && speed="$1"       && shift && continue
+    [ "$arg" = "-s"          ] && speed="$1"       && shift && continue
+    [ "$arg" = "--crop"      ] && crop="$1"        && shift && continue
+    [ "$arg" = "--width"     ] && width="$1"       && shift && continue
+    [ "$arg" = "--fps"       ] && fps="$1"         && shift && continue
+
     output="$arg"
     (($#)) && >&2 echo error: invalid number of arguments && exit 2
   done
-  
+
   ((is_help)) && print_help && exit 0
-  
+
+  # ----- validate -----
+
   [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
-  [ ! "$output" ] && echo error\(IO\): output file is required && exit 2
   [ "$input" = "$output" ] &&
-    >&2 echo error\(IO\): input should differ from output && exit 2
-  [ "$duration" ] && [ ! "$start_point" ] &&
-    >&2 echo error\(cutting\): duration is provided but start point isn\'t && exit 2
-  [ "$end_point" ] && [ ! "$start_point" ] &&
-    >&2 echo error\(cutting\): end point is provided but start point isn\'t && exit 2
+    &>2 echo error\(IO\): input should differ from output && exit 2
   [ "$end_point" ] && [ "$duration" ] &&
-    >&2 echo error\(cutting\): both end point and duration are provided && exit 2
-  
+    &>2 echo error\(cutting\): both end point and duration are provided && exit 2
+
+  # ----- IO -----
+
   ext() {
     basename=$(basename "$1")
     echo "${basename##*.}"
   }
-  
+
+  if [ ! "$output" ]; then
+    [ "$is_gif" ] &&
+      output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1.gif/')" ||
+      output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
+  fi
   input_ext=`ext "$input"`
   output_ext=`ext "$output"`
   tmpfile_1="/tmp/montag/$RANDOM.$input_ext"
   tmpfile_2="/tmp/montag/$RANDOM.$input_ext"
   mkdir -p /tmp/montag
-  
-  # [ ! "$input_ext" = "$output_ext" ] && \
-  #   >&2 echo error: input\'s ext doesn\'t match output\'s ext && exit 2
+
+  # ----- cutting -----
+
+  ([ -n "$duration" ] || [ -n "$end_point" ]) &&
+    [ -z "$start_point" ] && start_point=0
+
+  # ----- cutting -----
+
+  ([ -n "$duration" ] || [ -n "$end_point" ]) &&
+    [ -z "$start_point" ] && start_point=0
+
+  # ----- giffing -----
+
+  [ "$loop" ] && [ ! "$is_gif" ] &&
+    &>2 echo error\(giffing\): can\'t use --loop without --gif  && exit 2
 }
 
 do_cut() {
@@ -80,22 +112,33 @@ do_cut() {
     ([ "$end_point" ] && echo "to $end_point"))
   echo_title "✂️  ... cut part of the video from $start_point $extra_description"
   duration_arg=""
-  [ "$duration"  ] && other_arg="-t \"$duration\""
-  [ "$end_point" ] && other_arg="-to \"$end_point\" -copyts"
-  cmd="ffmpeg -i \"$1\" -ss \"$start_point\" $other_arg \"$2\""
+  [ "$duration"  ] && other_arg="-t '$duration'"
+  [ "$end_point" ] && other_arg="-to '$end_point' -copyts"
+  cmd="ffmpeg -i '$1' -ss '$start_point' $other_arg '$2'"
   echo "$cmd"
 }
 
 do_speedup() {
   echo_title "⏩️ ... speedup the cut video x$speed"
-  cmd="ffmpeg -i \"$1\" -filter:v \"setpts=PTS/$speed\" -filter:a \"atempo=$speed\" \"$2\""
+  cmd="ffmpeg -i '$1' -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
   echo "$cmd"
 }
 
 do_crop() {
   echo_title "🔳 ... crop the video with: $crop"
   # source: https://video.stackexchange.com/questions/4563/how-can-i-crop-a-video-with-ffmpeg
-  cmd="ffmpeg -i \"$1\" -filter:v \"crop=$crop\" \"$2\""
+  cmd="ffmpeg -i '$1' -filter:v 'crop=$crop' '$2'"
+  echo "$cmd"
+}
+
+do_convert_gif() {
+  echo_title "🏃 ... generating a gif"
+  local lfps=10 lloop=0 ldelay=10
+  [ -n "$fps"       ] && lfps=$fps
+  [ -n "$gif_loop"  ] && lloop=$gif_loop
+  [ -n "$gif_delay" ] && ldelay=$gif_delay
+  scale_filter="$([ "$width" ] && echo ",scale=$width:-1:flags=lanczos" || "")"
+  cmd="ffmpeg -i '$1' -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - | convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
   echo "$cmd"
 }
 
@@ -127,7 +170,7 @@ run() {
 
 end() {
   # remove the temp file
-  exit_code="$([ $1 ] && echo $1 || echo 0)"
+  exit_code="$(($1 ? $1 : 0))"
   [ -f "$tmpfile_1" ] && rm -f "$tmpfile_1"
   [ -f "$tmpfile_2" ] && rm -f "$tmpfile_2"
   exit $exit_code
@@ -139,14 +182,15 @@ do_processing() {
   [ "$start_point" ] && tasks+=("do_cut")
   [ "$speed"       ] && tasks+=("do_speedup")
   [ "$crop"        ] && tasks+=("do_crop")
-  
+  [ "$is_gif"      ] && tasks+=("do_convert_gif")
+
   # if empty -> throw error
   (( ${#tasks} )) ||
   { >&2 echo error: no commands provided; end 1; }
-  
+
   current_input="$input"
   current_output="$tmpfile_1"
-  
+
   # intermidiate tasks, swap between the 2 tmp files
   collect_intermidiate_cmds() {
     for (( i = 0; i < ${#tasks[@]} - 1; i++ )); do
@@ -154,6 +198,7 @@ do_processing() {
       current_task=${tasks[$i]}
       $current_task "$current_input" "$current_output"
       cmds+=("$cmd")
+
       # swap and prepare for the next iteration
       if [ "$current_input" = "$tmpfile_1" ]; then
         current_input="$tmpfile_2"
@@ -164,7 +209,7 @@ do_processing() {
       fi
     done
   }
-  
+
   collect_intermidiate_cmds
   # finally, do the last task with the final destination "$output"
   last_task="${tasks[-1]}"

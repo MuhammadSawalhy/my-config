@@ -1,3 +1,27 @@
+autocmd FileType scss,css,sass setl iskeyword+=@-@,-
+let g:coc_global_extensions = [
+      \ 'coc-diagnostic',
+      \ 'coc-cssmodules',
+      \ 'coc-stylelint',
+      \ 'coc-explorer',
+      \ 'coc-snippets',
+      \ 'coc-tsserver',
+      \ 'coc-prettier',
+      \ 'coc-vimlsp',
+      \ 'coc-eslint',
+      \ 'coc-json',
+      \ 'coc-yaml',
+      \ 'coc-css',
+      \ 'coc-sh',
+      \]
+      " \ 'coc-git',
+
+
+""""""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+"""""""               some copied stuff
+""""""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
 " TextEdit might fail if hidden is not set.
 set hidden
 
@@ -118,8 +142,9 @@ inoremap <expr><C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<Left>"
 
 " Us CTRL-S for selections ranges.
 " Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
+nmap <silent> <C-s><C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s><C-s> <Plug>(coc-range-select)
+xmap <silent> <C-s><C-d> <Plug>(coc-range-select-backword)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
@@ -140,22 +165,22 @@ command! -nargs=0 P :CocCommand prettier.formatFile
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+nnoremap <silent><nowait> <leader>a  :<C-u>CocList diagnostics<cr>
 " Manage extensions.
-nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <leader>e  :<C-u>CocList extensions<cr>
 " Show commands.
-nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <leader>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <leader>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <leader>s  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <leader>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+nnoremap <silent><nowait> <leader>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
-nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>e
+nnoremap <silent><nowait> <leader>p  :<C-u>CocListResume<CR>e

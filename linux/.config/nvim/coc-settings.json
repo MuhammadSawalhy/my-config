@@ -4,6 +4,8 @@
   /* "diagnostic.enableMessage": "never", */
   "suggest.enablePreview": true,
   "codeLens.enable": false,
+  "coc.preferences.colorSupport": false,
+  "coc.preferences.semanticTokensHighlights": true,
 
   "explorer.icon.enableNerdfont": true,
   "explorer.sources": [
@@ -23,11 +25,6 @@
     "<cr>": ["expandable?", ["expanded?", "collapse", "expand"], "open"]
   },
 
-  "git.addedSign.text": "┃",
-  "git.removedSign.text": "┃",
-  "git.changedSign.text": "┃",
-  "git.changeRemovedSign.text": "┃",
-  "git.addGBlameToBufferVar": true,
   /* "suggest.maxPreviewWidth": 100, */
   "diagnostic.checkCurrentLine": true,
   "diagnostic.maxWindowHeight": 20,

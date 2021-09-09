@@ -54,23 +54,20 @@ imap <BS>  <Left>
 map <C-w>z     <plug>WinZoom_Toggle
 map <C-w><C-z> <plug>WinZoom_Toggle
 
-""" ---------- preservim/nerdtree
-
-" nnoremap <silent> <Space>e <CMD>NERDTreeToggle<CR>
-" nnoremap <silent> <Space>E :NERDTreeFocus<CR>
-
 """ ---------- ms-jpq/chadtree
 
-nnoremap <silent> <Space>e <CMD>CHADopen<CR>
-nnoremap <silent> <Space>E <CMD>CHADopen<CR>
+nmap <silent> <Space>e <CMD>CHADopen<CR>
+
+" nmap <silent> <Space>e :NvimTreeToggle<CR>
+" nmap <silent> <Space>E :NvimTreeToggle<CR>
 
 """ ---------- fzf
 
-nnoremap <silent> <space>p :Files<CR>
-nnoremap <silent> <space>g :GFiles<CR>
-nnoremap <silent> <space>o :Buffers<CR>
+nmap <silent> <space>p :Files<CR>
+nmap <silent> <space>g :GFiles<CR>
+nmap <silent> <space>o :Buffers<CR>
 " from junegunn/fzf plugin
-nnoremap <C-f> :Rg!<CR>
+nmap <C-f> :Rg!<CR>
 
 """ ---------- ranger for vim
 
@@ -101,15 +98,12 @@ nmap <leader>nf :Neoformat<CR>
 
 """ ---------- rhysd/git-messenger.vim
 
+nmap <C-_> gcc
+xmap <C-_> gc
+
+""" ---------- rhysd/git-messenger.vim
+
 nmap gm <Plug>(git-messenger)
-
-""" ---------- preservim/nerdcommenter
-
-map <C-_> <plug>NERDCommenterToggle
-
-""" ---------- preservim/tagbar
-
-nmap <F8> :TagbarToggle<CR>
 
 """ ---------- AndrewRadev/splitjoin.vim
 
@@ -123,3 +117,45 @@ nmap gk :SplitjoinSplit<CR>
 " nmap ?  <Plug>(incsearch-backward)
 " nmap g/ <Plug>(incsearch-stay)
 
+" ---------- t9md/vim-choosewin
+
+nmap <silent> <space>w <Plug>(choosewin)
+
+" ---------- folke/twilight.nvim
+
+nnoremap <silent> <leader>t :Twilight<CR>
+
+" ---------- mfussenegger/nvim-ts-hint-textobject
+
+omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
+vnoremap <silent> m :lua require('tsht').nodes()<CR>
+
+""" ---------- Pocco81/TrueZen.nvim
+
+nnoremap <silent> <space>za :TZAtaraxis<CR>
+nnoremap <silent> <space>zm :TZMinimalist<CR>
+nnoremap <silent> <space>zf :TZFocus<CR>
+nnoremap <silent> <space>zj :TZBottom<CR>
+nnoremap <silent> <space>zk :TZTop<CR>
+nnoremap <silent> <space>zl :TZRight<CR>
+nnoremap <silent> <space>zh :TZLeft<CR>
+
+""" ---------- mfussenegger/nvim-dap
+
+nnoremap <silent> <F5> :lua require'dap'.continue()<CR>
+nnoremap <silent> <F9> :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <silent> <F10> :lua require'dap'.step_over()<CR>
+nnoremap <silent> <F11> :lua require'dap'.step_into()<CR>
+nnoremap <silent> <F12> :lua require'dap'.step_out()<CR>
+nnoremap <silent> <S-F5> :lua require"dap".disconnect({ terminateDebuggee = true });require"dap".close()<CR>
+nnoremap <silent> <S-F9> :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
+nnoremap <silent> <leader>b :lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
+nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
+nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
+nnoremap <silent> <space>df :Telescope dap frames<CR>
+" nnoremap <silent> <space>dc :Telescope dap commands<CR>
+nnoremap <silent> <space>db :Telescope dap list_breakpoints<CR>
+nnoremap <silent> <space>dg :lua require("dapui").toggle()<CR>
+nnoremap <silent> <leader>de :lua require("dapui").eval()<CR>
+nnoremap <silent> <leader>dE :lua require("dapui").eval(vim.fn.input('Expression: '))<CR>

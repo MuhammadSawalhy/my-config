@@ -1,31 +1,3 @@
-""" -------------------------------------------
-""" plugins configuration files
-""" -------------------------------------------
-
-source ~/.config/nvim/plugins.vim
-source ~/.config/nvim/plugin-configs/coc.vim
-source ~/.config/nvim/plugin-configs/ccls.vim
-source ~/.config/nvim/plugin-configs/sneak.vim
-source ~/.config/nvim/plugin-configs/signify.vim
-
-""" -------------------------------------------
-""" My own plugins
-""" -------------------------------------------
-
-source ~/.config/nvim/my-plugins/buf-only.vim
-source ~/.config/nvim/my-plugins/build-preview.vim
-source ~/.config/nvim/my-plugins/win-zoom.vim
-
-""" -------------------------------------------
-""" importing vim files for arrangment purpose
-""" -------------------------------------------
-
-source ~/.config/nvim/bindings.vim
-
-""" -------------------------------------------
-""" my configs
-""" -------------------------------------------
-
 set runtimepath^=~/.vim-cache runtimepath+=~/.vim-cache/after
 let &packpath = &runtimepath
 set mouse=a
@@ -34,16 +6,6 @@ set smartcase
 """ theme, colors
 set termguicolors
 syntax enable
-colo edge
-" colo gruvbox
-" colo paramount
-" colo spring-night
-" colo angr
-" colo snow
-" colo yellow-moon
-" colo lucid
-" colo alduin
-" set cursorcolumn
 set cursorline
 set nohlsearch
 set splitbelow splitright
@@ -68,3 +30,25 @@ augroup AU_AUTO_WRAP
   autocmd BufRead,BufNewFile *.md set wrap
 augroup END
 
+""" -------------------------------------------
+""" importing vim files for arrangment purpose
+""" -------------------------------------------
+
+source ~/.config/nvim/plugins.vim
+source ~/.config/nvim/my-plugins/buf-only.vim
+source ~/.config/nvim/my-plugins/build-preview.vim
+source ~/.config/nvim/my-plugins/win-zoom.vim
+source ~/.config/nvim/bindings.vim
+
+colo nebulous
+" colo everforest
+" colo edge
+" colo gruvbox
+" colo paramount
+" colo spring-night
+" colo angr
+" colo snow
+" colo yellow-moon
+" colo lucid
+" colo alduin
+" set cursorcolumn

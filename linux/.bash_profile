@@ -26,7 +26,7 @@ alias imgprimtoclip="xclip -sel p -t image/png -o | xclip -sel clip -t image/png
 
 alias myp="cd ~/myp/"
 alias myc="cd ~/myconfig"
-alias edu="cd ~/edu/edu1"
+alias edu="cd ~/edu/2nd-electric"
 
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
@@ -45,48 +45,9 @@ export EDITOR=nvim
 mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }' }
 memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || echo 10) }
 
-tmux-ide-1() {
-  tmux split-window -h -p 25
-  tmux split-window -v -p 50
-}
-
-tmux-ide-2() {
-  tmux split-window -v -p 30
-  tmux split-window -h -p 66
-  tmux split-window -h -p 50
-}
-
-function t() {
-  arg="$([ -z "$1" ] && echo 1 || echo $1)"
-  set -- $arg
-  SESSIONNAME="ide$1"
-  tmux has-session -t $SESSIONNAME &> /dev/null
-  if [ $? != 0 ]; then
-    tmux new-session -s $SESSIONNAME -n script -d
-    tmux send-keys -t $SESSIONNAME "tmux-ide-$1" C-m
-  fi
-  tmux attach -t $SESSIONNAME
-}
-
 function z() {
   zellij --layout ~/.config/zellij/layouts/layout1.yaml
 }
-
-# npt() {
-#   prayers=$(ipraytime -lat 30 -lon 31 -b)
-#   current_time=$(expr $(date +%H) \* 60 + $(date +%M))
-#   i=2
-#   for (( ; i<8; i++)); do
-#     paryer_name=$(echo $prayers | sed "1!d" | awk "{ print \$$i }")
-#     paryer_time=$(echo $prayers | sed "3!d" | awk "{ print \$$i }")
-#     hours=$(echo $prayer_time | sed -r "s/:[0-9]+//")
-#     mins=$(echo $prayer_time | sed -r "s/[0-9]+://")
-#     echo $hours $mins
-#     prayer_t=$(expr $hours \* 50 + $mins)
-#     echo test $prayer_t -gt $current_time && break
-#   done
-#   echo $prayer_name  $prayer_time
-# }
 
 # list all + exclude
 function lae() {

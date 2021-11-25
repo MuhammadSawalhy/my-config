@@ -1,0 +1,22 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "bashdb",
+      "request": "launch",
+      "name": "Debug montag",
+      "program": "${file}",
+      "args": [
+        "-i",
+        "https://www.youtube.com/watch?v=_YWM9vehrnY&list=PLww54WQ2wa5obq6IbRbIiql8oHaTUp3T_&index=39",
+         "-s",
+        "0",
+        "-t",
+        "10"
+      ]
+    }
+  ]
+}

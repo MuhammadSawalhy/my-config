@@ -5,7 +5,7 @@
   "suggest.enablePreview": true,
   "codeLens.enable": false,
   "coc.preferences.colorSupport": false,
-  "coc.preferences.semanticTokensHighlights": true,
+  "coc.preferences.semanticTokensHighlights": false,
 
   "explorer.icon.enableNerdfont": true,
   "explorer.sources": [
@@ -27,7 +27,6 @@
 
   /* "suggest.maxPreviewWidth": 100, */
   "diagnostic.checkCurrentLine": true,
-  "diagnostic.maxWindowHeight": 20,
   "diagnostic.errorSign": "✖",
   "diagnostic.warningSign": "⚠",
   "diagnostic.infoSign": "●",
@@ -40,8 +39,11 @@
   // "flow.enable": false,
   "javascript.suggestionActions.enabled": false,
   "eslint.options": { "envs": ["node", "browser", "es2021"] },
-  "python.jediEnabled": true,
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "/home/ms/.local/bin/black",
+  "python.formatting.autopep8Path": "/home/ms/.local/bin/autopep8",
   "cssmodules.camelCase": true,
+  "Lua.diagnostics.globals": ["vim"],
   "languageserver": {
     "ccls": {
       "command": "ccls",

@@ -57,11 +57,26 @@ require'nvim-treesitter.configs'.setup {
   ensure_installed = "maintained",
   indent = { enable = true },
   rainbow = { enable = true },
+  autotag = { enable = true },
   textobjects = textobjects,
   playground = playground,
   context_commentstring = {
     enable = false,
     enable_autocmd = false,
+    config = {
+      javascript = {
+        __default = '// %s',
+        jsx_element = '{/* %s */}',
+        jsx_fragment = '{/* %s */}',
+        jsx_attribute = '// %s',
+        comment = '// %s',
+        __parent = {
+          -- if a node has this as the parent, use the `//` commentstring
+          -- see: https://github.com/JoosepAlviste/nvim-ts-context-commentstring/issues/22#issuecomment-916359616
+          jsx_expression = '// %s',
+        },
+      }
+    }
   },
   highlight = {
     -- see: https://github.com/nvim-treesitter/nvim-treesitter/issues/1765
@@ -72,6 +87,7 @@ require'nvim-treesitter.configs'.setup {
 
 require("twilight").setup {}
 require("tsht").config.hint_keys = { "h", "j", "f", "d", "n", "v", "s", "l", "a" }
+
 
 -- require'treesitter-context'.setup{
 --   enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)

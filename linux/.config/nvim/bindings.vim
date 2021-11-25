@@ -20,10 +20,10 @@ map <tab><tab> :tabnew<Space>
 """ ---------- windows
 
 " resize
-nmap <M-C-Up>    <C-w>-
-nmap <M-C-k>     <C-w>-
-nmap <M-C-Down>  <C-w>+
-nmap <M-C-j>     <C-w>+
+nmap <M-C-Up>    <C-w>+
+nmap <M-C-k>     <C-w>+
+nmap <M-C-Down>  <C-w>-
+nmap <M-C-j>     <C-w>-
 nmap <M-C-Right> <C-w>>
 nmap <M-C-l>     <C-w>>
 nmap <M-C-Left>  <C-w><
@@ -143,19 +143,27 @@ nnoremap <silent> <space>zh :TZLeft<CR>
 """ ---------- mfussenegger/nvim-dap
 
 nnoremap <silent> <F5> :lua require'dap'.continue()<CR>
+nnoremap <silent> <F6> :lua require"dap".disconnect({ terminateDebuggee = true });require"dap".close()<CR>
+nnoremap <silent> <F8> :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
 nnoremap <silent> <F9> :lua require'dap'.toggle_breakpoint()<CR>
 nnoremap <silent> <F10> :lua require'dap'.step_over()<CR>
 nnoremap <silent> <F11> :lua require'dap'.step_into()<CR>
 nnoremap <silent> <F12> :lua require'dap'.step_out()<CR>
-nnoremap <silent> <S-F5> :lua require"dap".disconnect({ terminateDebuggee = true });require"dap".close()<CR>
-nnoremap <silent> <S-F9> :lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<CR>
 nnoremap <silent> <leader>b :lua require'dap'.toggle_breakpoint()<CR>
 nnoremap <silent> <leader>lp :lua require'dap'.set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>
 nnoremap <silent> <leader>dr :lua require'dap'.repl.open()<CR>
 nnoremap <silent> <leader>dl :lua require'dap'.run_last()<CR>
 nnoremap <silent> <space>df :Telescope dap frames<CR>
-" nnoremap <silent> <space>dc :Telescope dap commands<CR>
+nnoremap <silent> <space>dc :Telescope dap commands<CR>
 nnoremap <silent> <space>db :Telescope dap list_breakpoints<CR>
 nnoremap <silent> <space>dg :lua require("dapui").toggle()<CR>
 nnoremap <silent> <leader>de :lua require("dapui").eval()<CR>
 nnoremap <silent> <leader>dE :lua require("dapui").eval(vim.fn.input('Expression: '))<CR>
+nnoremap <silent> <leader>de :lua require("dapui").eval()<CR>
+xnoremap <silent> <leader>de :lua require("dapui").eval(require("utils.get_visual_selection")())<CR>
+au FileType python nnoremap <silent> <leader>dtf :lua require('dap-python').test_method()<CR>
+au FileType python noremap <silent> <leader>dtc :lua require('dap-python').test_class()<CR>
+au FileType python noremap <silent> <leader>dts <ESC>:lua require('dap-python').debug_selection()<CR>
+
+nmap ]t <Plug>(ultest-next-fail)
+nmap [t <Plug>(ultest-prev-fail)

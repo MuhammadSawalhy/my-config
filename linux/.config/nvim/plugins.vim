@@ -17,6 +17,7 @@ Plug 'kyazdani42/nvim-web-devicons'
 """ For Editing
 """ -------------------------------------------------------------
 
+Plug 'wakatime/vim-wakatime'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'junegunn/vim-easy-align'
@@ -30,6 +31,7 @@ Plug 'dylon/vim-antlr'
 Plug 'PProvost/vim-ps1'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'famiu/bufdelete.nvim'
+" Plug 'numToStr/Comment.nvim'
 Plug 'terrortylor/nvim-comment'
 " Plug 'b3nj5m1n/kommentary'
 " Plug 'tpope/vim-commentary'
@@ -38,12 +40,16 @@ Plug 'andymass/vim-matchup'
 Plug 'Konfekt/FastFold'
 Plug 'dkarter/bullets.vim'
 Plug 'mattn/emmet-vim' " , { 'for': 'html' }
+Plug 'sbdchd/neoformat'
 
 Plug 'mfussenegger/nvim-dap'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'nvim-telescope/telescope-dap.nvim'
+Plug 'mfussenegger/nvim-dap-python'
 Plug 'microsoft/vscode-node-debug2', { 'do': 'npm install && npm run build' }
 Plug 'microsoft/vscode-chrome-debug', { 'do': 'npm install && npm run build' }
+Plug 'rogalmic/vscode-bash-debug', { 'do': 'npm install && npm run compile' }
+Plug 'vim-test/vim-test'
 " Plug 'puremourning/vimspector'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -51,6 +57,7 @@ Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'p00f/nvim-ts-rainbow'
+Plug 'windwp/nvim-ts-autotag'
 Plug 'folke/twilight.nvim'
 Plug 'nvim-treesitter/playground'
 Plug 'mfussenegger/nvim-ts-hint-textobject'
@@ -107,7 +114,7 @@ Plug 'justinmk/vim-sneak'
 Plug 'preservim/vimux'
 Plug 'kevinhwang91/rnvimr', {'do': 'make sync'}
 Plug 'ms-jpq/chadtree', {'branch': 'chad',
-      \ 'do': 'python3 -m pip install chadtree && python3 -m chadtree deps'}
+      \ 'do': 'python3 -m pip install chadtree && python3 -m chadtree deps --nvim'}
 " Plug 'akinsho/bufferline.nvim'
 " Plug 'sheerun/vim-polyglot'
 " Plug 'tversteeg/registers.nvim', { 'branch': 'main' }

@@ -1,3 +1,6 @@
+" let g:python_host_prog = '/home/ms/.pyenv/versions/neovim2/bin/python'
+let g:python3_host_prog = '/home/ms/.virtualenvs/neovim3/bin/python'
+
 set runtimepath^=~/.vim-cache runtimepath+=~/.vim-cache/after
 let &packpath = &runtimepath
 set mouse=a

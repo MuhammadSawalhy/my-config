@@ -114,7 +114,7 @@ h4 {
 */
 
 body {
-	font-family: "Merriweather", "PT Serif", Georgia, "Times New Roman", "STSong", Serif;
+	font-family: "Merriweather", "PT Serif", Georgia, "Times New Roman", "STSong", 'Segoe UI Emoji', Serif;
 	line-height: 1.5rem;
 	font-weight: 400;
 }

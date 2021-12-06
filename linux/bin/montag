@@ -3,7 +3,7 @@
 
 set -e
 
-print_help () {
+print-help () {
 cat <<- EOF
 
  OPTIONS:
@@ -70,13 +70,13 @@ collect-arg-and-validate() {
     [ "$arg" = "--crop"      ] && crop="$1"        && shift && continue
     [ "$arg" = "--width"     ] && width="$1"       && shift && continue
     [ "$arg" = "--fps"       ] && fps="$1"         && shift && continue
-    [ "$arg" = "--ytdl"      ] && ytdl=("$1")      && shift && continue
+    [ "$arg" = "--ytdl"      ] && ytdl_options=("$1")      && shift && continue
 
     output="$arg"
     (($#)) && >&2 echo error: invalid number of arguments && exit 2
   done
 
-  ((is_help)) && print_help && exit 0
+  ((is_help)) && print-help && exit 0
 
   # ----- IO -----
 
@@ -122,23 +122,24 @@ prepare-input-and-output() {
         output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
       fi
     fi
-
-    ext() {
-      basename=$(basename "$1")
-      echo "${basename##*.}"
-    }
-
-    input_ext=`ext "$input"`
-    output_ext=`ext "$output"`
-    tmpfile_1="/tmp/montag/$RANDOM.$input_ext"
-    tmpfile_2="/tmp/montag/$RANDOM.$input_ext"
-    mkdir -p /tmp/montag
   fi
+
+  ext() {
+    basename=$(basename "$1")
+    echo "${basename##*.}"
+  }
+
+  output_ext=`ext "$output"`
+  tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
+  tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
+  mkdir -p /tmp/montag
 }
 
-get_input_args() {
+get-input-args() {
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
-    links=($(youtube-dl --no-playlist --youtube-skip-dash-manifest -g  "${ytdl[@]}" "$input"))
+    # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
+    ytdl_options+=("-c")
+    links=($(youtube-dl --no-playlist --youtube-skip-dash-manifest -g  "${ytdl_options[@]}" "$input"))
     video_uri="${links[0]}"
     audio_uri="${links[1]}"
     echo "-i '$video_uri' -i '$audio_uri'"
@@ -158,7 +159,7 @@ do-cut() {
   [ "$duration"  ] && other_arg="-t '$duration'"
   [ "$end_point" ] && other_arg="-to '$end_point' -copyts"
 
-  input_args="$(get_input_args "$1")"
+  input_args="$(get-input-args "$1")"
   #    ffmpeg -ss 42:30  -map 0:v -map 1:a -ss 30 -t 7:10 -c:v libx264 -c:a aac gog-vs-triv.mkv
   cmd="ffmpeg -ss '$start_point' $input_args $other_arg '$2'"
   echo "$cmd"
@@ -173,7 +174,7 @@ do-speedup() {
 do-crop() {
   # source: https://video.stackexchange.com/questions/4563/how-can-i-crop-a-video-with-ffmpeg
   echo-title "🔳 ... crop the video with: $crop"
-  input_args="$(get_input_args "$1")"
+  input_args="$(get-input-args "$1")"
   cmd="ffmpeg $input_args -filter:v 'crop=$crop' '$2'"
   echo "$cmd"
 }
@@ -185,7 +186,7 @@ do-convert-gif() {
   [ -n "$gif_loop"  ] && lloop=$gif_loop
   [ -n "$gif_delay" ] && ldelay=$gif_delay
   if [ "$width" ]; then local scale_filter=",scale=$width:-1:flags=lanczos"; fi
-  input_args="$(get_input_args "$1")"
+  input_args="$(get-input-args "$1")"
   cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - | convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
   echo "$cmd"
 }
@@ -202,7 +203,7 @@ get-user-acceptance() {
   echo "$1"
   read -p "continue ? ([Y]/n): " ans
   ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
-  [ ! "$ans" = "n" ] || end 1
+  [ ! "$ans" = "n" ] || clear-and-exit 1
 }
 
 run-commands() {
@@ -211,14 +212,14 @@ run-commands() {
     exit_code=$?
     (($exit_code)) &&
     echo-title "❌️ This command failed with code: $exit_code" &&
-    echo $1 && end $exit_code
+    echo $1 && clear-and-exit $exit_code
     shift
   done
 }
 
-end() {
+clear-and-exit() {
   # remove the temp file
-  exit_code="$(($1 ? $1 : 0))"
+  exit_code="${1:-0}"
   [ -f "$tmpfile_1" ] && rm -f "$tmpfile_1"
   [ -f "$tmpfile_2" ] && rm -f "$tmpfile_2"
   exit $exit_code
@@ -234,7 +235,7 @@ do-processing() {
 
   # if empty -> throw error
   (( ${#tasks} )) ||
-  { >&2 echo error: no commands provided; end 1; }
+  { >&2 echo error: no commands provided; clear-and-exit 1; }
 
   current_input="$input"
   current_output="$tmpfile_1"
@@ -269,4 +270,4 @@ do-processing() {
 
 collect-arg-and-validate "$@"
 do-processing
-end 0
+clear-and-exit 0

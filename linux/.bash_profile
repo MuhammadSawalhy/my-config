@@ -32,15 +32,15 @@ alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
 alias ywsi="yarn workspaces foreach --include"
 
-################ ---------------------
-### default apps
-################ ---------------------
+# ------------------------------------
+#           default apps
+# ------------------------------------
 
 export EDITOR=nvim
 
-################ ---------------------
-### my own scripts
-################ ---------------------
+# ------------------------------------
+#          my own scripts
+# ------------------------------------
 
 mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }' }
 memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || echo 10) }

@@ -12,6 +12,7 @@ ZSH_THEME="arrow"
 ZSH_THEME="eastwood"
 ZSH_THEME="flazz"
 ZSH_THEME="fishy"
+ZSH_THEME="gnzh"
 
 # fpath+=$HOME/.zsh/pure
 # autoload -U promptinit; promptinit

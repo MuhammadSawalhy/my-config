@@ -25,8 +25,5 @@ function! Compile()
   endif
 endfunction
 
-" map \ + p to preview
 noremap <leader>v :call Preview()<CR><CR><CR>
-
-" map \ + q to compile
-noremap <leader>b :call Compile()<CR><CR>
+noremap <leader>q :call Compile()<CR><CR>

@@ -20,6 +20,7 @@ Plug 'kyazdani42/nvim-web-devicons'
 Plug 'wakatime/vim-wakatime'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'jiangmiao/auto-pairs'
+Plug 'matze/vim-move'
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tommcdo/vim-exchange'
@@ -31,8 +32,8 @@ Plug 'dylon/vim-antlr'
 Plug 'PProvost/vim-ps1'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'famiu/bufdelete.nvim'
-" Plug 'numToStr/Comment.nvim'
-Plug 'terrortylor/nvim-comment'
+Plug 'numToStr/Comment.nvim'
+" Plug 'terrortylor/nvim-comment'
 " Plug 'b3nj5m1n/kommentary'
 " Plug 'tpope/vim-commentary'
 
@@ -42,6 +43,7 @@ Plug 'dkarter/bullets.vim'
 Plug 'mattn/emmet-vim' " , { 'for': 'html' }
 Plug 'sbdchd/neoformat'
 
+Plug 'mfussenegger/nvim-treehopper'
 Plug 'mfussenegger/nvim-dap'
 Plug 'rcarriga/nvim-dap-ui'
 Plug 'nvim-telescope/telescope-dap.nvim'
@@ -103,7 +105,7 @@ Plug 'rhysd/vim-color-spring-night'
 Plug 'folke/todo-comments.nvim'
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
 Plug 'lukas-reineke/indent-blankline.nvim'
-Plug 'hoob3rt/lualine.nvim'
+" Plug 'hoob3rt/lualine.nvim'
 " Plug 'Lokaltog/vim-monotone'
 " Plug 'machakann/vim-highlightedyank'
 
@@ -199,3 +201,8 @@ let g:grammarous#default_comments_only_filetypes =
 
 let g:Hexokinase_highlighters = [ 'virtual' ]
 let g:Hexokinase_optInPatterns = 'full_hex,rgb,rgba,hsl,hsla'
+
+""" matze/vim-move
+""" ----------------------------------------
+
+let g:move_key_modifier = 'A' " Alt

@@ -11,11 +11,11 @@ nnoremap <C-w><C-t> :tabedit %<CR>
 
 """ ---------- tabs
 
-map <tab>j     :tabnext<CR>
-map <tab>k     :tabprevious<CR>
-map <tab>l     :tablast<CR>
-map <tab>h     :tabfirst<CR>
-map <tab><tab> :tabnew<Space>
+nmap <tab>j     :tabnext<CR>
+nmap <tab>k     :tabprevious<CR>
+nmap <tab>l     :tablast<CR>
+nmap <tab>h     :tabfirst<CR>
+nmap <tab><tab> :tabnew<Space>
 
 """ ---------- windows
 
@@ -126,6 +126,11 @@ nmap <silent> <space>w <Plug>(choosewin)
 nnoremap <silent> <leader>t :Twilight<CR>
 
 " ---------- mfussenegger/nvim-ts-hint-textobject
+
+omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
+vnoremap <silent> m :lua require('tsht').nodes()<CR>
+
+" ---------- mfussenegger/nvim-treehopper
 
 omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
 vnoremap <silent> m :lua require('tsht').nodes()<CR>

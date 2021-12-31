@@ -11,6 +11,8 @@
 ~/.profile
 ~/.gitconfig
 ~/.tmux.conf
+~/.xinitrc
+~/.Xmodmap
 
 # it include auth token
 # ~/.npmrc
@@ -20,8 +22,11 @@
 
 ~/.config/nvim/
 !~/.config/nvim/plugins/
+!~/.config/nvim/mini-init.vim
+
 ~/.config/ranger/
 !~/.config/ranger/plugins
 !~/.config/ranger/history
+
 ~/.config/mpv
 ~/.config/Typora/themes

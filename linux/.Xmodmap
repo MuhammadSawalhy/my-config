@@ -1,0 +1,12 @@
+! use this command to get kwycodes
+! $ xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
+
+! use bar instead of ellipsis for arabic
+! keycode  51 = backslash bar backslash ellipsis U27E8 U202F
+keycode  51 = backslash bar backslash bar U27E8 U202F
+
+! Swap caps lock and escape
+remove Lock = Caps_Lock
+keysym Escape = Caps_Lock
+keysym Caps_Lock = Escape
+add Lock = Caps_Lock

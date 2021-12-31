@@ -1,1 +1,1 @@
-setxkbmap -option caps:swapescape
+[[ -f ~/.Xmodmap ]] && xmodmap ~/.Xmodmap

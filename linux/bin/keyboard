@@ -10,6 +10,7 @@ get_kbdlayout() {
 set_kbdlayout() {
   echo -e "setting keymap: $1 \a"
   setxkbmap "$1"
+  [ -f ~/.Xmodmap ] && xmodmap ~/.Xmodmap
   # pgrep i3status | xargs --no-run-if-empty kill -s USR1 # tell i3status to update
 }
 
@@ -40,7 +41,12 @@ i3status() {
 }
 
 subcommand="$1"
-shift || { echo "Please specify one of: get, set <layout>, cycle <layout1> <layout2> ... <layoutN>, i3status" && exit 2; }
+shift || { echo
+"Please specify one of:
+get,
+set <layout>,
+cycle [...layouts],
+i3status" && exit 2; }
 
 case $subcommand in
   "get")

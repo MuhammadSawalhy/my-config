@@ -1,0 +1,20 @@
+#!/bin/bash
+
+SESSIONNAME=alif-website
+PROJECT_DIR=~/myp/alif/next-website
+
+function send-command() {
+  tmux send-keys -t $SESSIONNAME "$1" C-m
+}
+
+tmux has-session -t $SESSIONNAME &> /dev/null
+
+if [ $? != 0 ]; then
+  # new session, default window for frontend
+  tmux new-session -s $SESSIONNAME -n main -c "$PROJECT_DIR" -d
+  send-command "nvim"
+  tmux-ide 2 -t $SESSIONNAME -c "$PROJECT_DIR"
+  send-command "yarn start"
+fi
+
+tmux attach -t $SESSIONNAME

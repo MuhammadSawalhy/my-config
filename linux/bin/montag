@@ -136,17 +136,26 @@ prepare-input-and-output() {
 }
 
 get-input-args() {
+  local argv=("$@")
+  local input="${argv[-1]}"
+  unset 'argv[-1]'
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
     ytdl_options+=("-c")
     links=($(youtube-dl --no-playlist --youtube-skip-dash-manifest -g  "${ytdl_options[@]}" "$input"))
     video_uri="${links[0]}"
     audio_uri="${links[1]}"
-    echo "-i '$video_uri' -i '$audio_uri'"
+    args=(
+      "${argv[@]}" -i "$video_uri"
+      "${argv[@]}" -i "$audio_uri"
+      -map 0:v -map 1:a
+    )
+    # put all of them inside 'single qutaion mark'
+    printf "'%s' " "${args[@]}"
     return 0
   fi
 
-  echo "-i '$1'"
+  echo "-i '$input'"
 }
 
 do-cut() {
@@ -156,12 +165,11 @@ do-cut() {
   echo-title "✂️  ... cut part of the video from $start_point $extra_description"
 
   duration_arg=""
-  [ "$duration"  ] && other_arg="-t '$duration'"
-  [ "$end_point" ] && other_arg="-to '$end_point' -copyts"
+  [ "$duration"  ] && end_point_arg="-t '$duration'"
+  [ "$end_point" ] && end_point_arg="-to '$end_point'"
 
-  input_args="$(get-input-args "$1")"
-  #    ffmpeg -ss 42:30  -map 0:v -map 1:a -ss 30 -t 7:10 -c:v libx264 -c:a aac gog-vs-triv.mkv
-  cmd="ffmpeg -ss '$start_point' $input_args $other_arg '$2'"
+  input_args="$(get-input-args -ss "$start_point" "$1")"
+  cmd="ffmpeg $input_args -ss "$start_point" $end_point_arg -copyts '$2'"
   echo "$cmd"
 }
 

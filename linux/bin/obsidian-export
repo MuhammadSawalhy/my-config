@@ -1,0 +1,49 @@
+#!/bin/bash
+
+TMP_DIR="/tmp/obsidian-export"
+mkdir -p "$TMP_DIR"
+rm -rf "$TMP_DIR"/*
+
+collect-args() {
+  attachments="." # default to current directory
+  out_dir="."     # default to current directory
+
+  while (($#)); do
+    arg="$1"; shift
+    [ "$arg" = --attachments ] && attachments="$1" && shift && continue
+    [ "$arg" = -a            ] && attachments="$1" && shift && continue
+    [ "$arg" = --out-dir     ] && out_dir="$1"     && shift && continue
+    [ "$arg" = -o            ] && out_dir="$1"     && shift && continue
+    files+=("$arg") # fallback, append to the files
+  done
+
+  attachments="$(realpath "$attachments")"
+  out_dir="$(realpath "$out_dir")"
+}
+
+prepare-file() {
+  file="$1"
+  sed \
+    -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):" \
+    "$file"
+}
+
+convert-to-pdf() {
+  for file in "${files[@]}"; do
+    echo exporting 📤: $file
+    out_file="${file%.md}.pdf"
+    prepare-file "$file" > "$TMP_DIR/$file"
+    pandoc \
+      --citeproc --toc --number-sections --pdf-engine=xelatex \
+      -f markdown "$TMP_DIR/$file" -o "$TMP_DIR/$out_file"
+  done
+}
+
+copy-to-out-dir() {
+  cp "$TMP_DIR"/*.pdf "$out_dir"
+}
+
+collect-args "$@"
+convert-to-pdf
+copy-to-out-dir
+echo DONE 📑

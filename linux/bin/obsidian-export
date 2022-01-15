@@ -4,6 +4,12 @@ TMP_DIR="/tmp/obsidian-export"
 mkdir -p "$TMP_DIR"
 rm -rf "$TMP_DIR"/*
 
+
+echo-title() {
+  echo ---------------- $@ -----------------
+}
+
+
 collect-args() {
   attachments="." # default to current directory
   out_dir="."     # default to current directory
@@ -14,6 +20,11 @@ collect-args() {
     [ "$arg" = -a            ] && attachments="$1" && shift && continue
     [ "$arg" = --out-dir     ] && out_dir="$1"     && shift && continue
     [ "$arg" = -o            ] && out_dir="$1"     && shift && continue
+    [ "$arg" = --md          ] && is_md_only=1     && continue
+    [ "$arg" = --md          ] && is_md_only=1     && continue
+    [ "$arg" = --cat         ] && is_concat=1      && continue
+    [ "$arg" = --fnah        ] && is_file_name_as_header=1  && continue
+    [ "$arg" = --file-name-as-header ] && is_file_name_as_header=1  && continue
     files+=("$arg") # fallback, append to the files
   done
 
@@ -21,29 +32,58 @@ collect-args() {
   out_dir="$(realpath "$out_dir")"
 }
 
+
 prepare-file() {
-  file="$1"
-  sed \
-    -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):" \
-    "$file"
+  # replace `![[image-name.png]]` to `![](/attachments/image-name.png)`
+  local image_prepared="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
+  # increase the level due to adding the file name as a `# header`
+  [ $is_file_name_as_header ] &&
+    local header_levels_prepared="$(echo "$image_prepared" | sed -r "s/^#+ (.*)/#\0/")"
+  echo "$header_levels_prepared"
 }
 
-convert-to-pdf() {
+
+convert-to-pure-markdown() {
   for file in "${files[@]}"; do
-    echo exporting 📤: $file
-    out_file="${file%.md}.pdf"
-    prepare-file "$file" > "$TMP_DIR/$file"
-    pandoc \
-      --citeproc --toc --number-sections --pdf-engine=xelatex \
-      -f markdown "$TMP_DIR/$file" -o "$TMP_DIR/$out_file"
+    [ $is_concat ] &&
+      prepared_md_file="$TMP_DIR/concated_file.pure.md" || # FIXME: this may overwrite an existing file
+      prepared_md_file="$TMP_DIR/${file%.md}.pure.md"
+
+    [ $is_file_name_as_header ] &&
+      echo "# ${file%.md}" >> "$prepared_md_file"
+
+    echo >> "$prepared_md_file"
+    cat "$file" | prepare-file >> "$prepared_md_file"
+    echo >> "$prepared_md_file"
+    echo >> "$prepared_md_file"
   done
 }
 
-copy-to-out-dir() {
-  cp "$TMP_DIR"/*.pdf "$out_dir"
+
+convert-to-pdf() {
+  echo-title exporting to pdf
+  for file in "$TMP_DIR"/*.md; do
+    out_file="${file%.pure.md}.pdf"
+    echo exporting 📤: $(basename "$out_file")
+    pandoc \
+      --citeproc --toc --number-sections --pdf-engine=xelatex \
+      -f markdown "$file" -o "$out_file"
+  done
 }
 
+
+copy-to-out-dir() {
+  if [ "$is_md_only" ]; then
+    cp "$TMP_DIR"/*.md "$out_dir"
+  else
+    cp "$TMP_DIR"/*.pdf "$out_dir"
+  fi
+}
+
+
 collect-args "$@"
-convert-to-pdf
+convert-to-pure-markdown
+[ ! "$is_md_only" ] &&
+  convert-to-pdf
 copy-to-out-dir
 echo DONE 📑

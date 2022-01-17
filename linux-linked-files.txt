@@ -25,8 +25,10 @@
 !~/.config/nvim/mini-init.vim
 
 ~/.config/ranger/
-!~/.config/ranger/plugins
+!~/.config/ranger/plugins/
 !~/.config/ranger/history
 
-~/.config/mpv
-~/.config/Typora/themes
+~/.config/mpv/
+~/.config/Typora/themes/
+
+~/.config/fontconfig/

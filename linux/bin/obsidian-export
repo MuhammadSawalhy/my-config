@@ -1,5 +1,7 @@
 #!/bin/bash
 
+shopt -s nullglob
+
 TMP_DIR="/tmp/obsidian-export"
 mkdir -p "$TMP_DIR"
 rm -rf "$TMP_DIR"/*
@@ -10,47 +12,97 @@ echo-title() {
 }
 
 
+join_arr_by() {
+  local d=$1 f=$2
+  if shift 2; then
+    printf %s "$f" "${@/#/$d}"
+  fi
+}
+
+
+get_file_containing_tags() {
+  # use `files` from argv or all the vault files
+  (( ${#files[@]} )) &&
+    vault_md_files=("${files[@]}") ||
+    readarray -t vault_md_files < <(ls "$vault"/*.md)
+
+  files=()
+  # prepend "#" to all tags and join them by "|"
+  grep_pattern="$(join_arr_by '\|' ${tags[@]/#/#})"
+
+  for file in "${vault_md_files[@]}"; do
+    if grep "$grep_pattern" "$file" &> /dev/null; then
+      files+=("$file")
+    fi
+  done
+
+  echo-title 'exporting these files?'
+  printf "%s\n" "${files[@]}"
+  read -p "continue ? ([Y]/n): " ans
+  local ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
+  [ "$ans" = n ] && exit 1
+}
+
+
 collect-args() {
-  attachments="." # default to current directory
+  vault="." # default to current directory
   out_dir="."     # default to current directory
 
   while (($#)); do
     arg="$1"; shift
-    [ "$arg" = --attachments ] && attachments="$1" && shift && continue
-    [ "$arg" = -a            ] && attachments="$1" && shift && continue
-    [ "$arg" = --out-dir     ] && out_dir="$1"     && shift && continue
-    [ "$arg" = -o            ] && out_dir="$1"     && shift && continue
-    [ "$arg" = --md          ] && is_md_only=1     && continue
-    [ "$arg" = --md          ] && is_md_only=1     && continue
-    [ "$arg" = --cat         ] && is_concat=1      && continue
-    [ "$arg" = --fnah        ] && is_file_name_as_header=1  && continue
-    [ "$arg" = --file-name-as-header ] && is_file_name_as_header=1  && continue
+    [ "$arg" = "--vault"   ] && vault="$1"   && shift && continue
+    [ "$arg" = "--out-dir" ] && out_dir="$1" && shift && continue
+    [ "$arg" = "-o"        ] && out_dir="$1" && shift && continue
+    [ "$arg" = "--tags"    ] && tags="$1"    && shift && continue
+    [ "$arg" = "-t"        ] && tags="$1"    && shift && continue
+    [ "$arg" = "--md"      ] && is_md_only=1 && continue
+    [ "$arg" = "--md"      ] && is_md_only=1 && continue
+    [ "$arg" = "--cat"     ] && is_concat=1  && continue
+    [ "$arg" = "--fnah"    ] && is_file_name_as_header=1 && continue
+    [ "$arg" = "--file-name-as-header" ] && is_file_name_as_header=1  && continue
     files+=("$arg") # fallback, append to the files
   done
 
-  attachments="$(realpath "$attachments")"
+  vault="$(realpath "$vault")"
   out_dir="$(realpath "$out_dir")"
+
+  # read the Attachments dir from obsidian vault settings
+  attachments="$vault/$(
+    sed -e '/attachmentFolderPath/ !d' "$vault"/.obsidian/app.json |
+      grep -oP '\s*"attachmentFolderPath": \K"(.*?)"'
+  )"
+  # remove quotations ""
+  attachments="$(eval "echo $attachments")"
+
+  # convert comma delimited values into array
+  readarray -d, -t tags <<< "$tags"
+  [ "$tags" ] && get_file_containing_tags
+
+  [ ${#files[@]} = 0 ] && echo ERROR: no file to export && exit 1
+  [ -f "$out_dir" ] && echo ERROR: output dir is a file, choose another place && exit 1
+  [ -d "$out_dir" ] || mkdir -p "$out_dir"
 }
 
 
 prepare-file() {
   # replace `![[image-name.png]]` to `![](/attachments/image-name.png)`
-  local image_prepared="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
+  local output="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
   # increase the level due to adding the file name as a `# header`
   [ $is_file_name_as_header ] &&
-    local header_levels_prepared="$(echo "$image_prepared" | sed -r "s/^#+ (.*)/#\0/")"
-  echo "$header_levels_prepared"
+    local output="$(echo "$output" | sed -r "s/^#+ (.*)/#\0/")"
+  echo "$output"
 }
 
 
 convert-to-pure-markdown() {
   for file in "${files[@]}"; do
+    file_base="$(basename "$file")"
     [ $is_concat ] &&
       prepared_md_file="$TMP_DIR/concated_file.pure.md" || # FIXME: this may overwrite an existing file
-      prepared_md_file="$TMP_DIR/${file%.md}.pure.md"
+      prepared_md_file="$TMP_DIR/${file_base%.md}.pure.md"
 
     [ $is_file_name_as_header ] &&
-      echo "# ${file%.md}" >> "$prepared_md_file"
+      echo "# ${file_base%.md}" >> "$prepared_md_file"
 
     echo >> "$prepared_md_file"
     cat "$file" | prepare-file >> "$prepared_md_file"
@@ -74,9 +126,9 @@ convert-to-pdf() {
 
 copy-to-out-dir() {
   if [ "$is_md_only" ]; then
-    cp "$TMP_DIR"/*.md "$out_dir"
+    mv "$TMP_DIR"/*.md "$out_dir"
   else
-    cp "$TMP_DIR"/*.pdf "$out_dir"
+    mv "$TMP_DIR"/*.pdf "$out_dir"
   fi
 }
 

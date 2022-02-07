@@ -21,6 +21,7 @@ Plug 'wakatime/vim-wakatime'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'jiangmiao/auto-pairs'
 Plug 'matze/vim-move'
+" Plug 'fedepujol/move.nvim'
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tommcdo/vim-exchange'
@@ -206,3 +207,4 @@ let g:Hexokinase_optInPatterns = 'full_hex,rgb,rgba,hsl,hsla'
 """ ----------------------------------------
 
 let g:move_key_modifier = 'A' " Alt
+

@@ -145,6 +145,17 @@ nnoremap <silent> <space>zk :TZTop<CR>
 nnoremap <silent> <space>zl :TZRight<CR>
 nnoremap <silent> <space>zh :TZLeft<CR>
 
+""" ---------- fedepujol/move.nvim
+
+" nnoremap <silent> <A-j> lua require('move').MoveLine(1)<CR>
+" nnoremap <silent> <A-k> lua require('move').MoveLine(-1)<CR>
+" vnoremap <silent> <A-j> lua require('move').MoveBlock(1)<CR>
+" vnoremap <silent> <A-k> lua require('move').MoveBlock(-1)<CR>
+" nnoremap <silent> <A-l> lua require('move').MoveHChar(1)<CR>
+" nnoremap <silent> <A-h> lua require('move').MoveHChar(-1)<CR>
+" vnoremap <silent> <A-l> lua require('move').MoveHBlock(1)<CR>
+" vnoremap <silent> <A-h> lua require('move').MoveHBlock(-1)<CR>
+
 """ ---------- mfussenegger/nvim-dap
 
 nnoremap <silent> <F5> :lua require'dap'.continue()<CR>

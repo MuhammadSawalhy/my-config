@@ -1,0 +1,83 @@
+#!/bin/bash
+
+collect_arg_and_validate() {
+  print_help () {
+cat << EOF
+
+USAGE:
+  ytdl-list [...options] <list.txt> -- [...youtube-dl_options]
+
+EXAMPLES:
+  ytdl-list list.txt -- -f 250 -c
+
+OPTIONS:
+  --help, -h | print this help message
+  --dest, -d | destination of the downloaded media
+
+EOF
+  }
+
+  # ------------- defaults
+  dest=.
+
+  while (($#)); do
+    arg=$1; shift
+    [ "$arg" = "--dest" ] && dest="$1" && shift && continue
+    [ "$arg" = "-d"     ] && dest="$1" && shift && continue
+
+    [ "$arg" = "--help" ] && is_help=1 && break
+    [ "$arg" = "-h"     ] && is_help=1 && break
+    [ "$arg" = "--"     ] && break # the rest will be passed to `youtube-dl`
+
+    if [ "$list_file" ]; then
+      >&2 echo ERROR: invalid arguments passed, please run with --help to see how to use me
+      exit 1
+    fi
+    list_file="$arg"
+  done
+
+  [ "$is_help" ] && print_help && exit 0
+
+  if [ ! "$list_file" ]; then
+    >&2 echo ERROR: no list file passed, please run with --help to see how to use me
+    exit 1
+  fi
+
+  if [ ! -f "$list_file" ]; then
+    >&2 echo ERROR: "$list_file" is not found
+    exit 1
+  fi
+  
+  list_file="$(realpath "$list_file")"
+  youtube_dl__options=("$@")
+}
+
+download_the_list() {
+  set -e
+  cd "$dest"
+  set +e -- $(< "$list_file")
+  while (($#)); do
+    youtube-dl "${youtube_dl__options[@]}" "$1"
+    if (($?)); then
+      fails+=("$1")
+      echo =============================================
+      echo FAILED: $1
+      echo =============================================
+    fi
+    shift
+  done
+}
+
+declare -a fails
+declare -a youtube_dl__options
+collect_arg_and_validate "$@"
+download_the_list
+
+if ((${#fails[@]})); do
+  echo =============================================
+  echo Some downloads failed
+  for f in "${fails[@]}"; do
+    echo $f
+  done
+  echo =============================================
+fi

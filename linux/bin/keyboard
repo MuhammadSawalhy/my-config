@@ -8,9 +8,10 @@ get_kbdlayout() {
 }
 
 set_kbdlayout() {
-  echo -e "setting keymap: $1 \a"
-  setxkbmap "$1"
+  echo -e "setting keymap: $next_layout \a"
+  setxkbmap "$next_layout"
   [ -f ~/.Xmodmap ] && xmodmap ~/.Xmodmap
+  [ -f ~/."$next_layout_first".Xmodmap ] && echo found && xmodmap ~/."$next_layout_first".Xmodmap
   # pgrep i3status | xargs --no-run-if-empty kill -s USR1 # tell i3status to update
 }
 
@@ -27,18 +28,19 @@ cycle() {
   else
     # cycle the configured keymaps, e.g., us,ara,fr -> fr,us,ara -> ara,fr,us
     next_layout="${current_layout#*,},$current_layout_first"
-    set_kbdlayout "$next_layout"
+    next_layout_first=${next_layout%%,*}
+    set_kbdlayout
   fi
 }
 
-i3status() {
-  while :
-  do
-    read line
-    block="{\"full_text\":\"$(get_kbdlayout)\"}"
-    echo "${line/\[\{/\[$block,\{}"|| exit 1
-  done
-}
+# i3status() {
+#   while :
+#   do
+#     read line
+#     block="{\"full_text\":\"$(get_kbdlayout)\"}"
+#     echo "${line/\[\{/\[$block,\{}" || exit 1
+#   done
+# }
 
 subcommand="$1"
 shift || { echo

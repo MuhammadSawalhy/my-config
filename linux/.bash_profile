@@ -22,7 +22,9 @@ alias ydl480='youtube-dl -c -f 248+251'
 alias ydl720='youtube-dl -c -f 271+251'
 alias pasteimage="xclip -sel clip -t image/png -o"
 alias copyimage="xclip -sel clip -t image/png"
-alias imgprimtoclip="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
+alias imgptoc="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
+# to paste the image itself in obsidian, I don't want to use the online version
+alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
 
 alias myp="cd ~/myp/"
 alias myc="cd ~/myconfig"
@@ -101,7 +103,7 @@ function rgc() {
 
 function wgcc() {
   # validation
-  local err=;local file=
+  local err=; local file=
   if [ ! $1 ]; then err="you have to pass the filename!";
   elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then err="file not found: './$1.cc' and './$1.cpp'" fi
   if [ $err ]; then echo $err >&2; return 1; fi
@@ -115,7 +117,7 @@ function wgcc() {
 
 function rgcc() {
   # validation
-  local err=;local file=
+  local err=; local file=
   if [ ! $1 ]; then err="you have to pass the filename!";
   elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then err="file not found: './$1.cc' and './$1.cpp'" fi
   if [ $err ]; then echo $err >&2; return 1; fi

@@ -85,6 +85,7 @@ collect-args() {
 
 
 prepare-file() {
+  # TODO: use the captian after "|" symbol
   # replace `![[image-name.png]]` to `![](/attachments/image-name.png)`
   local output="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
   # increase the level due to adding the file name as a `# header`

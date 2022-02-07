@@ -1,0 +1,10 @@
+#!/bin/bash
+
+while true; do
+  mem_usage_percent=$(free | awk '/^Mem/ { print $3/$2*100 }' | cut -d. -f1)
+  if test $mem_usage_percent -gt 90; then
+    pkill chrome
+  fi
+  sleep 3
+done
+

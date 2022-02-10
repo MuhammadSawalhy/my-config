@@ -104,8 +104,6 @@ collect-arg-and-validate() {
 
 prepare-input-and-output() {
   [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
-  [ "$input" = "$output" ] &&
-    &>2 echo error\(IO\): input should differ from output && exit 2
 
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # a possible senario is to down only a portion of the video
@@ -121,6 +119,9 @@ prepare-input-and-output() {
         # then same extension as the input
         output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
       fi
+    elif [ "$input" = "$output" ]; then
+      &>2 echo error\(IO\): input should differ from output
+      exit 2
     fi
   fi
 
@@ -175,7 +176,8 @@ do-cut() {
 
 do-speedup() {
   echo-title "⏩️ ... speedup the cut video x$speed"
-  cmd="ffmpeg -i '$1' -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
+  input_args="$(get-input-args "$1")"
+  cmd="ffmpeg $input_args -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
   echo "$cmd"
 }
 

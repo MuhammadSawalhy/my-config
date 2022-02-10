@@ -126,9 +126,7 @@ PERL_LOCAL_LIB_ROOT="/home/ms/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT
 PERL_MB_OPT="--install_base \"/home/ms/perl5\""; export PERL_MB_OPT;
 PERL_MM_OPT="INSTALL_BASE=/home/ms/perl5"; export PERL_MM_OPT;
 
-export VOLTA_HOME="$HOME/.volta"
 export DENO_INSTALL="/home/ms/.deno"
-export PATH="$VOLTA_HOME/bin:$PATH"
 export PATH="$DENO_INSTALL/bin:$PATH"
 export PATH="$HOME/.poetry/bin:$PATH"
 export PATH="$HOME/go/bin:$PATH"
@@ -138,3 +136,5 @@ export INFOPATH="$INFOPATH:/opt/texlive/2021/texmf-dist/doc/info"
 
 source "$HOME/.cargo/env"
 source /home/ms/.config/broot/launcher/bash/br
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

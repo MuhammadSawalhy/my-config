@@ -27,7 +27,7 @@ alias imgptoc="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
 alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
 
 alias myp="cd ~/myp/"
-alias myc="cd ~/myconfig"
+alias myc="cd ~/my-config"
 alias edu="cd ~/edu/2nd-electric"
 
 alias yws="yarn workspace"
@@ -44,8 +44,11 @@ export EDITOR=nvim
 #          my own scripts
 # ------------------------------------
 
-mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }' }
-memusage(){ ps -axch -o cmd,%mem --sort=-%mem | head -n $(test $1 && echo $1 || echo 10) }
+mem(){ free | awk '/^Mem/ { print $3/$2*100"%" }'; }
+memusage(){
+  ps -axch -o cmd,%mem --sort=-%mem |
+  head -n $(test $1 && echo $1 || echo 10)
+}
 
 function z() {
   zellij --layout ~/.config/zellij/layouts/layout1.yaml
@@ -92,34 +95,38 @@ function wgc() {
 
 function rgc() {
   # validation
-  local err=;local file=
-  if [ ! $1 ]; then err="you have to pass the filename!";
+  local err=; local file=
+  if [ ! "$1" ]; then err="you have to pass the filename!";
   elif [ ! -f "$1.c" ]; then err="file not found: ./$1.c"; fi
-  if [ $err ]; then echo $err >&2; return 1; fi
+  if [ "$err" ]; then echo $err >&2; return 1; fi
   # command to watch and compile
   file=$1; shift
-  gcc $file.c -o $file $@ && ./$file
+  gcc "$file.c" -o "$file" "$@" && "./$file"
 }
 
 function wgcc() {
   # validation
   local err=; local file=
-  if [ ! $1 ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then err="file not found: './$1.cc' and './$1.cpp'" fi
-  if [ $err ]; then echo $err >&2; return 1; fi
+  if [ ! ?$1? ]; then err="you have to pass the filename!";
+  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then
+    err="file not found: './$1.cc' and './$1.cpp'"
+  fi
+  if [ "$err" ]; then echo $err &>2; return 1; fi
   # command to watch and compile
 
-  file=$1; shift
-  [ -f "$file.cc" ] && \
-    nodemon -w $file.cc -e cc -x "g++ $file.cc -o $file $@ && ./$file" || \
-    nodemon -w $file.cpp -e cpp -x "g++ $file.cpp -o $file $@ && ./$file"
+  file="$1"; shift
+  [ -f "$file.cc" ] &&
+    nodemon -w "$file.cc" -e cc -x "g++ $file.cc -o $file $@ && ./$file" ||
+    nodemon -w "$file.cpp" -e cpp -x "g++ $file.cpp -o $file $@ && ./$file"
 }
 
 function rgcc() {
   # validation
   local err=; local file=
   if [ ! $1 ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then err="file not found: './$1.cc' and './$1.cpp'" fi
+  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then
+    err="file not found: './$1.cc' and './$1.cpp'"
+  fi
   if [ $err ]; then echo $err >&2; return 1; fi
   # command to watch and compile
 
@@ -128,4 +135,3 @@ function rgcc() {
     g++ $file.cc -o $file $@ && ./$file || \
     g++ $file.cpp -o $file $@ && ./$file
 }
-

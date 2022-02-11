@@ -1,7 +1,35 @@
 #!python3
 
-import os
+# NOTE: these are arch programs
+# fmt: off
+programs = [
+    # terminal programs
+    "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "exa", "ripgrep", "ranger", "fzf",
+    # additional non-essential terminal programs
+    "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core","postgresql", 
+    # gui tools
+    "mpv", "typora", "obsidian", "copyq", "megasync-bin", "syncthing", "simplescreenrecorder", 
+    "feh"
+]
+# fmt: on
 
-os.system("git clone https://github.com/alexanderjeurissen/ranger_devicons \
-        ~/.config/ranger/plugins/ranger_devicons")
+additional_commands = [
+    "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm",
+    "curl https://sh.rustup.rs -sSf | sh",
+    'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"',
+    "git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons",
+    "git clone https://gitlab.com/dwt1/wallpapers /home/ms/Pictures/wallpapers",
+]
 
+npms = [
+    "eslint",
+    "prettier",
+]
+
+cargos = ["fastmod", "br"]
+
+pips = [
+    "autopep8",  # for fomatting python
+    "black",  # for fomatting python
+    "ueberzug",  # for ranger to view images
+]

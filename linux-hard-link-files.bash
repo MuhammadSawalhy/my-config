@@ -58,25 +58,27 @@ elif [ ! $is_force ] && [ ! $is_reverse ]; then
   is_fill=1
 fi
 
-[ $is_reverse ] && \
-patterns=(`find linux -type f | sed 's/^linux\///'`) || \
-patterns=(`sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt`) # remove void lines and comments
+[ $is_reverse ] &&
+readarray -t patterns < <(find linux -type f | sed 's/^linux\///') ||
+readarray -t patterns < <(sed "/^\s*#\|^\s*$/ d" ./linux-linked-files.txt) # remove void lines and comments
 
 # echo "${patterns[@]}"; exit
 # echo DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill; exit
 # DRY=$is_dry REVERSE=$is_reverse FORCE=$is_force FILL=$is_fill \
 #   node inspect ./linux-linked-files.js "${patterns[@]}"; exit
 
-readarray -t files < <(
+files=$(
   DRY=$is_dry REVERSE=$is_reverse \
   FORCE=$is_force FILL=$is_fill \
   node ./linux-linked-files.js "${patterns[@]}"
 )
 
+(($?)) && exit 1 # exit when an error detected
+
+readarray -t files <<< "$files"
+
 # echo ${!files[@]}
 # echo "${files[@]}"; exit
-
-(($?)) && exit 1 # exit when an error detected
 
 force_opt=`test $is_force && echo '-f'`
 

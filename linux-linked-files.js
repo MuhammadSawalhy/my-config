@@ -19,6 +19,7 @@ let isDry = process.env.DRY === "1";
 let isForce = process.env.FORCE === "1";
 let isReverse = process.env.REVERSE === "1";
 let isFill = process.env.FILL === "1";
+let errorOccured = false;
 
 function resolve(...p) {
   let homeRootPath = p.find((_) => _.startsWith("~"));
@@ -52,7 +53,7 @@ function filter(p) {
 function handleFile(f) {
   let relPath = f;
   if (!isReverse) {
-    relPath = resolve(f); // it stats with ~, resolve it to get the full path
+    relPath = resolve(f); // if starts with ~, resolve it to get the full path
     relPath = path.relative(process.env.HOME, relPath);
     if (relPath.startsWith(".."))
       throw "patterns should be inside the $HOME directory";
@@ -74,7 +75,7 @@ while (patterns.length) {
     let linkingData = handleFile(p);
     if (!fs.existsSync(linkingData.path)) {
       console.error("source path doesn't exist: " + linkingData.path);
-      process.exit(1);
+      errorOccured = true;
     }
 
     // if it is file
@@ -85,7 +86,7 @@ while (patterns.length) {
           console.error(
             "targetted link will overwrite exsiting file: " + linkingData.link
           );
-          process.exit(1);
+	  errorOccured = true;
         }
       }
       relPaths.add(linkingData.relPath);
@@ -102,6 +103,8 @@ while (patterns.length) {
     }
   }
 }
+
+if (errorOccured) process.exit(1);
 
 !isDry && linkDirs.forEach((d) => fs.mkdirSync(d, { recursive: true }));
 relPaths.forEach((f) => console.log(f));

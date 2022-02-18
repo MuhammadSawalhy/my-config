@@ -20,6 +20,9 @@
 ~/.mlterm
 !~/.mlterm/Mlterm-Color-Schames
 
+~/.config/alacritty/
+!~/.config/alacritty/colors/
+
 ~/.config/nvim/
 !~/.config/nvim/plugins/
 !~/.config/nvim/mini-init.vim

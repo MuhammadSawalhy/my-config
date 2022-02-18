@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while true; do
+  xset-my-root
+  sleep 5s 
+done

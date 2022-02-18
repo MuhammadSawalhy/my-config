@@ -9,7 +9,9 @@ programs = [
     "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core","postgresql", 
     # gui tools
     "mpv", "typora", "obsidian", "copyq", "megasync-bin", "syncthing", "simplescreenrecorder", 
-    "feh"
+    "feh",
+    # fonts
+    "noto-fonts-emoji", "noto-fonts-cjk"
 ]
 # fmt: on
 
@@ -19,7 +21,16 @@ additional_commands = [
     'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"',
     "git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons",
     "git clone https://gitlab.com/dwt1/wallpapers /home/ms/Pictures/wallpapers",
+    """
+    REPO=https://github.com/eendroroy/alacritty-theme.git
+    DEST="$HOME/.eendroroy-colorschemes"
+    # Get colorschemes
+    git clone $REPO $DEST
+    # Create symlink at default colors location (optional)
+    ln -s "$DEST/themes" "$HOME/.config/alacritty/colors"
+    """,
 ]
+
 
 npms = [
     "eslint",

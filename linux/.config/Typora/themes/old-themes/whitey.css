@@ -5,6 +5,7 @@ html {
 html, body {
 	margin: auto;
 	background: #fefefe;
+	-webkit-font-smoothing: antialiased;
 }
 body {
 	font-family: "Vollkorn", Palatino, Times;

@@ -31,6 +31,7 @@
 
 html {
     font-size: 16px;
+    -webkit-font-smoothing: antialiased;
 }
 
 html,
@@ -76,6 +77,10 @@ div.code-tooltip,
     background: #333;
 }
 
+.native-window #md-notification {
+    border: 1px solid #70717d;
+}
+
 .popover.bottom > .arrow:after {
     border-bottom-color: #333;
 }
@@ -86,7 +91,7 @@ button,
 input,
 select,
 textarea {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
 }
 
 hr {
@@ -942,7 +947,10 @@ footer.ty-footer {
     height: 21px;
 }
 
-.ty-preferences .nav-group-item.active {
+.ty-preferences .nav-group-item.active,
+.export-item.active,
+.export-items-list-control,
+.export-detail {
     background: var(--item-hover-bg-color);
 }
 
@@ -1002,4 +1010,8 @@ footer.ty-footer {
 .modal-backdrop.in {
     opacity: 1;
     backdrop-filter: blur(1px);
+}
+
+.clear-btn-icon {
+    top: 8px;
 }

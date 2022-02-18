@@ -20,8 +20,7 @@ Plug 'kyazdani42/nvim-web-devicons'
 Plug 'wakatime/vim-wakatime'
 Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'jiangmiao/auto-pairs'
-Plug 'matze/vim-move'
-" Plug 'fedepujol/move.nvim'
+Plug 'fedepujol/move.nvim'
 Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tommcdo/vim-exchange'
@@ -64,7 +63,7 @@ Plug 'windwp/nvim-ts-autotag'
 Plug 'folke/twilight.nvim'
 Plug 'nvim-treesitter/playground'
 Plug 'mfussenegger/nvim-ts-hint-textobject'
-" Plug 'romgrk/nvim-treesitter-context'
+Plug 'romgrk/nvim-treesitter-context'
 
 Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install()}, 'branch': 'release' }
 Plug 'SirVer/ultisnips'
@@ -133,11 +132,6 @@ call plug#end()
 """""""          plugins simple configurations
 """"""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-source ~/.config/nvim/plugin-configs/coc.vim
-source ~/.config/nvim/plugin-configs/ccls.vim
-source ~/.config/nvim/plugin-configs/sneak.vim
-lua require('plugins')
-
 """ junegunn/fzf.vim
 """ ----------------------------------------
 
@@ -166,6 +160,17 @@ let g:chadtree_settings = {
       \ 'keymap.h_split': ["W", "<C-x>"],
       \ "view.width": 20,
       \}
+
+""" kyazdani42/nvim-tree.lua
+""" ----------------------------------------
+
+let g:nvim_tree_highlight_opened_files = 1
+" a list of groups can be found at `:help nvim_tree_highlight`
+highlight NvimTreeFolderIcon guibg=blue
+
+let g:nvim_tree_icons = {
+    \ 'default': '',
+    \ }
 
 """ ranger for vim
 """ ----------------------------------------
@@ -203,8 +208,10 @@ let g:grammarous#default_comments_only_filetypes =
 let g:Hexokinase_highlighters = [ 'virtual' ]
 let g:Hexokinase_optInPatterns = 'full_hex,rgb,rgba,hsl,hsla'
 
-""" matze/vim-move
+""" finial flavours
 """ ----------------------------------------
 
-let g:move_key_modifier = 'A' " Alt
-
+source ~/.config/nvim/plugin-configs/coc.vim
+source ~/.config/nvim/plugin-configs/ccls.vim
+source ~/.config/nvim/plugin-configs/sneak.vim
+lua require('plugins')

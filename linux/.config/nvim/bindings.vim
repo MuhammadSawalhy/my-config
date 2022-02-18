@@ -37,13 +37,14 @@ nmap <C-l>     <C-w>l
 nmap <C-h>     <C-w>h
 nmap <BS>      <C-w>h
 
-""" ---------- move the cursor while insert mode
+""" ---------- without yanking
 
-imap <C-l> <Right>
-imap <C-k> <Up>
-imap <C-j> <Down>
-imap <C-h> <Left>
-imap <BS>  <Left>
+nnoremap <leader>d "_d
+nnoremap <leader>D "_D
+vnoremap <leader>d "_d
+vnoremap <leader>D "_D
+vnoremap <leader>p "_dP
+vnoremap <leader>P "_dp
 
 """""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 """"""                      plugins
@@ -53,13 +54,6 @@ imap <BS>  <Left>
 
 map <C-w>z     <plug>WinZoom_Toggle
 map <C-w><C-z> <plug>WinZoom_Toggle
-
-""" ---------- ms-jpq/chadtree
-
-nmap <silent> <Space>e <CMD>CHADopen<CR>
-
-" nmap <silent> <Space>e :NvimTreeToggle<CR>
-" nmap <silent> <Space>E :NvimTreeToggle<CR>
 
 """ ---------- fzf
 
@@ -72,6 +66,14 @@ nmap <C-f> :Rg!<CR>
 """ ---------- ranger for vim
 
 nmap <silent> <space>r :RnvimrToggle<CR>
+
+""" ---------- kyazdani42/nvim-tree.lua
+
+" nmap <silent> <Space>e <CMD>NvimTreeToggle<CR>
+
+""" ---------- ms-jpq/chadtree
+
+nmap <silent> <Space>e <CMD>CHADopen<CR>
 
 """ ---------- sneak
 
@@ -123,7 +125,7 @@ nmap <silent> <space>w <Plug>(choosewin)
 
 " ---------- folke/twilight.nvim
 
-nnoremap <silent> <leader>t :Twilight<CR>
+nnoremap <silent> <space>t :Twilight<CR>
 
 " ---------- mfussenegger/nvim-ts-hint-textobject
 
@@ -147,14 +149,14 @@ nnoremap <silent> <space>zh :TZLeft<CR>
 
 """ ---------- fedepujol/move.nvim
 
-" nnoremap <silent> <A-j> lua require('move').MoveLine(1)<CR>
-" nnoremap <silent> <A-k> lua require('move').MoveLine(-1)<CR>
-" vnoremap <silent> <A-j> lua require('move').MoveBlock(1)<CR>
-" vnoremap <silent> <A-k> lua require('move').MoveBlock(-1)<CR>
-" nnoremap <silent> <A-l> lua require('move').MoveHChar(1)<CR>
-" nnoremap <silent> <A-h> lua require('move').MoveHChar(-1)<CR>
-" vnoremap <silent> <A-l> lua require('move').MoveHBlock(1)<CR>
-" vnoremap <silent> <A-h> lua require('move').MoveHBlock(-1)<CR>
+nnoremap <silent> <A-j> :MoveLine(1)<CR>
+nnoremap <silent> <A-k> :MoveLine(-1)<CR>
+vnoremap <silent> <A-j> :MoveBlock(1)<CR>
+vnoremap <silent> <A-k> :MoveBlock(-1)<CR>
+nnoremap <silent> <A-l> :MoveHChar(1)<CR>
+nnoremap <silent> <A-h> :MoveHChar(-1)<CR>
+vnoremap <silent> <A-l> :MoveHBlock(1)<CR>
+vnoremap <silent> <A-h> :MoveHBlock(-1)<CR>
 
 """ ---------- mfussenegger/nvim-dap
 

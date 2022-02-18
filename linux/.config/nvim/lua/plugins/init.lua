@@ -1,8 +1,10 @@
 require("plugins.dap")
 require("plugins.treesitter")
 
+-- require("nvim-tree").setup()
 require('vgit').setup()
 require('numb').setup()
+
 -- require("bufferline").setup{}
 -- require('neoscroll').setup()
 require("todo-comments").setup()
@@ -15,12 +17,15 @@ require("true-zen").setup({
 
 vim.opt.listchars = {
   -- space = ".",
-  eol = "↴",
+  -- eol = "↴",
+  -- tab = "→ ",
+  eol = "¬",
+  tab = "▸ ",
 }
 
 require("indent_blankline").setup {
   -- space_char_blankline = " ",
-  char_list = { "│", "¦", "┆", "┊" },
+  char_list = { "│"--[[ , "¦", "┆", "┊" ]] },
   filetype_exclude = { "terminal", "CHADTree", "startify" },
   use_treesitter = true,
   show_end_of_line = true,

@@ -32,6 +32,7 @@
 !~/.config/ranger/history
 
 ~/.config/mpv/
+~/.config/gitui/
+~/.config/fontconfig/
 ~/.config/Typora/themes/
 
-~/.config/fontconfig/

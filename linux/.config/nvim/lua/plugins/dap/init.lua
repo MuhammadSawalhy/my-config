@@ -29,7 +29,7 @@ local config = {
     {
       type = 'node2',
       request = 'launch',
-      program = '${workspaceFolder}/${file}',
+      program = '${file}',
       cwd = vim.fn.getcwd(),
       sourceMaps = true,
       protocol = 'inspector',
@@ -40,7 +40,7 @@ local config = {
     {
       type = "chrome",
       request = "attach",
-      program = "${workspaceFolder}/${file}",
+      program = "${file}",
       cwd = vim.fn.getcwd(),
       sourceMaps = true,
       protocol = "inspector",
@@ -60,9 +60,13 @@ local config = {
     {
       type = 'bashdb',
       request = 'launch',
+      name = 'Launch file',
       program = '${file}',
       cwd = vim.fn.getcwd(),
-      args = {},
+      args = function()
+        local args_string = vim.fn.input('Arguments: ')
+        return vim.split(args_string, " +")
+      end,
       env = {
         BASHDB_HOME = vim.g.plug_home .. '/vscode-bash-debug/bashdb_dir',
       },
@@ -74,7 +78,7 @@ local config = {
       pathPkill = 'pkill',
       pathBash = 'bash',
       pathCat = 'cat',
-    }
+    },
   },
 }
 

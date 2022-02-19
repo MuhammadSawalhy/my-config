@@ -55,7 +55,7 @@ Plug 'vim-test/vim-test'
 " Plug 'puremourning/vimspector'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-Plug 'nvim-treesitter/nvim-treesitter-textobjects'
+" Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'p00f/nvim-ts-rainbow'

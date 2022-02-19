@@ -43,7 +43,8 @@ source ~/.config/nvim/my-plugins/build-preview.vim
 source ~/.config/nvim/my-plugins/win-zoom.vim
 source ~/.config/nvim/bindings.vim
 
-colo nebulous
+colo ayu
+" colo nebulous
 " colo everforest
 " colo edge
 " colo gruvbox

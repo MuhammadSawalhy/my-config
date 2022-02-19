@@ -9,6 +9,10 @@ vnoremap Q <Nop>
 nnoremap <C-w>t     :tabedit %<CR>
 nnoremap <C-w><C-t> :tabedit %<CR>
 
+""" ---------- copy to clipboard
+
+vmap <C-c> "+y
+
 """ ---------- tabs
 
 nmap <tab>j     :tabnext<CR>
@@ -20,22 +24,17 @@ nmap <tab><tab> :tabnew<Space>
 """ ---------- windows
 
 " resize
-nmap <M-C-Up>    <C-w>+
-nmap <M-C-k>     <C-w>+
-nmap <M-C-Down>  <C-w>-
-nmap <M-C-j>     <C-w>-
-nmap <M-C-Right> <C-w>>
-nmap <M-C-l>     <C-w>>
-nmap <M-C-Left>  <C-w><
-nmap <M-C-h>     <C-w><
-nmap <M-BS>      <C-w><
+nmap <C-Up>    <C-w>+
+nmap <C-Down>  <C-w>-
+nmap <C-Right> <C-w>>
+nmap <C-Left>  <C-w><
 
 " move
-nmap <C-k>     <C-w>k
-nmap <C-j>     <C-w>j
-nmap <C-l>     <C-w>l
-nmap <C-h>     <C-w>h
-nmap <BS>      <C-w>h
+nmap <C-k>       <C-w>k
+nmap <C-j>       <C-w>j
+nmap <C-l>       <C-w>l
+nmap <C-h>       <C-w>h
+nmap <BS>        <C-w>h
 
 """ ---------- without yanking
 

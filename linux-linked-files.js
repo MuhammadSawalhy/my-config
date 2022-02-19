@@ -11,15 +11,14 @@
 
 const fs = require("fs");
 const path = require("path");
-
-let patterns = process.argv.slice(2);
-let relPaths = new Set();
-let linkDirs = new Set();
-let isDry = process.env.DRY === "1";
-let isForce = process.env.FORCE === "1";
-let isReverse = process.env.REVERSE === "1";
-let isFill = process.env.FILL === "1";
-let errorOccured = false;
+const patterns = process.argv.slice(2);
+const relPaths = new Set();
+const linkDirs = new Set();
+const isDry = !!process.env.DRY;
+const isForce = !!process.env.FORCE;
+const isReverse = !!process.env.REVERSE;
+const isFill = !!process.env.FILL;
+const errorOccured = false;
 
 function resolve(...p) {
   let homeRootPath = p.find((_) => _.startsWith("~"));
@@ -86,7 +85,7 @@ while (patterns.length) {
           console.error(
             "targetted link will overwrite exsiting file: " + linkingData.link
           );
-	  errorOccured = true;
+          errorOccured = true;
         }
       }
       relPaths.add(linkingData.relPath);
@@ -109,4 +108,3 @@ if (errorOccured) process.exit(1);
 !isDry && linkDirs.forEach((d) => fs.mkdirSync(d, { recursive: true }));
 relPaths.forEach((f) => console.log(f));
 // console.log(Array.from(relPaths).join("\n"));
-

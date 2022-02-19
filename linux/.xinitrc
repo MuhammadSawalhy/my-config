@@ -9,6 +9,7 @@ screenlayouts
 wal
 nitrogen --restore &
 picom &
+clipmenud &
 dwm-iconbar &
 exec dwm
 

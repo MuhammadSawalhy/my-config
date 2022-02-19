@@ -20,7 +20,7 @@ if [ $? != 0 ]; then
   tmux new-window -n backend -t $SESSIONNAME -c "$BACK_PATH"
   tmux send-keys -t $SESSIONNAME "source ./env/bin/activate" C-m
   tmux send-keys -t $SESSIONNAME "python manage.py runserver" C-m
-  tmux split-window -v -p 70 -t $SESSIONNAME -c "$BACK_PATH"
+  tmux split-window -v -p 80 -t $SESSIONNAME -c "$BACK_PATH"
   tmux send-keys -t $SESSIONNAME "source ./env/bin/activate" C-m
 
   # go back to the frontend window

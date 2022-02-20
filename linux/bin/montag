@@ -197,6 +197,7 @@ do-convert-gif() {
   [ -n "$gif_delay" ] && ldelay=$gif_delay
   if [ "$width" ]; then local scale_filter=",scale=$width:-1:flags=lanczos"; fi
   input_args="$(get-input-args "$1")"
+  # convert comes from `extra/imagemagick` Arch package
   cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - | convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
   echo "$cmd"
 }

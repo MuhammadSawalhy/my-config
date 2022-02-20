@@ -4,9 +4,10 @@
 # fmt: off
 programs = [
     # terminal programs
-    "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "exa", "ripgrep", "ranger", "fzf",
+    "git", "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "exa", "ripgrep", "ranger", "fzf",
     # additional non-essential terminal programs
-    "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core","postgresql", 
+    "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core","postgresql", "gitui",
+    "lazygit",
     # gui tools
     "mpv", "typora", "obsidian", "copyq", "megasync-bin", "syncthing", "simplescreenrecorder", 
     "feh",

@@ -6,10 +6,12 @@ setxkbmap -layout us,ar \
   -option grp:win_space_toggle \
   -option caps:swapescape
 screenlayouts
-wal
 nitrogen --restore &
 picom &
 clipmenud &
 dwm-iconbar &
+copyq
+megasync && megasync
+wal
 exec dwm
 

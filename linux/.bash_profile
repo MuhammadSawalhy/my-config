@@ -11,10 +11,10 @@
 ################ ---------------------
 
 alias o=xdg-open
-alias ls=exa
+alias r="ranger"
 alias l='exa -la --icons --sort=type'
 alias ll='exa -l --icons --sort=type'
-alias r="ranger"
+alias ls=exa
 alias alacritty="LIBGL_ALWAYS_SOFTWARE=1 alacritty"
 alias prgs='printf "$(git status)"'
 alias ydl360='youtube-dl -c -f 247+251'
@@ -52,6 +52,16 @@ memusage(){
 
 function z() {
   zellij --layout ~/.config/zellij/layouts/layout1.yaml
+}
+
+lg()
+{
+  export LAZYGIT_NEW_DIR_FILE=~/.lazygit/newdir
+  lazygit "$@"
+  if [ -f $LAZYGIT_NEW_DIR_FILE ]; then
+    cd "$(cat $LAZYGIT_NEW_DIR_FILE)"
+    rm -f $LAZYGIT_NEW_DIR_FILE > /dev/null
+  fi
 }
 
 # list all + exclude

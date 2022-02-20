@@ -91,6 +91,21 @@ dap.configurations = {
   vim = config.vim,
 }
 
+require('dap.ext.vscode').load_launchjs()
 require('dap-python').setup('~/.virtualenvs/debugpy/bin/python')
 require('dap-python').test_runner = 'pytest'
-require('dap.ext.vscode').load_launchjs()
+-- require('plugins.dap.dap-install')
+
+table.insert(dap.configurations.python, {
+  type = 'python',
+  request = 'launch',
+  name = 'Django',
+  program = vim.fn.getcwd() .. '/manage.py',  -- NOTE: Adapt path to manage.py as needed
+  args = {'runserver'},
+})
+
+for k, configs in pairs(dap.configurations) do
+  for i, conf in ipairs(configs) do
+    conf["justMyCode"] = false
+  end
+end

@@ -82,7 +82,7 @@ require'nvim-treesitter.configs'.setup {
   context_commentstring = commentstring,
   highlight = {
     -- see: https://github.com/nvim-treesitter/nvim-treesitter/issues/1765
-    enable = true,
+    enable = false,
     additional_vim_regex_highlighting = false,
   },
 }

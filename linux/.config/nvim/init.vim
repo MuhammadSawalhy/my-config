@@ -43,9 +43,36 @@ source ~/.config/nvim/my-plugins/build-preview.vim
 source ~/.config/nvim/my-plugins/win-zoom.vim
 source ~/.config/nvim/bindings.vim
 
-colo ayu
+""" colorschemes
+""" ----------------------------------------
+
+" Yagua/nebulous.nvim
+let g:nb_style = "night"
+let g:nb_italic_functions = v:true
+let g:nb_italic_comments = v:true
+lua require("nebulous").setup()
+
+" sainnhe/edge
+let g:edge_style = 'neon'
+let g:edge_enable_italic = 1
+
+" sainnhe/everforest
+let g:everforest_background = 'hard'
+let g:everforest_enable_italic = 1
+let g:everforest_disable_italic_comment = 1
+
+" rose-pine/neovim
+lua<<EOF
+require('rose-pine').setup({
+  -- -@usage 'main'|'moon'
+  dark_variant = 'moon',
+})
+EOF
+
+colo everforest
+" colo rose-pine
+" colo ayu
 " colo nebulous
-" colo everforest
 " colo edge
 " colo gruvbox
 " colo paramount

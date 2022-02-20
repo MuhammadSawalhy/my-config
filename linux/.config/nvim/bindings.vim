@@ -11,15 +11,19 @@ nnoremap <C-w><C-t> :tabedit %<CR>
 
 """ ---------- copy to clipboard
 
-vmap <C-c> "+y
+xmap <C-c> "+y
+
+""" ---------- sort by line width
+
+xmap gsw :'<,'> ! awk '{ print length(), $0 \| "sort -n \| cut -d\\  -f2-" }'<CR><ESC>
 
 """ ---------- tabs
 
 nmap <tab>j     :tabnext<CR>
-nmap <tab>k     :tabprevious<CR>
 nmap <tab>l     :tablast<CR>
 nmap <tab>h     :tabfirst<CR>
 nmap <tab><tab> :tabnew<Space>
+nmap <tab>k     :tabprevious<CR>
 
 """ ---------- windows
 
@@ -49,6 +53,15 @@ vnoremap <leader>P "_dp
 """"""                      plugins
 """""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+""" ---------- git
+
+nmap <space>gd <CMD>VGit buffer_diff_preview<CR>
+nmap <space>gh <CMD>VGit buffer_history_preview<CR>
+
+""" ---------- mbbill/undotree
+
+nmap <space>u <CMD>UndotreeToggle<CR>
+
 """ ---------- ./my-plugins/win-zoom.vim
 
 map <C-w>z     <plug>WinZoom_Toggle
@@ -57,29 +70,20 @@ map <C-w><C-z> <plug>WinZoom_Toggle
 """ ---------- fzf
 
 nmap <silent> <space>p :Files<CR>
-nmap <silent> <space>g :GFiles<CR>
 nmap <silent> <space>o :Buffers<CR>
 " from junegunn/fzf plugin
 nmap <C-f> :Rg!<CR>
 
 """ ---------- ranger for vim
-
-nmap <silent> <space>r :RnvimrToggle<CR>
-
 """ ---------- kyazdani42/nvim-tree.lua
-
-" nmap <silent> <Space>e <CMD>NvimTreeToggle<CR>
-
 """ ---------- ms-jpq/chadtree
 
+" nmap <silent> <Space>e <CMD>NvimTreeToggle<CR>
 nmap <silent> <Space>e <CMD>CHADopen<CR>
+nmap <silent> <space>r :RnvimrToggle<CR>
 
 """ ---------- sneak
 
-" remap so I can use , and ; with f and t
-nmap <silent> gS <Plug>Sneak_,
-nmap <silent> gs <Plug>Sneak_;
-" I like quickscope better for this since it keeps me in the scope of a single line
 nmap <silent> f <Plug>Sneak_f
 nmap <silent> F <Plug>Sneak_F
 nmap <silent> t <Plug>Sneak_t

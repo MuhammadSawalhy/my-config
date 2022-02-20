@@ -1,12 +1,17 @@
 require("plugins.dap")
 require("plugins.treesitter")
+require('session_manager').setup({
+  autoload_mode = require('session_manager.config').AutoloadMode.CurrentDir
+})
 
 -- require("nvim-tree").setup()
 require('vgit').setup()
 require('numb').setup()
 
 -- require("bufferline").setup{}
--- require('neoscroll').setup()
+require('neoscroll').setup({ 
+  easing_function = "quadratic",
+})
 require("todo-comments").setup()
 require("true-zen").setup({
   misc = { ui_elements_commands = true }

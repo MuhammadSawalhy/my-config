@@ -6,33 +6,36 @@ let g:plug_home = '~/.config/nvim/plugins'
 
 call plug#begin(plug_home)
 
-Plug 'sudormrfbin/cheatsheet.nvim'
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim'
-Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'wakatime/vim-wakatime'
+Plug 'sudormrfbin/cheatsheet.nvim'
 Plug 'kyazdani42/nvim-web-devicons'
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'Shatur/neovim-session-manager'
+Plug 'Shougo/denite.nvim', { 'do': ':UpdateRemotePlugins' }
 " Plug 'ryanoasis/vim-devicons'
 
 """ For Editing
 """ -------------------------------------------------------------
 
-Plug 'wakatime/vim-wakatime'
-Plug 'mg979/vim-visual-multi', {'branch': 'master'}
-Plug 'jiangmiao/auto-pairs'
-Plug 'fedepujol/move.nvim'
-Plug 'junegunn/vim-easy-align'
-Plug 'tpope/vim-surround'
-Plug 'tommcdo/vim-exchange'
-Plug 'AndrewRadev/splitjoin.vim'
 Plug 'SidOfc/mkdx'
-Plug 'KabbAmine/vCoolor.vim'
-Plug 'rhysd/vim-grammarous'
 Plug 'dylon/vim-antlr'
+Plug 'mbbill/undotree'
 Plug 'PProvost/vim-ps1'
+Plug 'tpope/vim-surround'
+Plug 'fedepujol/move.nvim'
 Plug 'kovetskiy/sxhkd-vim'
 Plug 'famiu/bufdelete.nvim'
+Plug 'jiangmiao/auto-pairs'
+Plug 'rhysd/vim-grammarous'
+Plug 'tommcdo/vim-exchange'
+Plug 'KabbAmine/vCoolor.vim'
 Plug 'numToStr/Comment.nvim'
+Plug 'junegunn/vim-easy-align'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'christoomey/vim-sort-motion'
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 " Plug 'terrortylor/nvim-comment'
 " Plug 'b3nj5m1n/kommentary'
 " Plug 'tpope/vim-commentary'
@@ -46,10 +49,9 @@ Plug 'sbdchd/neoformat'
 Plug 'mfussenegger/nvim-treehopper'
 Plug 'mfussenegger/nvim-dap'
 Plug 'rcarriga/nvim-dap-ui'
+Plug 'Pocco81/DAPInstall.nvim'
 Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'mfussenegger/nvim-dap-python'
-Plug 'microsoft/vscode-node-debug2', { 'do': 'npm install && npm run build' }
-Plug 'microsoft/vscode-chrome-debug', { 'do': 'npm install && npm run build' }
 Plug 'rogalmic/vscode-bash-debug', { 'do': 'npm install && npm run compile' }
 Plug 'vim-test/vim-test'
 " Plug 'puremourning/vimspector'
@@ -89,7 +91,7 @@ Plug 'heavenshell/vim-jsdoc', {
 " GUI And Themes (fzf, git, files, statusline, ...)
 " --------------------------------------------------------------
 
-Plug 'mhinz/vim-startify' " for the welcom pages, after startup nvim
+" Plug 'mhinz/vim-startify' " for the welcom pages, after startup nvim
 Plug 'tanvirtin/vgit.nvim'
 Plug 'nacro90/numb.nvim'
 Plug 'Pocco81/TrueZen.nvim'
@@ -101,6 +103,7 @@ Plug 'Yagua/nebulous.nvim'
 Plug 'sainnhe/edge'
 Plug 'sainnhe/everforest'
 Plug 'folke/tokyonight.nvim'
+Plug 'rose-pine/neovim'
 Plug 'rhysd/vim-color-spring-night'
 Plug 'folke/todo-comments.nvim'
 Plug 'rrethy/vim-hexokinase', { 'do': 'make hexokinase' }
@@ -137,19 +140,6 @@ call plug#end()
 
 " [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
-
-""" colorschemes
-""" ----------------------------------------
-
-" Yagua/nebulous.nvim
-let g:nb_style = "night"
-let g:nb_italic_functions = v:true
-let g:nb_italic_comments = v:true
-lua require("nebulous").setup()
-
-" sainnhe/edge
-let g:edge_style = 'neon'
-let g:edge_enable_italic = 1
 
 """ ms-jpq/chadtree
 """ ----------------------------------------

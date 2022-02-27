@@ -5,47 +5,43 @@ set -e
 
 print-help () {
 cat <<- EOF
+┌──┬────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│-h│ --help     │ Show this help message
+│-q│ --quiet    │ See outputs of ffmpeg while processing
+│-i│ --input    │ Input video, should have the same extension as [output-video]
+│-s│ --start    │ Specifies the start point, e.g. 00:01:23.000 or 83 (in seconds)
+│-d│ --duration │ Duration, length, the same format as start (needs --start)
+│-t│ --to       │ End point, the same format as start (needs --start)
+│-x│ --speed    │ Speed of the output video (multiplier, e.g., 1.75)
+│  │ --crop     │ Frame to crop the video, e.g. "in_w:in_h-40", see crop
+│  │            │   filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
+├──┼────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --gif      │ Convert to gif, this will set these defaults: --fps 10
+│  │ --gif-loop │ How many loops your gif will do
+│  │ --gif-delay│ How long to delay the gif
+├──┼────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --width    │ Width of the output (aspect ratio is preserved)
+│  │ --fps      │ Frames persecond
+├──┼────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --ytdl     │ youtube-dl (yt-dlp) additional args incase of inputing "https://*"
+│  │ --ydi      │ youtube-dl (yt-dlp) interactive mode, requires whiptail
+└──┴────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+ 
+USAGE:
+  montag -i <input-video> [options...] [-i <input-video> [options...]...] [output-video]
 
- OPTIONS:
-   -h, --help      | show this help message
-   -q, --quiet     | see outputs of ffmpeg while processing
-   -i, --input     | input video, should have the same extension as [output-video]
-                   
-   -s, --start     | specifies the start point, e.g. 00:01:23.000 or 83 (in seconds)
-   -d, --duration  | duration, length, the same format as start (needs --start)
-   -t, --to        | end point, the same format as start (needs --start)
+EXAMPLES:
+  # get the first 10 seconds and speed up the video two times
+  montag -i my-input-video.mp4 --duration 10 --speed 2
 
-   -x, --speed     | speed of the output video (multiplier, e.g., 1.75)
-       --crop      | frame to crop the video, e.g. "in_w:in_h-40",
-                     see crop filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
-
-       --gif       | convert to gif, this will set these defaults: --fps 10
-       --gif-loop  | how many loops your gif will do
-       --gif-delay | how long to delay the gif
-
-       --width     | width of the output (aspect ratio is preserved)
-       --fps       | frames persecond
-
-       --ytdl      | youtube-dl additional args incase of inputing "https://*"
- 
- 
- USAGE:
-   montag -i <input-video> [options...] [-i <input-video> [options...]...] [output-video]
- 
- 
- EXAMPLES:
- 
-   # get the first 10 seconds and speed up the video two times
-   montag -i my-input-video.mp4 --duration 10 --speed 2
- 
-   # get the specified range of the video from "--start" to "--to" and speed up
-   montag -i my-input-video.mp4 --start 00:10:21 --t 00:11:30 --speed 2
-   montag -i my-input-video.mp4 -s 00:10:21 -t 00:11:30 -x 2
- 
+  # get the specified range of the video from "--start" to "--to" and speed up
+  montag -i my-input-video.mp4 --start 00:10:21 --t 00:11:30 --speed 2
+  montag -i my-input-video.mp4 -s 00:10:21 -t 00:11:30 -x 2
 EOF
 }
 
 collect-arg-and-validate() {
+  set +e
   while (($#)); do
     arg=$1; shift
 
@@ -70,7 +66,9 @@ collect-arg-and-validate() {
     [ "$arg" = "--crop"      ] && crop="$1"        && shift && continue
     [ "$arg" = "--width"     ] && width="$1"       && shift && continue
     [ "$arg" = "--fps"       ] && fps="$1"         && shift && continue
-    [ "$arg" = "--ytdl"      ] && ytdl_options=("$1")      && shift && continue
+
+    [ "$arg" = "--ytdl"      ] && ytdl_options="$1"   && shift && continue
+    [ "$arg" = "--ydi"       ] && is_ydi=1            && continue
 
     output="$arg"
     (($#)) && >&2 echo error: invalid number of arguments && exit 2
@@ -85,42 +83,46 @@ collect-arg-and-validate() {
   # ----- cutting -----
 
   if [ "$end_point" ] && [ "$duration" ]; then
-    &>2 echo error\(cutting\): both end point and duration are provided
+    >&2 echo error\(cutting\): both end point and duration are provided
     exit 2
   fi
 
-  if ([ -n "$duration" ] || [ -n "$end_point" ]) &&
-  [ -z "$start_point" ]; then
+  if
+    [ -n "$duration" ] ||
+    [ -n "$end_point" ] && [ -z "$start_point" ]
+  then
     start_point=0
   fi
 
   # ----- giffing -----
 
   if [ "$loop" ] && [ ! "$is_gif" ]; then
-    &>2 echo error\(giffing\): can\'t use --loop without --gif
+    >&2 echo error\(giffing\): can\'t use --loop without --gif
     exit 2
   fi
+
+  set -e
 }
 
 prepare-input-and-output() {
   [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
 
-  if echo "$input" | grep -oP '^https?://' > /dev/null; then
+  if
+    echo "$input" |
+    grep -oP '^https?://' > /dev/null &&
+    [ ! "$output" ]
+  then
     # a possible senario is to down only a portion of the video
-    if [ ! "$output" ]; then
-      output="$(youtube-dl --no-playlist -O '%(title)s.%(ext)s' "$input")"
-    fi
+    output="$(youtube-dl --no-playlist -O '%(title)s.%(ext)s' "$input")"
   else
-    if [ ! "$output" ]; then
-      if [ "$is_gif" ]; then
-        # use the same name with .gif as extension
-        output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1.gif/')"
-      else
-        # then same extension as the input
-        output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
-      fi
+    if [ ! "$output" ] && [ "$is_gif" ]; then
+      # use the same name with .gif as extension
+      output="${input%.*}.gif"
+    elif [ ! "$output" ]; then
+      # then same extension as the input
+      output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
     elif [ "$input" = "$output" ]; then
-      &>2 echo error\(IO\): input should differ from output
+      >&2 echo error\(IO\): input should differ from output
       exit 2
     fi
   fi
@@ -130,7 +132,7 @@ prepare-input-and-output() {
     echo "${basename##*.}"
   }
 
-  output_ext=`ext "$output"`
+  output_ext=$(ext "$output")
   tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
   tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
   mkdir -p /tmp/montag
@@ -140,19 +142,34 @@ get-input-args() {
   local argv=("$@")
   local input="${argv[-1]}"
   unset 'argv[-1]'
+
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
-    ytdl_options+=("-c")
-    links=($(youtube-dl --no-playlist --youtube-skip-dash-manifest -g  "${ytdl_options[@]}" "$input"))
-    video_uri="${links[0]}"
-    audio_uri="${links[1]}"
-    args=(
-      "${argv[@]}" -i "$video_uri"
-      "${argv[@]}" -i "$audio_uri"
-      -map 0:v -map 1:a
-    )
-    # put all of them inside 'single qutaion mark'
-    printf "'%s' " "${args[@]}"
+    
+    quality_settings="-f best[height<=720]"
+    if [ "$is_ydi" ]; then
+      quality_settings="-f $(ydi -p "$input")"
+    fi
+
+    links=("$(
+      youtube-dl --no-playlist --youtube-skip-dash-manifest -g \
+        "$quality_settings" "${ytdl_options[@]}" "$input"
+    )")
+
+    # put link inside 'single qutaion mark'
+    if [ ${#links[@]} = 1 ]; then
+      echo -n "${argv[*]} -i '${links[0]}' "
+    elif [ ${#links[@]} = 2 ]; then
+      echo -n "${argv[*]} -i '${links[0]}' "
+      echo -n "${argv[*]} -i '${links[1]}' "
+      echo -map 0:v -map 1:a
+    else
+      1>&2 echo 'ERROR: invalid output from "youtube-dl -g <url>"'
+      [ ! $is_quiet ] &&
+        1>&2 printf '==============\n%s\n' "${links[@]}"
+      exit 1
+    fi
+
     return 0
   fi
 
@@ -162,15 +179,14 @@ get-input-args() {
 do-cut() {
   extra_description=$(
     [ "$duration" ] && echo "with length $duration" ||
-    ([ "$end_point" ] && echo "to $end_point"))
+    { [ "$end_point" ] && echo "to $end_point"; }
+  )
   echo-title "✂️  ... cut part of the video from $start_point $extra_description"
 
-  duration_arg=""
   [ "$duration"  ] && end_point_arg="-t '$duration'"
   [ "$end_point" ] && end_point_arg="-to '$end_point'"
-
   input_args="$(get-input-args -ss "$start_point" "$1")"
-  cmd="ffmpeg $input_args -ss "$start_point" $end_point_arg -copyts '$2'"
+  cmd="ffmpeg $input_args -ss '$start_point' $end_point_arg -copyts '$2'"
   echo "$cmd"
 }
 
@@ -198,7 +214,8 @@ do-convert-gif() {
   if [ "$width" ]; then local scale_filter=",scale=$width:-1:flags=lanczos"; fi
   input_args="$(get-input-args "$1")"
   # convert comes from `extra/imagemagick` Arch package
-  cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - | convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
+  cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - |
+    convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
   echo "$cmd"
 }
 
@@ -211,7 +228,6 @@ echo-title() {
 }
 
 get-user-acceptance() {
-  echo "$1"
   read -p "continue ? ([Y]/n): " ans
   ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
   [ ! "$ans" = "n" ] || clear-and-exit 1

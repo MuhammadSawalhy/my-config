@@ -1,0 +1,69 @@
+#!/bin/bash
+# source: https://www.reddit.com/r/commandline/comments/hb50u0/is_there_a_youtubedl_interactive_script/
+# this is a modified version of the above code, but I started from their
+
+set -e
+
+print-help () {
+cat <<- EOF
+┌──┬────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│-h│ --help     │ Show this help message
+│-p│ --print    │ Just print the choosen quality settings
+└──┴────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+ 
+EXAMPLES:
+  # get the quality settings using and print to STDOUT
+  yti -p https://youtu.be/JK_J97ueOno
+EOF
+}
+
+collect-arg-and-validate() {
+  set +e
+  program="yt-dlp"
+  while (($#)); do
+    arg="$1"; shift
+    [ "$arg" = "--help"    ] && is_help=1        && break
+    [ "$arg" = "-h"        ] && is_help=1        && break
+    [ "$arg" = "--print"   ] && is_print=1       && continue
+    [ "$arg" = "-p"        ] && is_print=1       && continue
+    url="$arg"
+    (($#)) && >&2 echo error: invalid number of arguments && exit 2
+  done
+
+  # ----- help -----
+  ((is_help)) && print-help && exit 0
+
+  # ----- validate -----
+  [ -z "$url" ] && 1>&2 echo ERROR: no url provided && exit 1
+}
+
+collect-arg-and-validate "$@"
+
+array=()
+
+while read line; do
+  array+=("$(echo "$line" | awk '{print $1}')" "$line")
+done <<< $(youtube-dl -F "$url" | grep '^[0-9]')
+
+# printf "%s\n" "${array[@]}"
+# exit 0
+
+answer=$(
+  whiptail --notags --title "Youtube-DL" --menu 'Select which one' 20 120 10 "${array[@]}" 3>&1 1>&2 2>&3
+)
+
+quality_settings=$(echo $answer | awk '{print $1}')
+audio=(249 250 140 251)
+
+[ -z "$answer" ] && exit 1
+if [[ ! ${audio[*]} =~ "$quality_settings" ]]; then
+  # not audio choose "bestaudio"
+  quality_settings="$quality_settings"+bestaudio
+fi
+
+if [ $is_print ]; then
+  echo "$quality_settings"
+  exit 0
+fi
+
+youtube-dl "$url" -f "$quality_settings" -ciw -o "%(title)s.%(ext)s" "$url"

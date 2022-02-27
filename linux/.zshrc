@@ -106,6 +106,9 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
+# key bindings
+# bindkey "^u" backward-kill-line
+
 ##############---------------------------------
 ## my own config
 ##############---------------------------------

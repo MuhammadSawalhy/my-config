@@ -6,15 +6,16 @@
 [ -d "$HOME/bin" ] && export PATH="$HOME/bin:$PATH"
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
 
-################ ---------------------
-### aliases
-################ ---------------------
+# ------------------------------------
+#              aliases
+# ------------------------------------
 
 alias o=xdg-open
 alias r="ranger"
 alias l='exa -la --icons --sort=type'
 alias ll='exa -l --icons --sort=type'
 alias ls=exa
+alias lg=lazygit
 alias alacritty="LIBGL_ALWAYS_SOFTWARE=1 alacritty"
 alias prgs='printf "$(git status)"'
 alias ydl360='youtube-dl -c -f 247+251'
@@ -33,6 +34,23 @@ alias edu="cd ~/edu/2nd-electric"
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
 alias ywsi="yarn workspaces foreach --include"
+
+# ------------------------------------
+#       default common setting
+# ------------------------------------
+
+export NEWT_COLORS='
+    root=,red
+    title=red,white
+    textbox=,white
+    window=,white
+    border=black,white
+    button=white,red
+    listbox=,white
+    actsellistbox=white,red
+    compactbutton=,white
+    actlistbox=white,red
+'
 
 # ------------------------------------
 #           default apps
@@ -54,15 +72,15 @@ function z() {
   zellij --layout ~/.config/zellij/layouts/layout1.yaml
 }
 
-lg()
-{
-  export LAZYGIT_NEW_DIR_FILE=~/.lazygit/newdir
-  lazygit "$@"
-  if [ -f $LAZYGIT_NEW_DIR_FILE ]; then
-    cd "$(cat $LAZYGIT_NEW_DIR_FILE)"
-    rm -f $LAZYGIT_NEW_DIR_FILE > /dev/null
-  fi
-}
+# lg()
+# {
+#   export LAZYGIT_NEW_DIR_FILE=~/.lazygit/newdir
+#   lazygit "$@"
+#   if [ -f $LAZYGIT_NEW_DIR_FILE ]; then
+#     cd "$(cat $LAZYGIT_NEW_DIR_FILE)"
+#     rm -f $LAZYGIT_NEW_DIR_FILE > /dev/null
+#   fi
+# }
 
 # list all + exclude
 function lae() {

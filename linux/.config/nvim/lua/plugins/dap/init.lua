@@ -100,8 +100,8 @@ table.insert(dap.configurations.python, {
   type = 'python',
   request = 'launch',
   name = 'Django',
-  program = vim.fn.getcwd() .. '/manage.py',  -- NOTE: Adapt path to manage.py as needed
-  args = {'runserver'},
+  program = vim.fn.getcwd() .. '/manage.py',
+  args = {'runserver', '--noreload'},
 })
 
 for k, configs in pairs(dap.configurations) do

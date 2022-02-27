@@ -1,31 +1,12 @@
 {
   "diagnostic.virtualTextCurrentLineOnly": false,
-  /* "diagnostic.virtualText": true, */
-  /* "diagnostic.enableMessage": "never", */
+  // "diagnostic.virtualText": true,
+  // "diagnostic.enableMessage": "never",
   "suggest.enablePreview": true,
   "codeLens.enable": false,
-  "coc.preferences.colorSupport": false,
-  "coc.preferences.semanticTokensHighlights": false,
-
-  "explorer.icon.enableNerdfont": true,
-  "explorer.sources": [
-    { "name": "buffer", "expand": true },
-    { "name": "file", "expand": true }
-  ],
-  "explorer.git.icon.status.added": "✚",
-  "explorer.git.icon.status.deleted": "✖",
-  "explorer.git.icon.status.renamed": "➜",
-  "explorer.git.icon.status.unmerged": "═",
-  "explorer.git.icon.status.untracked": "?",
-  "explorer.git.icon.status.modified": "✹",
-  "explorer.git.icon.status.ignored": "☒",
-  "explorer.openAction.for.directory": "expandOrCollapse",
-  "explorer.previewAction.onHover": false,
-  "explorer.keyMappings.global": {
-    "<cr>": ["expandable?", ["expanded?", "collapse", "expand"], "open"]
-  },
-
-  /* "suggest.maxPreviewWidth": 100, */
+  // "coc.preferences.colorSupport": false,
+  // "coc.preferences.semanticTokensHighlights": false,
+  // "suggest.maxPreviewWidth": 100,
   "diagnostic.checkCurrentLine": true,
   "diagnostic.errorSign": "✖",
   "diagnostic.warningSign": "⚠",
@@ -38,12 +19,17 @@
 
   // "flow.enable": false,
   "javascript.suggestionActions.enabled": false,
-  "eslint.options": { "envs": ["node", "browser", "es2021"] },
-  "python.formatting.provider": "black",
+  "eslint.options": {
+    "overrideConfig": {
+      "env": { "node": true, "browser": true, "es2021": true }
+    }
+  },
+  "python.formatting.provider": "autopep8",
   "python.formatting.blackPath": "/home/ms/.local/bin/black",
   "python.formatting.autopep8Path": "/home/ms/.local/bin/autopep8",
-  "cssmodules.camelCase": true,
+  // "cssmodules.camelCase": true,
   "Lua.diagnostics.globals": ["vim"],
+  "eslint.trace.server": "verbose",
   "languageserver": {
     "ccls": {
       "command": "ccls",
@@ -60,6 +46,15 @@
         "highlight": { "lsRanges": true },
         "cache": { "directory": "/tmp/ccls" }
       }
+    },
+    "bash": {
+      "command": "bash-language-server",
+      "args": ["start"],
+      "filetypes": ["sh"],
+      "ignoredRootPaths": ["~"]
     }
+  },
+  "diagnostic-languageserver.filetypes": {
+    "sh": "shellcheck"
   }
 }

@@ -1,2 +1,3 @@
+.vscode/
 .window-cache/
 linux/.config/nvim/mini-init.vim

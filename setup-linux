@@ -11,10 +11,16 @@ programs = [
     # gui tools
     "mpv", "typora", "obsidian", "copyq", "megasync-bin", "syncthing", "simplescreenrecorder", 
     "feh",
+    # additional developer tools
+    "docker",
     # fonts
     "noto-fonts-emoji", "noto-fonts-cjk"
 ]
 # fmt: on
+
+aur_programs = [
+    "ytfzf",
+]
 
 additional_commands = [
     "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm",
@@ -30,6 +36,15 @@ additional_commands = [
     # Create symlink at default colors location (optional)
     ln -s "$DEST/themes" "$HOME/.config/alacritty/colors"
     """,
+    """
+    curl https://cht.sh/:cht.sh |
+    sudo tee /usr/local/bin/cht.sh &&
+    sudo chmod +x /usr/local/bin/cht.sh
+    """,
+    """
+    git clone https://github.com/arzzen/git-quick-stats.git && cd git-quick-stats
+    sudo make install
+    """,
 ]
 
 
@@ -41,7 +56,9 @@ npms = [
 cargos = ["fastmod", "br"]
 
 pips = [
+    "git-fame",  # for count lines per contributer
     "autopep8",  # for fomatting python
-    "black",  # for fomatting python
+    "black",    # for fomatting python
     "ueberzug",  # for ranger to view images
+    "mdtoc",    # mainly for mobadarah/tajmeeaton
 ]

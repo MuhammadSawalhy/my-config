@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # TODO: collect all options to one ffmpeg command, not more temp files
+# TODO: use `ffmpeg -loglevel error` for quite mode
 
 set -e
 
@@ -151,10 +152,10 @@ get-input-args() {
       quality_settings="-f $(ydi -p "$input")"
     fi
 
-    links=("$(
+    links=($(
       youtube-dl --no-playlist --youtube-skip-dash-manifest -g \
         "$quality_settings" "${ytdl_options[@]}" "$input"
-    )")
+    ))
 
     # put link inside 'single qutaion mark'
     if [ ${#links[@]} = 1 ]; then
@@ -178,7 +179,7 @@ get-input-args() {
 
 do-cut() {
   extra_description=$(
-    [ "$duration" ] && echo "with length $duration" ||
+    { [ "$duration"  ] && echo "with length $duration"; } ||
     { [ "$end_point" ] && echo "to $end_point"; }
   )
   echo-title "✂️  ... cut part of the video from $start_point $extra_description"
@@ -187,14 +188,12 @@ do-cut() {
   [ "$end_point" ] && end_point_arg="-to '$end_point'"
   input_args="$(get-input-args -ss "$start_point" "$1")"
   cmd="ffmpeg $input_args -ss '$start_point' $end_point_arg -copyts '$2'"
-  echo "$cmd"
 }
 
 do-speedup() {
   echo-title "⏩️ ... speedup the cut video x$speed"
   input_args="$(get-input-args "$1")"
   cmd="ffmpeg $input_args -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
-  echo "$cmd"
 }
 
 do-crop() {
@@ -202,7 +201,6 @@ do-crop() {
   echo-title "🔳 ... crop the video with: $crop"
   input_args="$(get-input-args "$1")"
   cmd="ffmpeg $input_args -filter:v 'crop=$crop' '$2'"
-  echo "$cmd"
 }
 
 do-convert-gif() {
@@ -216,30 +214,49 @@ do-convert-gif() {
   # convert comes from `extra/imagemagick` Arch package
   cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - |
     convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
-  echo "$cmd"
 }
 
 echo-title() {
   local title="$1"
-  local term_w=$(tput cols)
-  echo
-  echo $title
-  echo ---------------------------------------------------
+  local title_len="${#title}"
+  local num_of_dashes=$title_len
+  [ "$num_of_dashes" -lt 50 ] &&
+    num_of_dashes=50
+  [ "$num_of_dashes" -gt "$(tput cols)" ] &&
+    num_of_dashes="$(tput cols)"
+  local dashes="$(for i in $(seq 1 "$num_of_dashes");do printf "-";done)"
+  echo "$dashes"
+  echo-in-the-center "$title" "$num_of_dashes"
+  echo "$dashes"
+}
+
+echo-in-the-center() {
+  local line="$1"
+  local term_w="${2:-$(tput cols)}"
+  local padding=$(( (term_w - ${#line}) / 2)) # always integer
+  if [ $padding -gt 0 ]; then
+    printf "%${padding}s" # padding with spaces
+  fi
+  echo "$line"
 }
 
 get-user-acceptance() {
-  read -p "continue ? ([Y]/n): " ans
-  ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
+  read -r -p "continue ? ([Y]/n): " ans
+  ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
   [ ! "$ans" = "n" ] || clear-and-exit 1
 }
 
 run-commands() {
   while (($#)); do
-    [ ! $is_quiet ] && eval "$1" || eval "$1" &> /dev/null
+    if [ ! $is_quiet ]; then
+      eval "$1" 
+    else 
+      eval "$1" &> /dev/null 
+    fi
     exit_code=$?
-    (($exit_code)) &&
+    ((exit_code)) &&
     echo-title "❌️ This command failed with code: $exit_code" &&
-    echo $1 && clear-and-exit $exit_code
+    echo "$1" && clear-and-exit $exit_code
     shift
   done
 }
@@ -249,7 +266,7 @@ clear-and-exit() {
   exit_code="${1:-0}"
   [ -f "$tmpfile_1" ] && rm -f "$tmpfile_1"
   [ -f "$tmpfile_2" ] && rm -f "$tmpfile_2"
-  exit $exit_code
+  exit "$exit_code"
 }
 
 do-processing() {
@@ -274,6 +291,8 @@ do-processing() {
       current_task=${tasks[$i]}
       $current_task "$current_input" "$current_output"
       cmds+=("$cmd")
+      echo "$cmd"
+      echo
 
       # swap and prepare for the next iteration
       if [ "$current_input" = "$tmpfile_1" ]; then
@@ -291,6 +310,8 @@ do-processing() {
   last_task="${tasks[-1]}"
   $last_task "$current_input" "$output"
   cmds+=("$cmd")
+  echo "$cmd"
+  echo
   get-user-acceptance
   run-commands "${cmds[@]}"
 }

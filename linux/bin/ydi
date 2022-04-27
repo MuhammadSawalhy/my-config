@@ -19,7 +19,6 @@ EOF
 
 collect-arg-and-validate() {
   set +e
-  program="yt-dlp"
   while (($#)); do
     arg="$1"; shift
     [ "$arg" = "--help"    ] && is_help=1        && break
@@ -41,9 +40,9 @@ collect-arg-and-validate "$@"
 
 array=()
 
-while read line; do
+while read -r line; do
   array+=("$(echo "$line" | awk '{print $1}')" "$line")
-done <<< $(youtube-dl -F "$url" | grep '^[0-9]')
+done <<< "$(youtube-dl -F --no-playlist "$url" | grep '^[0-9]')"
 
 # printf "%s\n" "${array[@]}"
 # exit 0
@@ -52,11 +51,11 @@ answer=$(
   whiptail --notags --title "Youtube-DL" --menu 'Select which one' 20 120 10 "${array[@]}" 3>&1 1>&2 2>&3
 )
 
-quality_settings=$(echo $answer | awk '{print $1}')
+quality_settings=$(echo "$answer" | awk '{print $1}')
 audio=(249 250 140 251)
 
 [ -z "$answer" ] && exit 1
-if [[ ! ${audio[*]} =~ "$quality_settings" ]]; then
+if [[ ! ${audio[*]} =~ $quality_settings ]]; then
   # not audio choose "bestaudio"
   quality_settings="$quality_settings"+bestaudio
 fi
@@ -66,4 +65,4 @@ if [ $is_print ]; then
   exit 0
 fi
 
-youtube-dl "$url" -f "$quality_settings" -ciw -o "%(title)s.%(ext)s" "$url"
+youtube-dl "$url" -f "$quality_settings" --no-playlist -ciw -o "%(title)s.%(ext)s" "$url"

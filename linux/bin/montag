@@ -42,7 +42,6 @@ EOF
 }
 
 collect-arg-and-validate() {
-  set +e
   while (($#)); do
     arg=$1; shift
 
@@ -68,7 +67,7 @@ collect-arg-and-validate() {
     [ "$arg" = "--width"     ] && width="$1"       && shift && continue
     [ "$arg" = "--fps"       ] && fps="$1"         && shift && continue
 
-    [ "$arg" = "--ytdl"      ] && ytdl_options="$1"   && shift && continue
+    [ "$arg" = "--ytdl"      ] && ytdl_options=($1)   && shift && continue
     [ "$arg" = "--ydi"       ] && is_ydi=1            && continue
 
     output="$arg"
@@ -101,8 +100,6 @@ collect-arg-and-validate() {
     >&2 echo error\(giffing\): can\'t use --loop without --gif
     exit 2
   fi
-
-  set -e
 }
 
 prepare-input-and-output() {
@@ -113,8 +110,13 @@ prepare-input-and-output() {
     grep -oP '^https?://' > /dev/null &&
     [ ! "$output" ]
   then
+    quality_settings="-f best[height<=720]"
+    if [ "$is_ydi" ]; then
+      quality_settings="-f $(ydi -p "$input")"
+    fi
+    ytdl_options+=($quality_settings)
     # a possible senario is to down only a portion of the video
-    output="$(youtube-dl --no-playlist -O '%(title)s.%(ext)s' "$input")"
+    output="$(youtube-dl "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$input")"
   else
     if [ ! "$output" ] && [ "$is_gif" ]; then
       # use the same name with .gif as extension
@@ -140,6 +142,7 @@ prepare-input-and-output() {
 }
 
 get-input-args() {
+  set -e # we have to do this again because this function is called as a command substitution
   local argv=("$@")
   local input="${argv[-1]}"
   unset 'argv[-1]'
@@ -147,14 +150,8 @@ get-input-args() {
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
     
-    quality_settings="-f best[height<=720]"
-    if [ "$is_ydi" ]; then
-      quality_settings="-f $(ydi -p "$input")"
-    fi
-
     links=($(
-      youtube-dl --no-playlist --youtube-skip-dash-manifest -g \
-        "$quality_settings" "${ytdl_options[@]}" "$input"
+      youtube-dl --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input"
     ))
 
     # put link inside 'single qutaion mark'
@@ -178,12 +175,12 @@ get-input-args() {
 }
 
 do-cut() {
-  extra_description=$(
-    { [ "$duration"  ] && echo "with length $duration"; } ||
-    { [ "$end_point" ] && echo "to $end_point"; }
-  )
+  if [ "$duration"  ]
+  then extra_description="with length $duration"
+  elif [ "$end_point" ]
+  then extra_description="to $end_point"
+  fi
   echo-title "✂️  ... cut part of the video from $start_point $extra_description"
-
   [ "$duration"  ] && end_point_arg="-t '$duration'"
   [ "$end_point" ] && end_point_arg="-to '$end_point'"
   input_args="$(get-input-args -ss "$start_point" "$1")"
@@ -254,9 +251,10 @@ run-commands() {
       eval "$1" &> /dev/null 
     fi
     exit_code=$?
-    ((exit_code)) &&
-    echo-title "❌️ This command failed with code: $exit_code" &&
-    echo "$1" && clear-and-exit $exit_code
+    if ((exit_code)); then # if it is other than 0
+      echo-title "❌️ This command failed with code: $exit_code"
+      echo "$1"; clear-and-exit $exit_code
+    fi
     shift
   done
 }

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+SESSIONNAME=da7ee7-platform
+PROJECT_DIR=~/myp/da7ee7-bot-platform
+
+function send-command() {
+  tmux send-keys -t $SESSIONNAME "$1" C-m
+}
+
+tmux has-session -t $SESSIONNAME &> /dev/null
+
+if [ $? != 0 ]; then
+  # new session, default window for frontend
+  tmux new-session -s $SESSIONNAME -n main -c "$PROJECT_DIR" -d
+  send-command "source ./env/bin/activate"
+  send-command "nvim"
+  tmux split-window -v -p 20 -t $SESSIONNAME -c "$PROJECT_DIR"
+  send-command "source ./env/bin/activate"
+  send-command "python manage.py runserver 8001"
+fi
+
+tmux attach -t $SESSIONNAME

@@ -114,6 +114,7 @@ source $ZSH/oh-my-zsh.sh
 ##############---------------------------------
 
 export GPG_TTY=$(tty)
+eval $(keychain --quiet --eval --agents ssh,gpg ~/.ssh/id_rsa)
 
 ##############---------------------------------
 ## import other script files

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+setopt SH_WORD_SPLIT
+
 # seek help: man info apropos whatis tldr
 
 # set PATH so it includes user's private bin if it exists
@@ -29,7 +31,7 @@ alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
 
 alias myp="cd ~/myp/"
 alias myc="cd ~/my-config"
-alias edu="cd ~/edu/2nd-electric"
+alias edu="cd ~/Documents/edu/2nd-2"
 
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
@@ -102,23 +104,78 @@ function lae() {
 # -----------------------------------------
 
 function wmake() {
-  local files=$(ls *.c)
-  (($?)) && return 0
-  if [ -z "$files" ]; then echo "no file found to make!"; return 1; fi
-  (($#)) && exec="&& echo ------- starting ------- && ./$1 && echo ------- ending -------" && shift
+  local files
+  files=(*.c)
+  if [ ${#files[@]} = 0 ]; then
+    echo "no file found to make!"
+    return 1
+  fi
+  (($#)) && {
+    exec="&& echo ------- starting ------- && ./$1 && echo ------- ending -------"
+    shift
+  }
   nodemon -w "${files[@]}" -e c,cc,cpp -x "make $exec"
+}
+
+function wjc() {
+  # validation
+  local err=
+
+  if [ "${1:0:1}" = "-" ]; then
+    local JDK="/usr/lib/jvm/java-${1:1}-openjdk"
+    shift
+  fi
+
+  if [ ! "${1: -5}" = ".java" ]
+  then err="Oops! you have to pass a java file as the 1st arg"
+  elif [ ! -f "$1" ]
+  then err="Oops! file not found: ./$1"; fi
+  if [ "$err" ]; then echo "$err" >&2; return 1; fi
+
+  local file=$1; shift
+  local JDK=${JDK:-/usr/lib/jvm/default}
+  local java="$JDK/bin/java"
+  local javac="$JDK/bin/javac"
+  nodemon -w "$file" -e c -x \
+    "$javac" $JC_OPTIONS "$file" "&&" \
+    "$java" $JC_OPTIONS "$file" "$@"
+}
+
+function jc() {
+  # validation
+  local err=
+
+  if [ "${1[1]}" = "-" ]; then
+    local JDK="/usr/lib/jvm/java-${1:1}-openjdk"
+    shift
+  fi
+
+  if [ ! "${1: -5}" = ".java" ]
+  then err="Oops! you have to pass a java file as the 1st arg"
+  elif [ ! -f "$1" ]
+  then err="file not found: ./$1"; fi
+  if [ "$err" ]; then echo "$err" >&2; return 1; fi
+
+  local file=$1; shift
+  local JDK=${JDK:-/usr/lib/jvm/default}
+  local java="$JDK/bin/java"
+  local javac="$JDK/bin/javac"
+  "$javac" $JC_OPTIONS "$file" &&
+  "$java" $JC_OPTIONS "$file" "$@"
 }
 
 function wgc() {
   # validation
   local err=;local file=
-  if [ ! $1 ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.c" ]; then err="file not found: ./$1.c"; fi
-  if [ $err ]; then echo $err >&2; return 1; fi
-  # command to watch and compile
+
+  if [ ! "$1" ]
+  then err="you have to pass the filename!"
+  elif [ ! -f "$1.c" ]
+  then err="file not found: ./$1.c"; fi
+  if [ "$err" ]; then echo "$err" >&2; return 1; fi
+
   file=$1; shift
-  nodemon -w $file.c -e c -x \
-    "gcc $file.c -o $file $@ && ./$file"
+  nodemon -w "$file.c" -e c -x gcc "$file.c" -o "$file" "&&" "./$file" "$@"
 }
 
 function rgc() {
@@ -126,40 +183,43 @@ function rgc() {
   local err=; local file=
   if [ ! "$1" ]; then err="you have to pass the filename!";
   elif [ ! -f "$1.c" ]; then err="file not found: ./$1.c"; fi
-  if [ "$err" ]; then echo $err >&2; return 1; fi
+  if [ "$err" ]; then echo "$err" >&2; return 1; fi
   # command to watch and compile
   file=$1; shift
-  gcc "$file.c" -o "$file" "$@" && "./$file"
+  gcc "$file.c" -o "$file" && "./$file" "$@"
 }
 
 function wgcc() {
-  # validation
+  # watch and compile, then execute the code
   local err=; local file=
-  if [ ! ?$1? ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then
-    err="file not found: './$1.cc' and './$1.cpp'"
-  fi
-  if [ "$err" ]; then echo $err &>2; return 1; fi
-  # command to watch and compile
+
+  if [ ! "$1" ]; then err="you have to pass the filename!";
+  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]
+  then err="file not found: './$1.cc' and './$1.cpp'"; fi
+  if [ "$err" ]; then echo "$err" >&2; return 1; fi
 
   file="$1"; shift
-  [ -f "$file.cc" ] &&
-    nodemon -w "$file.cc" -e cc -x "g++ $file.cc -o $file $@ && ./$file" ||
-    nodemon -w "$file.cpp" -e cpp -x "g++ $file.cpp -o $file $@ && ./$file"
+
+  if [ -f "$file.cc" ]
+  then ext="cc"
+  else ext="cpp"; fi
+
+  nodemon -w "$file.$ext" -e $ext -x g++ "$file.$ext" -o "$file" "&&" "./$file" "$@"
 }
 
 function rgcc() {
-  # validation
   local err=; local file=
-  if [ ! $1 ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]; then
-    err="file not found: './$1.cc' and './$1.cpp'"
-  fi
-  if [ $err ]; then echo $err >&2; return 1; fi
-  # command to watch and compile
+
+  if [ ! "$1" ]; then err="you have to pass the filename!";
+  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]
+  then err="file not found: \"./$1.cc\" and \"./$1.cpp\""; fi
+  if [ "$err" ]; then echo "$err" >&2; return 1; fi
 
   file=$1; shift
-  [ -f "$file.cc" ] && \
-    g++ $file.cc -o $file $@ && ./$file || \
-    g++ $file.cpp -o $file $@ && ./$file
+
+  if [ -f "$file.cc" ]
+  then ext="cc"
+  else ext="cpp"; fi
+
+  g++ "$file.$ext" -o "$file" && "./$file" "$@"
 }

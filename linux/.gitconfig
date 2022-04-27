@@ -7,15 +7,16 @@
     mnff = merge --no-ff
     br = branch
     ll = log --oneline
+    lg = log --pretty=format:"%C(yellow)%h%Creset %C(green)%s%Creset %Cred%d%Creset %Cblue[%an]" --date=short
     cm = commit -m
-    ca = commit --amend
-    cam = commit --amend -m
+    cam = commit -am
     csm = commit -S -m
-    cas = commit --amend
-    caam = commit --amend -am
-    casm = commit --amend -S -m
     csam = commit -S -am
-    casam = commit --amend -S -am
+    ca = commit --amend --no-edit
+    cma = commit --amend --no-edit -m
+    cama = commit --amend --no-edit -am
+    csma = commit --amend --no-edit -S -m
+    casma = commit --amend --no-edit -S -am
     conflicted = !vim +Conflicted
 
 [user]
@@ -29,7 +30,7 @@
 
 [commit]
     # Lazygit says: Feature not available for users using GPG
-    # and I need to use theme features 
+    # but I prefer to use these features 
     gpgsign = false
 
 [pull]

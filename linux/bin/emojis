@@ -4,4 +4,4 @@
 # it is relative to the script file
 my_dir="$(dirname "$(which "$0")")"
 
-fzf < "$my_dir"/emojis.txt | cut -d',' -f1 -z | xsel -ib
+fzf < "$my_dir"/emojis.txt | cut -d',' -f1 -z

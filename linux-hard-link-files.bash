@@ -110,8 +110,6 @@ if [ $is_fill ]; then
     <(find linux -type f | sed -e 's:linux/::' | sort) \
     <(printf '%s\n' "${files[@]}" | sort)
   )
-else
-  readarray -t files <<< "${files[@]}"
 fi
 
 if [ $is_list_files ]; then

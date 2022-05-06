@@ -103,45 +103,75 @@ function lae() {
 #        C/C++: watch and run
 # -----------------------------------------
 
-function wmake() {
-  local files
-  files=(*.c)
-  if [ ${#files[@]} = 0 ]; then
-    echo "no file found to make!"
+function ensure_file() {
+  set -e
+  local err
+  local file_ext
+  local file_path
+  local real_ext
+  local bin
+
+  file_path="$1"; shift
+
+  while (($#)); do
+    file_ext="$1"; shift
+    real_ext="${file_path: -$((${#file_ext} + 1))}" # +1 for the dot
+    if [ "$real_ext" = ".$file_ext" ]; then
+      bin="${file_path:0:-${#real_ext}}"
+      break
+    fi
+  done
+
+  if [ ! "$bin" ]; then
+    echo "file not found or not supported for this command: $file" >&2
     return 1
   fi
-  (($#)) && {
-    exec="&& echo ------- starting ------- && ./$1 && echo ------- ending -------"
-    shift
-  }
-  nodemon -w "${files[@]}" -e c,cc,cpp -x "make $exec"
+
+  echo "$bin"
 }
 
-function wjc() {
-  # validation
-  local err=
+function rgcc() {
+  local bin
+  local file="$1"
+  bin="$(ensure_file "$file" c)"
+  if [ ! "$bin" ]; then return 1; fi
+  bin="$(realpath "$bin")"
 
-  if [ "${1:0:1}" = "-" ]; then
-    local JDK="/usr/lib/jvm/java-${1:1}-openjdk"
-    shift
-  fi
-
-  if [ ! "${1: -5}" = ".java" ]
-  then err="Oops! you have to pass a java file as the 1st arg"
-  elif [ ! -f "$1" ]
-  then err="Oops! file not found: ./$1"; fi
-  if [ "$err" ]; then echo "$err" >&2; return 1; fi
-
-  local file=$1; shift
-  local JDK=${JDK:-/usr/lib/jvm/default}
-  local java="$JDK/bin/java"
-  local javac="$JDK/bin/javac"
-  nodemon -w "$file" -e c -x \
-    "$javac" $JC_OPTIONS "$file" "&&" \
-    "$java" $JC_OPTIONS "$file" "$@"
+  gcc "$file" -o "$bin" && "$bin" "$@"
 }
 
-function jc() {
+function wgcc() {
+  local bin
+  local file="$1"
+  bin="$(ensure_file "$file" c)"
+  if [ ! "$bin" ]; then return 1; fi
+  bin="$(realpath "$bin")"
+
+  nodemon -w "$file" -x gcc "$file" -o "$bin" "&&" "$bin" "$@"
+}
+
+function rg++() {
+  local bin
+  local file="$1"
+  bin="$(ensure_file "$file" cc cpp)"
+  if [ ! "$bin" ]; then return 1; fi
+  bin="$(realpath "$bin")"
+
+  g++ "$file" -o "$bin" && "$bin" "$@"
+}
+
+function wg++() {
+  # watch and compile, then execute the code
+  local bin
+  local file="$1"
+  bin="$(ensure_file "$file" cc cpp)"
+  if [ ! "$bin" ]; then return 1; fi
+  bin="$(realpath "$bin")"
+
+  nodemon -w "$file" -x g++ "$file" -o "$bin" "&&" "$bin" "$@"
+}
+
+function rjava() {
   # validation
   local err=
 
@@ -150,76 +180,40 @@ function jc() {
     shift
   fi
 
-  if [ ! "${1: -5}" = ".java" ]
-  then err="Oops! you have to pass a java file as the 1st arg"
-  elif [ ! -f "$1" ]
-  then err="file not found: ./$1"; fi
-  if [ "$err" ]; then echo "$err" >&2; return 1; fi
-
+  local bin
   local file=$1; shift
   local JDK=${JDK:-/usr/lib/jvm/default}
   local java="$JDK/bin/java"
   local javac="$JDK/bin/javac"
+
+  bin="$(ensure_file "$file" java)"
+  if [ ! "$bin" ]; then return 1; fi
+  bin="$(realpath "$bin")"
+
   "$javac" $JC_OPTIONS "$file" &&
-  "$java" $JC_OPTIONS "$file" "$@"
+  "$java" $JC_OPTIONS "$bin" "$@"
 }
 
-function wgc() {
+function wjava() {
   # validation
-  local err=;local file=
+  local err=
 
-  if [ ! "$1" ]
-  then err="you have to pass the filename!"
-  elif [ ! -f "$1.c" ]
-  then err="file not found: ./$1.c"; fi
-  if [ "$err" ]; then echo "$err" >&2; return 1; fi
+  if [ "${1[1]}" = "-" ]; then
+    local JDK="/usr/lib/jvm/java-${1:1}-openjdk"
+    shift
+  fi
 
-  file=$1; shift
-  nodemon -w "$file.c" -e c -x gcc "$file.c" -o "$file" "&&" "./$file" "$@"
-}
+  local bin
+  local file=$1; shift
+  local JDK=${JDK:-/usr/lib/jvm/default}
+  local java="$JDK/bin/java"
+  local javac="$JDK/bin/javac"
 
-function rgc() {
-  # validation
-  local err=; local file=
-  if [ ! "$1" ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.c" ]; then err="file not found: ./$1.c"; fi
-  if [ "$err" ]; then echo "$err" >&2; return 1; fi
-  # command to watch and compile
-  file=$1; shift
-  gcc "$file.c" -o "$file" && "./$file" "$@"
-}
+  bin="$(ensure_file "$file" java)"
+  if [ ! "$bin" ]; then return 1; fi
+  bin="$(realpath "$bin")"
 
-function wgcc() {
-  # watch and compile, then execute the code
-  local err=; local file=
-
-  if [ ! "$1" ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]
-  then err="file not found: './$1.cc' and './$1.cpp'"; fi
-  if [ "$err" ]; then echo "$err" >&2; return 1; fi
-
-  file="$1"; shift
-
-  if [ -f "$file.cc" ]
-  then ext="cc"
-  else ext="cpp"; fi
-
-  nodemon -w "$file.$ext" -e $ext -x g++ "$file.$ext" -o "$file" "&&" "./$file" "$@"
-}
-
-function rgcc() {
-  local err=; local file=
-
-  if [ ! "$1" ]; then err="you have to pass the filename!";
-  elif [ ! -f "$1.cc" ] && [ ! -f "$1.cpp" ]
-  then err="file not found: \"./$1.cc\" and \"./$1.cpp\""; fi
-  if [ "$err" ]; then echo "$err" >&2; return 1; fi
-
-  file=$1; shift
-
-  if [ -f "$file.cc" ]
-  then ext="cc"
-  else ext="cpp"; fi
-
-  g++ "$file.$ext" -o "$file" && "./$file" "$@"
+  nodemon -w "$file" -e c -x \
+    "$javac" $JC_OPTIONS "$file" "&&" \
+    "$java" $JC_OPTIONS "$bin" "$@"
 }

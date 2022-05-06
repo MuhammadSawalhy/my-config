@@ -7,7 +7,7 @@
 # xrandr --addmode DVI-I-2 "$MODE_NAME"
 MODE_NAME="1152x864_60.00"
 xrandr --newmode "$MODE_NAME" 81.62 1152 1216 1336 1520  864 865 868 895  -HSync +Vsync
-xrandr --addmode DVI-I-2 "$MODE_NAME"
+xrandr --addmode DVI-I-1 "$MODE_NAME"
 # MODE_NAME="1024x768"
-xrandr --output DVI-I-1 --off --output SVIDEO-1 --off --output DVI-I-2 --mode "$MODE_NAME" --pos 0x0 --rotate normal
+xrandr --output DVI-I-1 --mode "$MODE_NAME" --rate 60
 

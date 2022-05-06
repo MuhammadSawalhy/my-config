@@ -20,14 +20,12 @@ alias ls=exa
 alias lg=lazygit
 alias alacritty="LIBGL_ALWAYS_SOFTWARE=1 alacritty"
 alias prgs='printf "$(git status)"'
-alias ydl360='youtube-dl -c -f 247+251'
-alias ydl480='youtube-dl -c -f 248+251'
-alias ydl720='youtube-dl -c -f 271+251'
 alias pasteimage="xclip -sel clip -t image/png -o"
 alias copyimage="xclip -sel clip -t image/png"
 alias imgptoc="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
 # to paste the image itself in obsidian, I don't want to use the online version
 alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
+alias clipptoc="xclip -sel p -o | xclip -sel clip"
 
 alias myp="cd ~/myp/"
 alias myc="cd ~/my-config"

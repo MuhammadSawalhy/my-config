@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # REQUIRES FONT-AWESOME PACKAGE TO WORK PROPERLY
 
 dte(){
@@ -12,18 +12,19 @@ hdd(){
 }
 
 mem(){
-  mem="$(free -h | awk '/Mem:/ {printf $3/$2}')"
-  echo " ${mem:2:2}"%""
+  # add extra 000 to make 0.5 0.50 to two two digits after . and not one
+  mem="$(free -h | awk '/Mem:/ {printf $3/$2}')0"
+  echo " ${mem:2:2}%"
 }
 
 cpu() {
-  read cpu a b c previdle rest < /proc/stat
+  read -r cpu a b c previdle rest < /proc/stat
   prevtotal=$((a+b+c+previdle))
   sleep 0.5
-  read cpu a b c idle rest < /proc/stat
+  read -r cpu a b c idle rest < /proc/stat
   total=$((a+b+c+idle))
   cpu=$((100*( (total-prevtotal) - (idle-previdle) ) / (total-prevtotal) ))
-  echo " $cpu%"
+  printf " %02d%%" $cpu
 }
 
 pkgs(){
@@ -49,19 +50,19 @@ vol(){
   vol=$(
     pactl list sinks |
     grep '^[[:space:]]Volume:' |
-    head -n $(( $SINK + 1 )) |
+    head -n $(( SINK + 1 )) |
     tail -n 1 | awk '{ print $5 }'
   )
 
   muted=$(
     pactl list sinks |
     grep '^[[:space:]]Mute:' |
-    head -n $(( $SINK + 1 )) |
+    head -n $(( SINK + 1 )) |
     tail -n 1 | awk '{ print $2 }'
   )
 
   if [ "$muted" = yes ]; then
-    echo " Muted"
+    echo " Muted"
   else
     echo " $vol"
   fi
@@ -94,7 +95,7 @@ batstat() {
 
 netstat() {
   logfile="${XDG_CACHE_HOME:-$HOME/.cache}/netlog"
-  prevdata="$(cat $logfile)"
+  prevdata="$(cat "$logfile")"
 
   rxcurrent="$(( $(cat /sys/class/net/*/statistics/rx_bytes | paste -sd '+') ))"
   txcurrent="$(( $(cat /sys/class/net/*/statistics/tx_bytes | paste -sd '+') ))"
@@ -106,9 +107,13 @@ netstat() {
   echo "$rxcurrent $txcurrent" > "$logfile"
 }
 
+prayer() {
+  left=$(next-prayer --left | awk '{print $1}')
+  echo " $left"
+}
+
 status(){
-  # echo "$(cpu) │ $(mem) │ $(kernel)│ $(pkgs) │ $(upgrades) │ $(hdd) │ $(vpn) │ $(netstat) │ $(vol) │ $(weather) $(temp) │ $(dte)"
-  echo "$(cpu)│$(mem)│$(hdd)│$(vol)│$(dte)"
+  echo "$(prayer)|$(cpu)│$(mem)│$(hdd)│$(vol)│$(dte)"
 }
 
 xsetroot -name "$(status)"

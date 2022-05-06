@@ -105,6 +105,13 @@ collect-arg-and-validate() {
 prepare-input-and-output() {
   [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
 
+  mkdir -p /tmp/montag
+
+  ext() {
+    basename=$(basename "$1")
+    echo "${basename##*.}"
+  }
+
   if
     echo "$input" |
     grep -oP '^https?://' > /dev/null &&
@@ -115,8 +122,14 @@ prepare-input-and-output() {
       quality_settings="-f $(ydi -p "$input")"
     fi
     ytdl_options+=($quality_settings)
-    # a possible senario is to down only a portion of the video
     output="$(youtube-dl "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$input")"
+    output_ext=$(ext "$output")
+    tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
+    tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
+    if [ "$is_gif" ]; then
+      # use the same name with .gif as extension
+      output="${output%.*}.gif"
+    fi
   else
     if [ ! "$output" ] && [ "$is_gif" ]; then
       # use the same name with .gif as extension
@@ -128,17 +141,10 @@ prepare-input-and-output() {
       >&2 echo error\(IO\): input should differ from output
       exit 2
     fi
+    input_ext=$(ext "$input")
+    tmpfile_1="/tmp/montag/$RANDOM.$input_ext"
+    tmpfile_2="/tmp/montag/$RANDOM.$input_ext"
   fi
-
-  ext() {
-    basename=$(basename "$1")
-    echo "${basename##*.}"
-  }
-
-  output_ext=$(ext "$output")
-  tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
-  tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
-  mkdir -p /tmp/montag
 }
 
 get-input-args() {

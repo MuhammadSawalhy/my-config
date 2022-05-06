@@ -1,18 +1,36 @@
 #!/bin/bash
 
 shopt -s nullglob
+set -e
 
-TMP_DIR="/tmp/obsidian-export"
-mkdir -p "$TMP_DIR"
-rm -rf "$TMP_DIR"/*
+print-help () {
+cat <<- EOF
+┌──┬───────────────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│-h│ --help                │ Show this help message
+│-v│ --vault               │ Traget another vault by its path, default is current dir
+│-o│ --out-dir             │ Where to place the exported files
+│-t│ --tags                │ Filter files with comma separated tags
+│  │ --md                  │ Export markdown not pdf
+│  │ --cat                 │ Concatenate all files into one
+│  │ --fnah                │ Use file name as the header of level 1 for its content
+│  │ --file-name-as-header │ Use file name as the header of level 1 for its content
+└──┴───────────────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+ 
+USAGE:
+  export-obsidian [options...]
 
-
-echo-title() {
-  echo ---------------- $@ -----------------
+EXAMPLES:
+  export-obsidian -v ./vault -o ~/Desktop/ -t tag1,tag2 --md
+EOF
 }
 
 
-join_arr_by() {
+echo-title() {
+  echo ---------------- "$@" -----------------
+}
+
+
+join-arr-by() {
   local d=$1 f=$2
   if shift 2; then
     printf %s "$f" "${@/#/$d}"
@@ -20,15 +38,17 @@ join_arr_by() {
 }
 
 
-get_file_containing_tags() {
+get-file-containing-tags() {
   # use `files` from argv or all the vault files
-  (( ${#files[@]} )) &&
-    vault_md_files=("${files[@]}") ||
+  if (( ${#files[@]} )); then
+    vault_md_files=("${files[@]}")
+  else
     readarray -t vault_md_files < <(ls "$vault"/*.md)
+  fi
 
   files=()
-  # prepend "#" to all tags and join them by "|"
-  grep_pattern="$(join_arr_by '\|' ${tags[@]/#/#})"
+  # prepend "#" to all tags and join them by "\|"
+  grep_pattern="$(join-arr-by '\|' "${tags[@]/#/#}")"
 
   for file in "${vault_md_files[@]}"; do
     if grep "$grep_pattern" "$file" &> /dev/null; then
@@ -38,9 +58,13 @@ get_file_containing_tags() {
 
   echo-title 'exporting these files?'
   printf "%s\n" "${files[@]}"
-  read -p "continue ? ([Y]/n): " ans
-  local ans="$(echo $ans | tr '[:upper:]' '[:lower:]')"
-  [ "$ans" = n ] && exit 1
+  read -rp "continue ? ([Y]/n): " ans
+
+  local ans
+  ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
+  if [ "$ans" = n ]
+  then exit 1
+  fi
 }
 
 
@@ -51,10 +75,13 @@ collect-args() {
   while (($#)); do
     arg="$1"; shift
     [ "$arg" = "--vault"   ] && vault="$1"   && shift && continue
+    [ "$arg" = "-v"        ] && vault="$1"   && shift && continue
     [ "$arg" = "--out-dir" ] && out_dir="$1" && shift && continue
     [ "$arg" = "-o"        ] && out_dir="$1" && shift && continue
     [ "$arg" = "--tags"    ] && tags="$1"    && shift && continue
     [ "$arg" = "-t"        ] && tags="$1"    && shift && continue
+    [ "$arg" = "--help"    ] && is_help=1    && break
+    [ "$arg" = "--h"       ] && is_help=1    && break
     [ "$arg" = "--md"      ] && is_md_only=1 && continue
     [ "$arg" = "--md"      ] && is_md_only=1 && continue
     [ "$arg" = "--cat"     ] && is_concat=1  && continue
@@ -63,20 +90,25 @@ collect-args() {
     files+=("$arg") # fallback, append to the files
   done
 
+  if [ "$is_help" ]; then
+    print-help
+    exit
+  fi
+
   vault="$(realpath "$vault")"
   out_dir="$(realpath "$out_dir")"
 
   # read the Attachments dir from obsidian vault settings
-  attachments="$vault/$(
+  attachments="$(
     sed -e '/attachmentFolderPath/ !d' "$vault"/.obsidian/app.json |
       grep -oP '\s*"attachmentFolderPath": \K"(.*?)"'
   )"
   # remove quotations ""
-  attachments="$(eval "echo $attachments")"
+  attachments="$vault/${attachments:1:-1}"
 
   # convert comma delimited values into array
   readarray -d, -t tags <<< "$tags"
-  [ "$tags" ] && get_file_containing_tags
+  [ "${#tags[@]}" -gt 0 ] && get-file-containing-tags
 
   [ ${#files[@]} = 0 ] && echo ERROR: no file to export && exit 1
   [ -f "$out_dir" ] && echo ERROR: output dir is a file, choose another place && exit 1
@@ -86,11 +118,12 @@ collect-args() {
 
 prepare-file() {
   # TODO: use the captian after "|" symbol
+  local output
   # replace `![[image-name.png]]` to `![](/attachments/image-name.png)`
-  local output="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
+  output="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
   # increase the level due to adding the file name as a `# header`
   [ $is_file_name_as_header ] &&
-    local output="$(echo "$output" | sed -r "s/^#+ (.*)/#\0/")"
+    output="$(echo "$output" | sed -r "s/^#+ .*/#\0/")"
   echo "$output"
 }
 
@@ -105,10 +138,11 @@ convert-to-pure-markdown() {
     [ $is_file_name_as_header ] &&
       echo "# ${file_base%.md}" >> "$prepared_md_file"
 
-    echo >> "$prepared_md_file"
-    cat "$file" | prepare-file >> "$prepared_md_file"
-    echo >> "$prepared_md_file"
-    echo >> "$prepared_md_file"
+    { echo
+      prepare-file < "$file"
+      echo
+      echo
+    } >> "$prepared_md_file"
   done
 }
 
@@ -117,7 +151,7 @@ convert-to-pdf() {
   echo-title exporting to pdf
   for file in "$TMP_DIR"/*.md; do
     out_file="${file%.pure.md}.pdf"
-    echo exporting 📤: $(basename "$out_file")
+    echo exporting 📤: "$(basename "$out_file")"
     pandoc \
       --citeproc --toc --number-sections --pdf-engine=xelatex \
       -f markdown "$file" -o "$out_file"
@@ -134,6 +168,9 @@ copy-to-out-dir() {
 }
 
 
+TMP_DIR="/tmp/obsidian-export"
+mkdir -p "$TMP_DIR"
+rm -rf "$TMP_DIR"/*
 collect-args "$@"
 convert-to-pure-markdown
 [ ! "$is_md_only" ] &&

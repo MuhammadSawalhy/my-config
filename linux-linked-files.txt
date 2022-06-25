@@ -33,6 +33,7 @@
 
 ~/.config/mpv/
 ~/.config/gitui/
+~/.config/zathura/
 ~/.config/fontconfig/
 ~/.config/Typora/themes/
 

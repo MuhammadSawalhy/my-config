@@ -126,7 +126,7 @@ rm "${deleted_files[@]/#/linux\/}"
 force_opt=$(test $is_force && echo '-f')
 while read -r f; do
   echo "+ $f"
-  [ $is_dry ] && continue
+  [ "$is_dry" ] && continue
   if [ ! $is_reverse ]; then
     ln "$force_opt" "$HOME/$f" "./linux/$f"
   else

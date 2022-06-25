@@ -26,6 +26,7 @@ alias imgptoc="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
 # to paste the image itself in obsidian, I don't want to use the online version
 alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
 alias clipptoc="xclip -sel p -o | xclip -sel clip"
+alias cliprev="xclip -sel p -t UTF8_STRING -o | rev | xclip -sel clip -t UTF8_STRING"
 
 alias myp="cd ~/myp/"
 alias myc="cd ~/my-config"
@@ -101,7 +102,7 @@ function lae() {
 #        C/C++: watch and run
 # -----------------------------------------
 
-function ensure_file() {
+function ensure-file() {
   set -e
   local err
   local file_ext
@@ -121,7 +122,11 @@ function ensure_file() {
   done
 
   if [ ! "$bin" ]; then
-    echo "file not found or not supported for this command: $file" >&2
+    if [ -f "$file_path" ]; then
+      echo "file is not supported for this command: $file" >&2
+    else
+      echo "file not found: $file" >&2
+    fi
     return 1
   fi
 
@@ -131,7 +136,7 @@ function ensure_file() {
 function rgcc() {
   local bin
   local file="$1"
-  bin="$(ensure_file "$file" c)"
+  bin="$(ensure-file "$file" c)"
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
@@ -141,7 +146,7 @@ function rgcc() {
 function wgcc() {
   local bin
   local file="$1"
-  bin="$(ensure_file "$file" c)"
+  bin="$(ensure-file "$file" c)"
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
@@ -151,7 +156,7 @@ function wgcc() {
 function rg++() {
   local bin
   local file="$1"
-  bin="$(ensure_file "$file" cc cpp)"
+  bin="$(ensure-file "$file" cc cpp)"
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
@@ -162,7 +167,7 @@ function wg++() {
   # watch and compile, then execute the code
   local bin
   local file="$1"
-  bin="$(ensure_file "$file" cc cpp)"
+  bin="$(ensure-file "$file" cc cpp)"
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
@@ -170,6 +175,7 @@ function wg++() {
 }
 
 function rjava() {
+  set +x
   # validation
   local err=
 
@@ -184,12 +190,11 @@ function rjava() {
   local java="$JDK/bin/java"
   local javac="$JDK/bin/javac"
 
-  bin="$(ensure_file "$file" java)"
+  bin="$(ensure-file "$file" java)"
   if [ ! "$bin" ]; then return 1; fi
-  bin="$(realpath "$bin")"
 
   "$javac" $JC_OPTIONS "$file" &&
-  "$java" $JC_OPTIONS "$bin" "$@"
+  "$java" $JC_OPTIONS -cp "$(dirname "$bin")" "$(basename "$bin")" "$@"
 }
 
 function wjava() {
@@ -207,11 +212,10 @@ function wjava() {
   local java="$JDK/bin/java"
   local javac="$JDK/bin/javac"
 
-  bin="$(ensure_file "$file" java)"
+  bin="$(ensure-file "$file" java)"
   if [ ! "$bin" ]; then return 1; fi
-  bin="$(realpath "$bin")"
 
   nodemon -w "$file" -e c -x \
     "$javac" $JC_OPTIONS "$file" "&&" \
-    "$java" $JC_OPTIONS "$bin" "$@"
+    "$java" $JC_OPTIONS -cp "$(dirname "$bin")" "$(basename "$bin")" "$@"
 }

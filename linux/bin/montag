@@ -1,33 +1,34 @@
 #!/usr/bin/env bash
 # TODO: collect all options to one ffmpeg command, not more temp files
-# TODO: use `ffmpeg -loglevel error` for quite mode
+# TODO: use `ffmpeg -loglevel error` for quiet mode
 
 set -e
 
 print-help () {
 cat <<- EOF
-┌──┬────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
-│-h│ --help     │ Show this help message
-│-q│ --quiet    │ See outputs of ffmpeg while processing
-│-i│ --input    │ Input video, should have the same extension as [output-video]
-│-s│ --start    │ Specifies the start point, e.g. 00:01:23.000 or 83 (in seconds)
-│-d│ --duration │ Duration, length, the same format as start (needs --start)
-│-t│ --to       │ End point, the same format as start (needs --start)
-│-x│ --speed    │ Speed of the output video (multiplier, e.g., 1.75)
-│  │ --crop     │ Frame to crop the video, e.g. "in_w:in_h-40", see crop
-│  │            │   filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
-├──┼────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
-│  │ --gif      │ Convert to gif, this will set these defaults: --fps 10
-│  │ --gif-loop │ How many loops your gif will do
-│  │ --gif-delay│ How long to delay the gif
-├──┼────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
-│  │ --width    │ Width of the output (aspect ratio is preserved)
-│  │ --fps      │ Frames persecond
-├──┼────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
-│  │ --ytdl     │ youtube-dl (yt-dlp) additional args incase of inputing "https://*"
-│  │ --ydi      │ youtube-dl (yt-dlp) interactive mode, requires whiptail
-└──┴────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
- 
+┌──┬─────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│-h│ --help      │ Show this help message
+│-q│ --quiet     │ See outputs of ffmpeg while processing
+│-i│ --input     │ Input video, should have the same extension as [output-video]
+│-s│ --start     │ Specifies the start point, e.g. 00:01:23.000 or 83 (in seconds)
+│-d│ --duration  │ Duration, length, the same format as start (needs --start)
+│-t│ --to        │ End point, the same format as start (needs --start)
+│-x│ --speed     │ Speed of the output video (multiplier, e.g., 1.75)
+│  │ --yes       │ Work on the video immediately without the user's consent
+│  │ --crop      │ Frame to crop the video, e.g. "in_w:in_h-40", see crop
+│  │             │   filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
+├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --gif       │ Convert to gif, this will set these defaults: --fps 10
+│  │ --gif-loop  │ How many loops your gif will do
+│  │ --gif-delay │ How long to delay the gif
+├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --width     │ Width of the output (aspect ratio is preserved)
+│  │ --fps       │ Frames persecond
+├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --ytdl      │ youtube-dl (yt-dlp) additional args incase of inputing "https://*"
+│  │ --ydi       │ youtube-dl (yt-dlp) interactive mode, requires whiptail
+└──┴─────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+
 USAGE:
   montag -i <input-video> [options...] [-i <input-video> [options...]...] [output-video]
 
@@ -50,6 +51,7 @@ collect-arg-and-validate() {
     [ "$arg" = "--help"      ] && is_help=1        && break
     [ "$arg" = "-h"          ] && is_help=1        && break
     [ "$arg" = "--gif"       ] && is_gif=1         && continue
+    [ "$arg" = "--yes"       ] && is_yes=1  && continue
     [ "$arg" = "--gif-loop"  ] && gif_loop="$1"    && shift && continue
     [ "$arg" = "--gif-delay" ] && gif_delay="$1"   && shift && continue
 
@@ -119,10 +121,13 @@ prepare-input-and-output() {
   then
     quality_settings="-f best[height<=720]"
     if [ "$is_ydi" ]; then
+      [ $is_quiet ] || >&2 echo "=>" ydi -p \""$input"\"
       quality_settings="-f $(ydi -p "$input")"
     fi
     ytdl_options+=($quality_settings)
+    [ $is_quiet ] || >&2 echo "=>" youtube-dl \""${ytdl_options[*]}"\" --no-playlist -O \''%(title)s.%(ext)s'\' \""$input"\"
     output="$(youtube-dl "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$input")"
+    output="${output/\//\\\\}" # replace / with \\
     output_ext=$(ext "$output")
     tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
     tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
@@ -156,9 +161,8 @@ get-input-args() {
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
     
-    links=($(
-      youtube-dl --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input"
-    ))
+    [ $is_quiet ] || >&2 echo "=>" youtube-dl --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
+    read -r -a links <<< "$(youtube-dl --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
 
     # put link inside 'single qutaion mark'
     if [ ${#links[@]} = 1 ]; then
@@ -181,33 +185,33 @@ get-input-args() {
 }
 
 do-cut() {
+  [ "$duration"  ] && end_point_arg="-t '$duration'"
+  [ "$end_point" ] && end_point_arg="-to '$end_point'"
+  input_args="$(get-input-args -ss "$start_point" "$1")"
+
   if [ "$duration"  ]
   then extra_description="with length $duration"
   elif [ "$end_point" ]
   then extra_description="to $end_point"
   fi
-  echo-title "✂️  ... cut part of the video from $start_point $extra_description"
-  [ "$duration"  ] && end_point_arg="-t '$duration'"
-  [ "$end_point" ] && end_point_arg="-to '$end_point'"
-  input_args="$(get-input-args -ss "$start_point" "$1")"
   cmd="ffmpeg $input_args -ss '$start_point' $end_point_arg -copyts '$2'"
+  echo-title "✂️  ... cut part of the video from $start_point $extra_description"
 }
 
 do-speedup() {
-  echo-title "⏩️ ... speedup the cut video x$speed"
   input_args="$(get-input-args "$1")"
   cmd="ffmpeg $input_args -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
+  echo-title "⏩️ ... speedup the cut video x$speed"
 }
 
 do-crop() {
   # source: https://video.stackexchange.com/questions/4563/how-can-i-crop-a-video-with-ffmpeg
-  echo-title "🔳 ... crop the video with: $crop"
   input_args="$(get-input-args "$1")"
   cmd="ffmpeg $input_args -filter:v 'crop=$crop' '$2'"
+  echo-title "🔳 ... crop the video with: $crop"
 }
 
 do-convert-gif() {
-  echo-title "🏃 ... generating a gif"
   local lfps=10 lloop=0 ldelay=10
   [ -n "$fps"       ] && lfps=$fps
   [ -n "$gif_loop"  ] && lloop=$gif_loop
@@ -217,6 +221,7 @@ do-convert-gif() {
   # convert comes from `extra/imagemagick` Arch package
   cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - |
     convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
+  echo-title "🏃 ... generating a gif"
 }
 
 echo-title() {
@@ -244,6 +249,7 @@ echo-in-the-center() {
 }
 
 get-user-acceptance() {
+  [ $is_yes ] && return
   read -r -p "continue ? ([Y]/n): " ans
   ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
   [ ! "$ans" = "n" ] || clear-and-exit 1

@@ -1,16 +1,15 @@
 #!/bin/bash
 
-SESSIONNAME="task-management-project"
-FRONT_PATH=~/myp/scicave/freelancing-task-management-frontend
-BACK_PATH=~/myp/scicave/freelancing-task-management-backend
+SESSIONNAME="scicave-collection-agency-project"
+FRONT_PATH=~/myp/scicave/collection-agency-frontend
+BACK_PATH=~/myp/scicave/collection-agency-backend
 
 function send-command() {
   tmux send-keys -t $SESSIONNAME "$1" C-m
 }
 
-tmux has-session -t $SESSIONNAME &> /dev/null
-
-if [ $? != 0 ]; then
+if ! tmux has-session -t $SESSIONNAME &> /dev/null
+then
   # new session, default window for frontend
   tmux new-session -s $SESSIONNAME -n frontend -c "$FRONT_PATH" -d
   tmux-ide 2 -t $SESSIONNAME -c "$FRONT_PATH"
@@ -18,10 +17,7 @@ if [ $? != 0 ]; then
 
   # backend window
   tmux new-window -n backend -t $SESSIONNAME -c "$BACK_PATH"
-  tmux send-keys -t $SESSIONNAME "source ./env/bin/activate" C-m
-  tmux send-keys -t $SESSIONNAME "python manage.py runserver" C-m
-  tmux split-window -v -p 90 -t $SESSIONNAME -c "$BACK_PATH"
-  tmux send-keys -t $SESSIONNAME "source ./env/bin/activate" C-m
+  send-command "mvn spring-boot:run"
 
   # go back to the frontend window
   tmux select-window -t $SESSIONNAME:frontend

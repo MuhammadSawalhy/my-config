@@ -5,7 +5,7 @@ vim.g.dap_virtual_text = true
 local textobjects = {
   select = {
     enable = true,
-    -- Automatically jump forward to textobj, similar to targets.vim 
+    -- Automatically jump forward to textobj, similar to targets.vim
     lookahead = true,
     keymaps = {
       -- You can use the capture groups defined in textobjects.scm
@@ -57,9 +57,12 @@ local commentstring = {
   enable = false,
   enable_autocmd = false,
   config = {
+    json = { __default = '// %s', __multiline = '/* %s */' },
     javascript = {
       __default = '// %s',
+      jsx_text = '{/* %s */}',
       jsx_element = '{/* %s */}',
+      jsx_self_closing_element = '{/* %s */}',
       jsx_fragment = '{/* %s */}',
       jsx_attribute = '// %s',
       comment = '// %s',
@@ -73,7 +76,7 @@ local commentstring = {
 }
 
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = "maintained",
+  ensure_installed = "all",
   indent = { enable = true },
   rainbow = { enable = true },
   autotag = { enable = true },
@@ -82,10 +85,11 @@ require'nvim-treesitter.configs'.setup {
   context_commentstring = commentstring,
   highlight = {
     -- see: https://github.com/nvim-treesitter/nvim-treesitter/issues/1765
-    enable = false,
+    enable = true,
     additional_vim_regex_highlighting = false,
   },
 }
 
+require('hlargs').setup()
 require("twilight").setup {}
 require("tsht").config.hint_keys = { "h", "j", "f", "d", "n", "v", "s", "l", "a" }

@@ -4,26 +4,50 @@
 
 let g:build_preview = v:true
 
-" Call compile
 " Open the PDF from /tmp/
-function! Preview()
-  call Compile()
-  !zathura /tmp/op.pdf &
-endfunction
-
-" [1] Get the extension of the file
-" [2] Apply appropriate compilation command
-" [3] Save PDF as /tmp/op.pdf
-function! Compile()
-  let extension = expand('%:e')
-  if extension == "ms"
-    execute "! groff -ms % -T pdf > /tmp/op.pdf"
-  elseif extension == "tex"
-    execute "! pandoc -f latex -t latex % -o /tmp/op.pdf"
-  elseif extension == "md"
-    execute "! pandoc % -s -o /tmp/op.pdf"
+function! Run()
+  " TODO: use make if it has `run` entry
+  " TODO: run it in terminal if it is executable
+  if exists("b:run")
+    let r = dispatch#expand(b:run) " from vim-dispatch plugin
+    echo r
+    silent exec "! " . r
+  else
+    echo 'nothing to run, you must define b:run variable'
   endif
 endfunction
 
-noremap <leader>v :call Preview()<CR><CR><CR>
-noremap <leader>q :call Compile()<CR><CR>
+function! Compile(background)
+  write
+  let makefile = getcwd() . "/Makefile"
+  if filereadable(makefile)
+    " force use of make
+    " TODO: if the make file has `compile` entry
+    if a:background
+        Dispatch! make compile
+    else
+        Dispatch make compile
+    endif
+  else
+    if a:background
+      Dispatch!
+    else
+      Dispatch
+    endif
+  endif
+endfunction
+ 
+autocmd FileType sh       let b:run      = 'timeout 5s bash "%:p:r" &'
+autocmd FileType md       let b:dispatch = 'pandoc "%" -s -o "%:p:r.pdf"'
+autocmd FileType md       let b:run      = 'zathura "%:p:r.pdf" &'
+autocmd FileType cpp      let b:dispatch = 'g++ "%" -o "%:p:r"'
+autocmd FileType cpp      let b:run      = 'timeout 5s "%:p:r" &'
+autocmd FileType tex      let b:dispatch = 'xelatex "%"'
+autocmd FileType tex      let b:run      = 'zathura "%:p:r.pdf" &'
+autocmd FileType java     let b:dispatch = 'javac "%"'
+autocmd FileType java     let b:run      = 'timeout 5s java "%:p:r" &'
+autocmd FileType markdown let b:run      = 'zathura "%:p:r.pdf" &'
+
+noremap <silent> <leader>v :call Run()<CR>
+noremap <silent> <leader><leader>b :call Compile(v:false)<CR>
+noremap <silent> <leader>b :call Compile(v:true)<CR>

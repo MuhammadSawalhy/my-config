@@ -1,3 +1,6 @@
+[include]
+    path = ~/.config/delta/themes.gitconfig
+
 [alias]
     s = status
     co = checkout
@@ -13,10 +16,10 @@
     csm = commit -S -m
     csam = commit -S -am
     ca = commit --amend --no-edit
-    cma = commit --amend --no-edit -m
-    cama = commit --amend --no-edit -am
-    csma = commit --amend --no-edit -S -m
-    casma = commit --amend --no-edit -S -am
+    cma = commit --amend -m
+    cama = commit --amend -am
+    csma = commit --amend -S -m
+    casma = commit --amend -S -am
     conflicted = !vim +Conflicted
 
 [user]
@@ -36,19 +39,14 @@
 [pull]
     rebase = true
 
-[push]
-    default = simple
-
 [core]
     pager = delta
 
 [interactive]
-    diffFilter = delta --color-only --24-bit-color=never
+    diffFilter = delta --color-only
 
 [delta]
-    navigate = true  # use n and N to move between diff sections
-    line-numbers = true
-    side-by-side = false
+    side-by-side = true
 
 [merge]
     conflictstyle = diff3

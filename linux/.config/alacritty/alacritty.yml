@@ -1,10 +1,10 @@
 font:
   normal:
-    family: Cascadia Mono
+    family: Cascadia Code PL
   size: 10.0
 
 window:
-  opacity: 1.0
+  opacity: 0.9
 colors:
   # COLORSCHEME: ayu_dark.yaml
   primary:

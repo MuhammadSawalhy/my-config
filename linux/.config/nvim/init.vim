@@ -15,8 +15,11 @@ set splitbelow splitright
 set nowrap
 set number
 set rnu " relativenumber
+" blinking cursor
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+  \,a:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
+  \,sm:block-blinkwait175-blinkoff150-blinkon175s
 
-""" indentation & whitespaces
 set list
 set autoindent
 set breakindent
@@ -28,9 +31,12 @@ set expandtab
 command! -nargs=0 Reload :source ~/.config/nvim/init.vim " reload all configs
 command! -nargs=0 Xs :mks! | :xa " save the session, save modified files, and exit
 
+autocmd FileType json syntax match Comment +\/\/.\+$+
+autocmd FileType cpp set shiftwidth=4 | set softtabstop=4
+
 augroup AU_AUTO_WRAP
   autocmd!
-  autocmd BufRead,BufNewFile *.md set wrap
+  autocmd BufRead,BufNewFile *.md,*.tex set wrap
 augroup END
 
 """ -------------------------------------------
@@ -50,7 +56,7 @@ source ~/.config/nvim/bindings.vim
 let g:nb_style = "night"
 let g:nb_italic_functions = v:true
 let g:nb_italic_comments = v:true
-lua require("nebulous").setup()
+" lua require("nebulous").setup()
 
 " sainnhe/edge
 let g:edge_style = 'neon'
@@ -63,17 +69,23 @@ let g:everforest_disable_italic_comment = 1
 
 " rose-pine/neovim
 lua<<EOF
-require('rose-pine').setup({
-  -- -@usage 'main'|'moon'
-  dark_variant = 'moon',
-})
+-- require('rose-pine').setup({
+--   -- -@usage 'main'|'moon'
+--   dark_variant = 'moon',
+-- })
 EOF
 
-colo everforest
+lua<<EOF
+require("nebulous").setup {
+  -- variant = "midnight",
+}
+EOF
+
+" colo everforest
 " colo rose-pine
 " colo ayu
 " colo nebulous
-" colo edge
+colo edge
 " colo gruvbox
 " colo paramount
 " colo spring-night
@@ -83,3 +95,6 @@ colo everforest
 " colo lucid
 " colo alduin
 " set cursorcolumn
+
+" set laststatus=3
+highlight WinSeparator guibg=None

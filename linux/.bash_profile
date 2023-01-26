@@ -35,6 +35,7 @@ alias edu="cd ~/Documents/edu/2nd-2"
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
 alias ywsi="yarn workspaces foreach --include"
+alias interact="python3 ~/myp/problem-solving/.stress-testing/interact.py"
 
 # ------------------------------------
 #       default common setting
@@ -95,12 +96,14 @@ function lae() {
     patterns+="\\|\\($1\\)"; shift
   done
   # list the first arg, and exclude the reset
-  /bin/ls -A "$dir" | sed "/^$patterns$/ d" | awk "{ print \"$dir/\"\$1 }"
+  /bin/ls -A "$dir" | sed "/^$patterns$/ d" | awk "{ print \"$dir/\"\$0 }"
 }
 
 # -----------------------------------------
 #        C/C++: watch and run
 # -----------------------------------------
+
+GXX="-DSAWALHY"
 
 function ensure-file() {
   set -e
@@ -140,7 +143,7 @@ function rgcc() {
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
-  gcc "$file" -o "$bin" && "$bin" "$@"
+  gcc "$GXX" "$file" -o "$bin" && "$bin" "$@"
 }
 
 function wgcc() {
@@ -150,7 +153,7 @@ function wgcc() {
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
-  nodemon -w "$file" -x gcc "$file" -o "$bin" "&&" "$bin" "$@"
+  nodemon -w "$file" -x gcc "$GXX" "$file" -o "$bin" "&&" "$bin" "$@"
 }
 
 function rg++() {
@@ -160,7 +163,8 @@ function rg++() {
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
-  g++ "$file" -o "$bin" && "$bin" "$@"
+  shift
+  g++ "$GXX" "$file" -o "$bin" && "$bin" "$@"
 }
 
 function wg++() {
@@ -171,14 +175,11 @@ function wg++() {
   if [ ! "$bin" ]; then return 1; fi
   bin="$(realpath "$bin")"
 
-  nodemon -w "$file" -x g++ "$file" -o "$bin" "&&" "$bin" "$@"
+  shift
+  nodemon -w "$file" -x g++ "$GXX" "$file" -o "$bin" "&&" "$bin" "$@"
 }
 
 function rjava() {
-  set +x
-  # validation
-  local err=
-
   if [ "${1[1]}" = "-" ]; then
     local JDK="/usr/lib/jvm/java-${1:1}-openjdk"
     shift
@@ -193,14 +194,12 @@ function rjava() {
   bin="$(ensure-file "$file" java)"
   if [ ! "$bin" ]; then return 1; fi
 
+  shift
   "$javac" $JC_OPTIONS "$file" &&
   "$java" $JC_OPTIONS -cp "$(dirname "$bin")" "$(basename "$bin")" "$@"
 }
 
 function wjava() {
-  # validation
-  local err=
-
   if [ "${1[1]}" = "-" ]; then
     local JDK="/usr/lib/jvm/java-${1:1}-openjdk"
     shift
@@ -218,4 +217,13 @@ function wjava() {
   nodemon -w "$file" -e c -x \
     "$javac" $JC_OPTIONS "$file" "&&" \
     "$java" $JC_OPTIONS -cp "$(dirname "$bin")" "$(basename "$bin")" "$@"
+}
+
+function wpy() {
+  local bin
+  local file=$1; shift
+  bin="$(ensure-file "$file" py)"
+  if [ ! "$bin" ]; then return 1; fi
+
+  nodemon -w "$file" -e c -x python "$file"
 }

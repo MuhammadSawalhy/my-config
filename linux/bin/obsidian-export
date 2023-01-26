@@ -81,7 +81,7 @@ collect-args() {
     [ "$arg" = "--tags"    ] && tags="$1"    && shift && continue
     [ "$arg" = "-t"        ] && tags="$1"    && shift && continue
     [ "$arg" = "--help"    ] && is_help=1    && break
-    [ "$arg" = "--h"       ] && is_help=1    && break
+    [ "$arg" = "-h"        ] && is_help=1    && break
     [ "$arg" = "--md"      ] && is_md_only=1 && continue
     [ "$arg" = "--md"      ] && is_md_only=1 && continue
     [ "$arg" = "--cat"     ] && is_concat=1  && continue
@@ -117,7 +117,7 @@ collect-args() {
 
 
 prepare-file() {
-  # TODO: use the captian after "|" symbol
+  # TODO: use the caption after "|" symbol
   local output
   # replace `![[image-name.png]]` to `![](/attachments/image-name.png)`
   output="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
@@ -132,7 +132,7 @@ convert-to-pure-markdown() {
   for file in "${files[@]}"; do
     file_base="$(basename "$file")"
     [ $is_concat ] &&
-      prepared_md_file="$TMP_DIR/concated_file.pure.md" || # FIXME: this may overwrite an existing file
+      prepared_md_file="$TMP_DIR/concated_file.pure.md" ||
       prepared_md_file="$TMP_DIR/${file_base%.md}.pure.md"
 
     [ $is_file_name_as_header ] &&

@@ -1,20 +1,46 @@
 require("plugins.dap")
 require("plugins.treesitter")
+require('pqf').setup()
 require('session_manager').setup({
   autoload_mode = require('session_manager.config').AutoloadMode.CurrentDir
 })
 
 -- require("nvim-tree").setup()
-require('vgit').setup()
+-- require('vgit').setup()
+require('git-conflict').setup()
 require('numb').setup()
+require("which-key").setup()
 
--- require("bufferline").setup{}
-require('neoscroll').setup({ 
-  easing_function = "quadratic",
+require('competitest').setup({
+  -- output_compare_method = "exact",
+  compile_command = {
+    c = { exec = "gcc", args = { "-DSAWALHY", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
+    cpp = { exec = "g++", args = { "-DSAWALHY", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
+    rust = { exec = "rustc", args = { "$(FNAME)" } },
+    java = { exec = "javac", args = { "$(FNAME)" } },
+  },
 })
+
+-- require('neoscroll').setup()
+-- require('bufferline').setup()
+-- require("lualine").setup{
+--   -- section_separators = { left = '', right = '' },
+--   -- component_separators = { left = '', right = '' },
+--   section_separators = { left = '', right = '' },
+--   component_separators = { left = '', right = '' },
+-- }
+
 require("todo-comments").setup()
 require("true-zen").setup({
   misc = { ui_elements_commands = true }
+})
+
+require("neotest").setup({
+  adapters = {
+    -- require('neotest-jest'),
+    require("neotest-python"),
+    require("neotest-vim-test")({ allow_file_types = {} }),
+  }
 })
 
 -- lukas-reineke/indent-blankline.nvim
@@ -43,32 +69,10 @@ require("indent_blankline").setup {
 -- ----------------------------------------
 
 require("Comment").setup({
-  ---Create basic (operator-pending) and extended mappings for NORMAL + VISUAL mode
-  ---@type table
-  mappings = {
-    ---Operator-pending mapping
-    ---Includes `gcc`, `gbc`, `gc[count]{motion}` and `gb[count]{motion}`
-    ---NOTE: These mappings can be changed individually by `opleader` and `toggler` config
-    basic = true,
-    ---Extra mapping
-    ---Includes `gco`, `gcO`, `gcA`
-    extra = true,
-    ---Extended mapping
-    ---Includes `g>`, `g<`, `g>[count]{motion}` and `g<[count]{motion}`
-    extended = true,
-  },
-
-  ---@param ctx Ctx
-  pre_hook = function(ctx)
-    require("ts_context_commentstring.internal").update_commentstring()
-  end,
+  pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
 })
 
--- terrortylor/nvim-comment
+-- NMAC427/guess-indent.nvim
 -- ----------------------------------------
 
--- require("nvim_comment").setup({
---   hook = function()
---     require("ts_context_commentstring.internal").update_commentstring()
---   end,
--- })
+require('guess-indent').setup {}

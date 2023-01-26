@@ -142,3 +142,12 @@ source "$HOME/.cargo/env"
 source /home/ms/.config/broot/launcher/bash/br
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+autoload bashcompinit
+bashcompinit
+source /opt/vcpkg/scripts/vcpkg_completion.zsh
+
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+

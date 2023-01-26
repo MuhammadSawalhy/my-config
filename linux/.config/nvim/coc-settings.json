@@ -1,12 +1,6 @@
 {
-  "diagnostic.virtualTextCurrentLineOnly": false,
-  // "diagnostic.virtualText": true,
-  // "diagnostic.enableMessage": "never",
   "suggest.enablePreview": true,
-  "codeLens.enable": false,
-  // "coc.preferences.colorSupport": false,
-  // "coc.preferences.semanticTokensHighlights": false,
-  // "suggest.maxPreviewWidth": 100,
+  // "codeLens.enable": true, // to display number of references
   "diagnostic.checkCurrentLine": true,
   "diagnostic.errorSign": "✖",
   "diagnostic.warningSign": "⚠",
@@ -18,43 +12,60 @@
   // -------------------------------
 
   // "flow.enable": false,
+  "prettier.printWidth": 100,
   "javascript.suggestionActions.enabled": false,
-  "eslint.options": {
-    "overrideConfig": {
-      "env": { "node": true, "browser": true, "es2021": true }
-    }
-  },
   "python.formatting.provider": "autopep8",
   "python.formatting.blackPath": "/home/ms/.local/bin/black",
   "python.formatting.autopep8Path": "/home/ms/.local/bin/autopep8",
-  // "cssmodules.camelCase": true,
   "Lua.diagnostics.globals": ["vim"],
-  "eslint.trace.server": "verbose",
-  "languageserver": {
-    "ccls": {
-      "command": "ccls",
-      "filetypes": ["c", "cpp", "objc", "objcpp"],
-      "rootPatterns": [
-        ".ccls",
-        "compile_commands.json",
-        ".vim/",
-        ".git/",
-        ".hg/"
-      ],
-      "initializationOptions": {
-        "index": { "onChange": true },
-        "highlight": { "lsRanges": true },
-        "cache": { "directory": "/tmp/ccls" }
-      }
+  "clangd.fallbackFlags": ["-std=c++17", "-DSAWALHY"],
+  "inlayHint.enable": false,
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-11",
+      "path": "/usr/lib/jvm/java-11-openjdk"
     },
+    {
+      "name": "JavaSE-17",
+      "path": "/usr/lib/jvm/java-18-openjdk",
+      "default": true
+    }
+  ],
+  "languageserver": {
     "bash": {
       "command": "bash-language-server",
       "args": ["start"],
       "filetypes": ["sh"],
       "ignoredRootPaths": ["~"]
+    },
+    "vimls": {
+      "command": "vim-language-server", // npm i -g vim-language-server
+      "args": ["--stdio"],
+      "initializationOptions": {
+        "isNeovim": true, // is neovim, default false
+        "iskeyword": "@,48-57,_,192-255,-#", // vim iskeyword option
+        "vimruntime": "", // $VIMRUNTIME option
+        "runtimepath": "", // vim runtime path separate by `,`
+        "diagnostic": {
+          "enable": true
+        },
+        "indexes": {
+          "runtimepath": true, // if index runtimepath's vim files this will effect the suggest
+          "gap": 100, // index time gap between next file
+          "count": 3, // count of files index at the same time
+          "projectRootPatterns": ["strange-root-pattern", ".git", "autoload", "plugin"] // Names of files used as the mark of project root. If empty, the default value [".git", "autoload", "plugin"] will be used
+        },
+        "suggest": {
+          "fromVimruntime": true, // completionItems from vimruntime's vim files
+          "fromRuntimepath": false // completionItems from runtimepath's vim files, if this is true that fromVimruntime is true
+        }
+      },
+      "filetypes": ["vim"]
     }
   },
   "diagnostic-languageserver.filetypes": {
     "sh": "shellcheck"
-  }
+  },
+  "java.format.settings.url": "/home/ms/.config/coc/extensions/node_modules/redhat.java/eclipse-formatter.xml",
+  "git.enableGutters": true
 }

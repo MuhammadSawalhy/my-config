@@ -1,0 +1,30 @@
+snippet comp "problem solving and competitions boilerplate" b
+import java.util.Scanner;
+
+public class Main {
+  public static Scanner input = new Scanner(System.in);
+
+  public static void main(String[] args) {
+    int t = input.nextInt();
+    int t_ = t;
+    while (t-- != 0) {
+      solve(t_ - t);
+    }
+  }
+
+  static int n;
+
+  public static void solve(int t) {
+    n = input.nextInt();
+    ${1}
+  }
+}
+endsnippet
+
+snippet inin "input an integer"
+input.nextInt()
+endsnippet
+
+snippet inliin "input list of integers"
+List.of(input.nextLine().split(" ")).stream().mapToInt(i -> Integer.parseInt(i)).toArray()
+endsnippet

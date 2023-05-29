@@ -1,7 +1,7 @@
 #!/bin/bash
 
-shopt -s nullglob
 set -e
+shopt -s nullglob
 
 print-help () {
 cat <<- EOF
@@ -55,22 +55,22 @@ get-file-containing-tags() {
       files+=("$file")
     fi
   done
+}
 
+confirm() {
+  local ans
   echo-title 'exporting these files?'
   printf "%s\n" "${files[@]}"
-  read -rp "continue ? ([Y]/n): " ans
+  read -rp "continue ? (y/[n]): " ans
 
-  local ans
   ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
-  if [ "$ans" = n ]
-  then exit 1
+  if [ "$ans" != "y" ]; then
+    exit 1
   fi
 }
 
-
 collect-args() {
   vault="." # default to current directory
-  out_dir="."     # default to current directory
 
   while (($#)); do
     arg="$1"; shift
@@ -87,6 +87,10 @@ collect-args() {
     [ "$arg" = "--cat"     ] && is_concat=1  && continue
     [ "$arg" = "--fnah"    ] && is_file_name_as_header=1 && continue
     [ "$arg" = "--file-name-as-header" ] && is_file_name_as_header=1  && continue
+    if [ ! -f "$arg" ]; then
+      >&2 echo "sorry this file doesn't exists: $arg"
+      exit 1
+    fi
     files+=("$arg") # fallback, append to the files
   done
 
@@ -94,6 +98,8 @@ collect-args() {
     print-help
     exit
   fi
+
+  [ -z "$out_dir" ] && echo ERROR: you should specify output directory && exit 1
 
   vault="$(realpath "$vault")"
   out_dir="$(realpath "$out_dir")"
@@ -107,23 +113,32 @@ collect-args() {
   attachments="$vault/${attachments:1:-1}"
 
   # convert comma delimited values into array
-  readarray -d, -t tags <<< "$tags"
+  IFS=',' read -ra tags <<< "$tags"
   [ "${#tags[@]}" -gt 0 ] && get-file-containing-tags
 
   [ ${#files[@]} = 0 ] && echo ERROR: no file to export && exit 1
-  [ -f "$out_dir" ] && echo ERROR: output dir is a file, choose another place && exit 1
-  [ -d "$out_dir" ] || mkdir -p "$out_dir"
+  [ ! -d "$out_dir" ] && echo ERROR: you should specify the output directory && exit 1
+
+  confirm
 }
 
 
 prepare-file() {
   # TODO: use the caption after "|" symbol
   local output
-  # replace `![[image-name.png]]` to `![](/attachments/image-name.png)`
-  output="$(sed -r "s:^!\[\[(.*)\]\]:![]($attachments/\1):")"
+  output="$(cat)"
+
+  # copying assets
+  while read -r file; do
+    cp "$attachments/$file" "$TMP_DIR/assets/"
+  done < <(echo "$output" | sed -nr "/^\!\[\[(.*)\]\]/ p" | sed -E "s:^\!\[\[([^\|]*)(\|.*)?\]\]:\1:")
+
+  # replace `![[image-name.png]]` to `![](./assets/image-name.png)`
+  output="$(echo "$output" | sed -r "s:^\!\[\[([^\|]*)(\|(.*))?\]\]:![\3](./assets/\1):")"
+
   # increase the level due to adding the file name as a `# header`
-  [ $is_file_name_as_header ] &&
-    output="$(echo "$output" | sed -r "s/^#+ .*/#\0/")"
+  [ "$is_file_name_as_header" ] &&
+    output="$(echo "$output" | sed -r 's/^#+ .*/#\0/')"
   echo "$output"
 }
 
@@ -159,8 +174,10 @@ convert-to-pdf() {
 }
 
 
-copy-to-out-dir() {
+move-to-out-dir() {
+  echo mv "$TMP_DIR"/*.md "$out_dir"
   if [ "$is_md_only" ]; then
+    mv "$TMP_DIR/assets/" "$out_dir"
     mv "$TMP_DIR"/*.md "$out_dir"
   else
     mv "$TMP_DIR"/*.pdf "$out_dir"
@@ -171,9 +188,10 @@ copy-to-out-dir() {
 TMP_DIR="/tmp/obsidian-export"
 mkdir -p "$TMP_DIR"
 rm -rf "$TMP_DIR"/*
+mkdir "$TMP_DIR/assets"
 collect-args "$@"
 convert-to-pure-markdown
 [ ! "$is_md_only" ] &&
   convert-to-pdf
-copy-to-out-dir
+move-to-out-dir
 echo DONE 📑

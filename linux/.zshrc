@@ -109,6 +109,8 @@ source $ZSH/oh-my-zsh.sh
 # key bindings
 # bindkey "^u" backward-kill-line
 
+bindkey -M menuselect '^[[Z' reverse-menu-complete
+
 ##############---------------------------------
 ## my own config
 ##############---------------------------------

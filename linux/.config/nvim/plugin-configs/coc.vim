@@ -10,22 +10,15 @@ let g:coc_global_extensions = [
       \ 'coc-eslint',
       \ 'coc-json',
       \ 'coc-yaml',
-      \ 'coc-git',
       \ 'coc-lua',
       \ 'coc-css',
       \]
+      " \ 'coc-git', " I'm currently using vgit
       " \ 'coc-vimlsp',
       " \ 'coc-clangd',
       " \ 'coc-clang-format-style-options'
       " \ 'coc-explorer',
       " \ 'coc-pairs',
-
-augroup coc_change_env_to_bash
-  autocmd!
-  " because shellcheck makes some troubles with the .env file
-  autocmd BufNewFile,BufRead .env setl filetype=bash
-  autocmd BufNewFile,BufRead .env.* setl filetype=bash
-augroup end
 
 """"""" +++++++++++++++++++++++++++++++++++++++++++++++++++++++
 """""""               some copied stuff

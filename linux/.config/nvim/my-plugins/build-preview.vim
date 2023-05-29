@@ -19,33 +19,22 @@ endfunction
 
 function! Compile(background)
   write
-  let makefile = getcwd() . "/Makefile"
-  if filereadable(makefile)
-    " force use of make
-    " TODO: if the make file has `compile` entry
-    if a:background
-        Dispatch! make compile
-    else
-        Dispatch make compile
-    endif
+  if a:background
+    Dispatch!
   else
-    if a:background
-      Dispatch!
-    else
-      Dispatch
-    endif
+    Dispatch
   endif
 endfunction
  
 autocmd FileType sh       let b:run      = 'timeout 5s bash "%:p:r" &'
-autocmd FileType md       let b:dispatch = 'pandoc "%" -s -o "%:p:r.pdf"'
-autocmd FileType md       let b:run      = 'zathura "%:p:r.pdf" &'
-autocmd FileType cpp      let b:dispatch = 'g++ "%" -o "%:p:r"'
+autocmd FileType cpp      let b:dispatch = 'make compile'
+" autocmd FileType cpp      let b:dispatch = 'g++ "%" -o "%:p:r"'
 autocmd FileType cpp      let b:run      = 'timeout 5s "%:p:r" &'
-autocmd FileType tex      let b:dispatch = 'xelatex "%"'
+autocmd FileType tex      let b:dispatch = 'xelatex -output-directory="%:p:h" "%"'
 autocmd FileType tex      let b:run      = 'zathura "%:p:r.pdf" &'
 autocmd FileType java     let b:dispatch = 'javac "%"'
 autocmd FileType java     let b:run      = 'timeout 5s java "%:p:r" &'
+autocmd FileType markdown let b:dispatch = 'pandoc "%" -s -o "%:p:r.pdf"'
 autocmd FileType markdown let b:run      = 'zathura "%:p:r.pdf" &'
 
 noremap <silent> <leader>v :call Run()<CR>

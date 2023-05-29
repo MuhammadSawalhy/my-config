@@ -36,7 +36,7 @@ autocmd FileType cpp set shiftwidth=4 | set softtabstop=4
 
 augroup AU_AUTO_WRAP
   autocmd!
-  autocmd BufRead,BufNewFile *.md,*.tex set wrap
+  autocmd FileType markdown,tex setl wrap
 augroup END
 
 """ -------------------------------------------

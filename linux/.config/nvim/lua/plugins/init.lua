@@ -6,7 +6,7 @@ require('session_manager').setup({
 })
 
 -- require("nvim-tree").setup()
--- require('vgit').setup()
+require('vgit').setup()
 require('git-conflict').setup()
 require('numb').setup()
 require("which-key").setup()
@@ -19,6 +19,10 @@ require('competitest').setup({
     rust = { exec = "rustc", args = { "$(FNAME)" } },
     java = { exec = "javac", args = { "$(FNAME)" } },
   },
+  default_language_ext = "cpp",
+  use_flexible_directories = false,
+  contests_directory = "~/myp/problem-solving",
+  template_file = "~/myp/problem-solving/template.$(FEXT)",
 })
 
 -- require('neoscroll').setup()
@@ -56,7 +60,7 @@ vim.opt.listchars = {
 
 require("indent_blankline").setup {
   -- space_char_blankline = " ",
-  char_list = { "│"--[[ , "¦", "┆", "┊" ]] },
+  char_list = { "┆" --[[ "│", "¦", "┆", "┊" ]] },
   filetype_exclude = { "terminal", "CHADTree", "startify" },
   use_treesitter = true,
   show_end_of_line = true,

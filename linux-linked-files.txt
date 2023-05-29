@@ -1,5 +1,5 @@
 # files to be hard-linked
-# make sure the correct user is who exec './linux-hard-link.bash'
+# make sure that the correct user executes './linux-hard-link.bash'
 
 ~/._بسم_الله_الرحمن_الرحيم
 
@@ -14,7 +14,7 @@
 ~/.xinitrc
 ~/.Xmodmap
 
-# it include auth token
+# WARNING: includes auth token
 # ~/.npmrc
 
 ~/.mlterm

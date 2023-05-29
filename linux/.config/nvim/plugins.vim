@@ -62,6 +62,7 @@ Plug 'Pocco81/DAPInstall.nvim'
 Plug 'nvim-telescope/telescope-dap.nvim'
 Plug 'mfussenegger/nvim-dap-python'
 Plug 'rogalmic/vscode-bash-debug', { 'do': 'npm install && npm run compile' }
+Plug 'theHamsta/nvim-dap-virtual-text'
 
 Plug 'nvim-neotest/neotest-python'
 Plug 'haydenmeade/neotest-jest'
@@ -72,7 +73,6 @@ Plug 'nvim-neotest/neotest'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
-Plug 'theHamsta/nvim-dap-virtual-text'
 Plug 'p00f/nvim-ts-rainbow'
 " Plug 'windwp/nvim-ts-autotag' " TODO: learn more about it
 Plug 'folke/twilight.nvim'
@@ -108,7 +108,7 @@ Plug 'heavenshell/vim-jsdoc', {
 " GUI And Themes (fzf, git, files, statusline, ...)
 " --------------------------------------------------------------
 
-" Plug 'tanvirtin/vgit.nvim' " TODO: enable when the issue is fixed
+Plug 'tanvirtin/vgit.nvim' " TODO: enable when the issue is fixed
 Plug 'akinsho/git-conflict.nvim'
 Plug 'nacro90/numb.nvim'
 Plug 'Pocco81/TrueZen.nvim'

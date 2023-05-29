@@ -230,7 +230,7 @@ function! CPIO()
 endfunction
 
 
-nmap cpt <CMD>CompetiTestReceive<CR>
+nmap cpt <CMD>CompetiTestReceive testcases<CR>
 nmap cpr <CMD>CompetiTestRun<CR>
 nmap cpR <CMD>CompetiTestRunNE<CR>
 nmap cpr <CMD>CompetiTestRun<CR>

@@ -73,7 +73,7 @@ Plug 'nvim-neotest/neotest'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
-Plug 'p00f/nvim-ts-rainbow'
+" Plug 'p00f/nvim-ts-rainbow' " causes an issue
 " Plug 'windwp/nvim-ts-autotag' " TODO: learn more about it
 Plug 'folke/twilight.nvim'
 Plug 'nvim-treesitter/playground'
@@ -86,7 +86,7 @@ Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'
 Plug 'mlaursen/vim-react-snippets'
 " Plug 'github/copilot.vim'
-Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install()}, 'branch': 'release' }
+Plug 'neoclide/coc.nvim', { 'do': { -> coc#util#install() }, 'branch': 'release' }
 Plug 'rodrigore/coc-tailwind-intellisense', {'do': 'npm install'}
 Plug 'Galooshi/vim-import-js'
 Plug 'heavenshell/vim-jsdoc', {

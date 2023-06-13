@@ -7,6 +7,7 @@ let g:coc_global_extensions = [
       \ 'coc-prettier',
       \ 'coc-snippets',
       \ 'coc-pyright',
+      \ 'coc-clangd',
       \ 'coc-eslint',
       \ 'coc-json',
       \ 'coc-yaml',
@@ -15,7 +16,6 @@ let g:coc_global_extensions = [
       \]
       " \ 'coc-git', " I'm currently using vgit
       " \ 'coc-vimlsp',
-      " \ 'coc-clangd',
       " \ 'coc-clang-format-style-options'
       " \ 'coc-explorer',
       " \ 'coc-pairs',

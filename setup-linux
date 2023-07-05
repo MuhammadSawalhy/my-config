@@ -2,6 +2,7 @@
 
 # NOTE: these are arch programs
 # fmt: off
+
 programs = [
     # terminal programs
     "git", "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "exa", "ripgrep", "sd", "ranger", "fzf",
@@ -16,12 +17,9 @@ programs = [
     # fonts
     "noto-fonts-emoji", "noto-fonts-cjk",
     "libxft-bgra", # fix for the suckless terminal, st, crashing due to emojis
+    "lldb" # used with my neovim dap plugin configuration
 ]
 # fmt: on
-
-aur_programs = [
-    "ytfzf",
-]
 
 additional_commands = [
     "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm",
@@ -65,6 +63,9 @@ additional_commands = [
 npms = [
     "eslint",
     "prettier",
+    "bash-language-server",
+    "vim-language-server",
+    "git-file-history", # htts://githistory.xyz
 ]
 
 cargos = ["fastmod", "br", "rmem"]
@@ -72,7 +73,8 @@ cargos = ["fastmod", "br", "rmem"]
 pips = [
     "git-fame",  # for count lines per contributer
     "autopep8",  # for fomatting python
-    "black",    # for fomatting python
+    "black",     # for fomatting python
     "ueberzug",  # for ranger to view images
-    "mdtoc",    # mainly for mobadarah/tajmeeaton
+    "mdtoc",     # mainly for mobadarah/tajmeeaton
+    "yt-dlp",    # youtube-dl fork with additional features and fixes
 ]

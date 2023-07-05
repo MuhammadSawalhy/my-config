@@ -1,28 +1,28 @@
 #!/bin/bash
 
-SESSIONNAME="scicave-collection-agency-project"
+SESSIONNAME="scicave-debt-collection-agency-project"
 FRONT_PATH=~/myp/scicave/collection-agency-frontend
-BACK_PATH=~/myp/scicave/collection-agency-backend
+BACK_PATH=~/myp/scicave/debt-collection-agency-service
 
 function send-command() {
-  tmux send-keys -t $SESSIONNAME "$1" C-m
+  tmux send-keys -t "$SESSIONNAME" "$1" C-m
 }
 
-if ! tmux has-session -t $SESSIONNAME &> /dev/null
+if ! tmux has-session -t "$SESSIONNAME" &> /dev/null
 then
   # new session, default window for frontend
-  tmux new-session -s $SESSIONNAME -n frontend -c "$FRONT_PATH" -d
-  tmux-ide 2 -t $SESSIONNAME -c "$FRONT_PATH"
+  tmux new-session -s "$SESSIONNAME" -n frontend -c "$FRONT_PATH" -d
+  tmux-ide 2 -t "$SESSIONNAME" -c "$FRONT_PATH"
   send-command "yarn dev"
 
   # backend window
-  tmux new-window -n backend -t $SESSIONNAME -c "$BACK_PATH"
+  tmux new-window -n backend -t "$SESSIONNAME" -c "$BACK_PATH"
   send-command "mvn spring-boot:run"
 
   # go back to the frontend window
-  tmux select-window -t $SESSIONNAME:frontend
-  tmux select-pane -t $SESSIONNAME:frontend.1
+  tmux select-window -t "$SESSIONNAME":frontend
+  tmux select-pane -t "$SESSIONNAME":frontend.1
   send-command "nvim"
 fi
 
-tmux attach -t $SESSIONNAME
+tmux attach -t "$SESSIONNAME"

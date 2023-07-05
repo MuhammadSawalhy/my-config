@@ -1,5 +1,4 @@
 local dap_install = require("dap-install")
-local dbg_list = require("dap-install.api.debuggers").get_installed_debuggers()
 
 dap_install.setup({
   installation_path = vim.fn.stdpath("data") .. "/dapinstall/",
@@ -39,12 +38,14 @@ dap_install.config("python", {
       name = "Launch file";
       -- Options below are for debugpy, see https://github.com/microsoft/debugpy/wiki/Debug-configuration-settings for supported options
       program = "${file}";
+      integratedTerminal = true;
     },
     {
       type = 'python';
       request = 'launch';
       name = 'Launch file with arguments';
       program = '${file}';
+      integratedTerminal = true;
       args = function()
         local args_string = vim.fn.input('Arguments: ')
         return vim.split(args_string, " +")

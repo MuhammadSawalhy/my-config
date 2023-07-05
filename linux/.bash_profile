@@ -1,7 +1,5 @@
 #!/bin/bash
 
-setopt SH_WORD_SPLIT
-
 # seek help: man info apropos whatis tldr
 
 # set PATH so it includes user's private bin if it exists

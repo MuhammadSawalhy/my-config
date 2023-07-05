@@ -58,7 +58,7 @@ local lldbCommonConfig = {
     end
     return vim.fn.input('Path to executable: ', exefile, 'file')
   end,
-  cwd = '${workspaceFolder}',
+  cwd = '${relativeFileDirname}',
   stopOnEntry = false,
   args = {},
 

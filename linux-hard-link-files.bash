@@ -62,11 +62,7 @@ done
 if [ "$is_fill" ] && [ "$is_force" ]; then
   >&2 echo can\'t pass both force and fill options!
   exit 1
-elif
-  [ ! "$is_force" ] &&
-  [ ! "$is_reverse" ] &&
-  [ ! "$is_list_files" ]
-then
+elif [ ! "$is_force" ] && [ ! "$is_reverse" ]; then
   is_fill=1
 fi
 
@@ -87,7 +83,7 @@ fi
 
 readarray -t files < <(
   DRY="$is_dry" REVERSE="$is_reverse" \
-  FORCE="$is_force""$is_list_files" FILL="$is_fill" \
+  FORCE="$is_force" FILL="$is_fill" \
   node ./linux-linked-files.js "${patterns[@]}"
 )
 

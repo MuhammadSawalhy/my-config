@@ -112,8 +112,4 @@ prayer() {
   echo " $left"
 }
 
-status(){
-  echo "$(prayer)|$(cpu)│$(mem)│$(hdd)│$(vol)│$(dte)"
-}
-
-xsetroot -name "$(status)"
+echo "$(prayer)|$(cpu)│$(mem)│$(hdd)│$(vol)│$(dte)"

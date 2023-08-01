@@ -1,14 +1,13 @@
 #!python3
 
-# NOTE: these are arch programs
 # fmt: off
 
 programs = [
     # terminal programs
-    "git", "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "exa", "ripgrep", "sd", "ranger", "fzf",
+    "git", "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "ranger", "fzf",
     # additional non-essential terminal programs
     "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core","postgresql", "gitui",
-    "lazygit",
+    "lazygit", "bat",
     # gui tools
     "mpv", "typora", "obsidian", "copyq", "megasync-bin", "syncthing", "simplescreenrecorder", 
     "feh", "zathura", "zathura-pdf-mupdf", "okular"
@@ -22,11 +21,27 @@ programs = [
 # fmt: on
 
 additional_commands = [
-    "git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm",
-    "curl https://sh.rustup.rs -sSf | sh",
-    'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"',
-    "git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons",
-    "git clone https://gitlab.com/dwt1/wallpapers /home/ms/Pictures/wallpapers",
+    # rust
+    """
+    curl https://sh.rustup.rs -sSf | sh
+    """,
+
+    # oh my zsh
+    """
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    """,
+
+    # ranger icons
+    """
+    git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons
+    """,
+
+    # wall papers
+    """
+    git clone https://gitlab.com/dwt1/wallpapers /home/ms/Pictures/wallpapers
+    """,
+
+    # alacrity color themes
     """
     REPO=https://github.com/eendroroy/alacritty-theme.git
     DEST="$HOME/.eendroroy-colorschemes"
@@ -35,25 +50,31 @@ additional_commands = [
     # Create symlink at default colors location (optional)
     ln -s "$DEST/themes" "$HOME/.config/alacritty/colors"
     """,
+
+    # cheat.sh - https://cht.sh/
     """
     curl https://cht.sh/:cht.sh |
     sudo tee /usr/local/bin/cht.sh &&
     sudo chmod +x /usr/local/bin/cht.sh
     """,
-    """
-    git clone https://github.com/arzzen/git-quick-stats.git && cd git-quick-stats
-    sudo make install
-    """,
+
+    # vim-plug
     """
     sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     """,
+
+    # volta
     """
     curl https://get.volta.sh | bash
     """,
+
+    # tmux plugin manager
     """
     git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
     """,
+
+    # pyenv
     """
     git clone https://github.com/pyenv/pyenv.git ~/.pyenv
     cd ~/.pyenv && src/configure && make -C src
@@ -68,7 +89,7 @@ npms = [
     "git-file-history", # htts://githistory.xyz
 ]
 
-cargos = ["fastmod", "br", "rmem"]
+cargos = ["fastmod", "ripgrep", "exa", "br", "rmem", "sd"]
 
 pips = [
     "git-fame",  # for count lines per contributer

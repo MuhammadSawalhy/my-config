@@ -230,13 +230,14 @@ function! CPIO()
 endfunction
 
 
-nmap cpt <CMD>CompetiTestReceive testcases<CR>
-nmap cpr <CMD>CompetiTestRun<CR>
-nmap cpR <CMD>CompetiTestRunNE<CR>
-nmap cpr <CMD>CompetiTestRun<CR>
-nmap cpe <CMD>CompetiTestEdit<CR>
-nmap cpa <CMD>CompetiTestAdd<CR>
-nmap cps <CMD>Submit<CR>
+nmap cpt <CMD>CompetiTest receive testcases<CR>
+nmap cpp <CMD>CompetiTest receive problem<CR>
+nmap cpc <CMD>CompetiTest receive contest<CR>
+nmap cpr <CMD>CompetiTest run<CR>
+nmap cpR <CMD>CompetiTest run_no_compile<CR>
+nmap cpr <CMD>CompetiTest run<CR>
+nmap cpe <CMD>CompetiTest edit<CR>
+nmap cpa <CMD>CompetiTest add<CR>
 nmap cpd :silent ! g++ -g "%" -o "%:p:r"<CR>
 nmap cpio <CMD>call CPIO()<CR>
 

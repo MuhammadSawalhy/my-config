@@ -71,14 +71,11 @@ Plug 'nvim-neotest/neotest'
 " Plug 'puremourning/vimspector'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-" Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'JoosepAlviste/nvim-ts-context-commentstring'
 " Plug 'p00f/nvim-ts-rainbow' " causes an issue
 " Plug 'windwp/nvim-ts-autotag' " TODO: learn more about it
 Plug 'folke/twilight.nvim'
 Plug 'nvim-treesitter/playground'
-Plug 'mfussenegger/nvim-ts-hint-textobject'
-Plug 'm-demare/hlargs.nvim'
 " Plug 'romgrk/nvim-treesitter-context'
 
 " TODO: choose the best one

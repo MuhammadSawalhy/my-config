@@ -89,7 +89,3 @@ require'nvim-treesitter.configs'.setup {
     additional_vim_regex_highlighting = false,
   },
 }
-
-require('hlargs').setup()
-require("twilight").setup {}
-require("tsht").config.hint_keys = { "h", "j", "f", "d", "n", "v", "s", "l", "a" }

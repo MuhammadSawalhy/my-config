@@ -1,3 +1,4 @@
+require("plugins.competitest")
 require("plugins.dap")
 require("plugins.treesitter")
 require('pqf').setup()
@@ -10,20 +11,6 @@ require('vgit').setup()
 require('git-conflict').setup()
 require('numb').setup()
 require("which-key").setup()
-
-require('competitest').setup({
-  -- output_compare_method = "exact",
-  compile_command = {
-    c = { exec = "gcc", args = { "-DSAWALHY", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
-    cpp = { exec = "g++", args = { "-DSAWALHY", "-Wall", "$(FNAME)", "-o", "$(FNOEXT)" } },
-    rust = { exec = "rustc", args = { "$(FNAME)" } },
-    java = { exec = "javac", args = { "$(FNAME)" } },
-  },
-  default_language_ext = "cpp",
-  use_flexible_directories = false,
-  contests_directory = "~/myp/problem-solving",
-  template_file = "~/myp/problem-solving/template.$(FEXT)",
-})
 
 -- require('neoscroll').setup()
 -- require('bufferline').setup()

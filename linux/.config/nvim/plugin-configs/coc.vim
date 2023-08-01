@@ -13,6 +13,7 @@ let g:coc_global_extensions = [
       \ 'coc-yaml',
       \ 'coc-lua',
       \ 'coc-css',
+      \ 'coc-clangd',
       \]
       " \ 'coc-git', " I'm currently using vgit
       " \ 'coc-vimlsp',

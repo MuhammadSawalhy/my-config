@@ -67,5 +67,6 @@
     "sh": "shellcheck"
   },
   "java.format.settings.url": "/home/ms/.config/coc/extensions/node_modules/redhat.java/eclipse-formatter.xml",
-  "git.enableGutters": true
+  "git.enableGutters": true,
+  "snippets.ultisnips.pythonPrompt": false
 }

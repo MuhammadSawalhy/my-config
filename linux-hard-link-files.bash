@@ -81,13 +81,15 @@ fi
 #   node ./linux-linked-files.js "${patterns[@]}"
 # exit
 
-readarray -t files < <(
-  DRY="$is_dry" REVERSE="$is_reverse" \
-  FORCE="$is_force" FILL="$is_fill" \
-  node ./linux-linked-files.js "${patterns[@]}"
-)
+LINKED_FILES_FILE=/tmp/linked-files-qoiweru
+
+DRY="$is_dry" REVERSE="$is_reverse" \
+FORCE="$is_force" FILL="$is_fill" \
+node ./linux-linked-files.js "${patterns[@]}" > $LINKED_FILES_FILE
 
 (($?)) && exit 1 # exit when an error detected
+
+readarray -t files < $LINKED_FILES_FILE
 
 if [ ! "$is_reverse" ]; then
   # deleted_files only working when not reversing

@@ -23,39 +23,37 @@ let errorOccured = false;
 while (patterns.length) {
   const p = patterns.shift();
   if (!isIncludedFile(p)) continue;
-  const linkingData = getFileData(p);
+  const linkingInfo = getFileInfo(p);
 
-  const stats = fs.lstatSync(linkingData.path);
-
-  if (!fs.existsSync(linkingData.path)) {
-    // symbolic links will be considered as non-existing
-    error("source path doesn't exist: " + linkingData.path);
+  if (!fs.existsSync(linkingInfo.path)) {
     continue;
   }
 
+  const stats = fs.lstatSync(linkingInfo.path);
+
   // if it is file
   if (stats.isFile()) {
-    if (fs.existsSync(linkingData.link)) {
+    if (fs.existsSync(linkingInfo.link)) {
       // this is now handled in the bash script
       // if (isFill) continue; // skip this file as it exists
       if (!isForce && !isFill) {
         error(
-          "targetted link will overwrite exsiting file: " + linkingData.link
+          "targetted link will overwrite exsiting file: " + linkingInfo.link
         );
       }
     }
-    relativePaths.add(linkingData.relPath);
-    linkDirs.add(linkingData.linkDir);
+    relativePaths.add(linkingInfo.relPath);
+    linkDirs.add(linkingInfo.linkDir);
   } else if (stats.isDirectory()) {
     // it is directory
     let content = fs
-      .readdirSync(linkingData.path, { withFileTypes: true })
-      .map((dirent) => resolve(linkingData.path, dirent.name))
+      .readdirSync(linkingInfo.path, { withFileTypes: true })
+      .map((dirent) => resolve(linkingInfo.path, dirent.name))
       .filter(isIncludedFile);
     // put the at the beginning of our patterns, FIFO
     patterns.unshift(...content);
   } else {
-    error(`unkown file type: ${linkingData.relPath}`);
+    error(`unkown file type: ${linkingInfo.relPath}`);
   }
 }
 
@@ -66,7 +64,7 @@ function resolve(...p) {
   return path.resolve(...p);
 }
 
-function getFileData(f) {
+function getFileInfo(f) {
   let relPath = f;
   if (!isReverse) {
     relPath = resolve(f); // if starts with ~, resolve it to get the full path

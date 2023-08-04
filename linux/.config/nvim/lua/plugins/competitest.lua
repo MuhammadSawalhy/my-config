@@ -55,12 +55,12 @@ return {
   },
   keys = {
     { 'cpd', ':silent ! g++ -g "%" -o "%:p:r"<CR>', desc = "Compile cpp file with -g flag" },
-    { 'cpt', '<CMD>CompetiTest receive testcases<CR>', desc = "Receive test cases" },
-    { 'cpp', '<CMD>CompetiTest receive problem<CR>', desc = "Receive a problem" },
-    { 'cpc', '<CMD>CompetiTest receive contest<CR>', desc = "Receive a contest" },
-    { 'cpr', '<CMD>CompetiTest run<CR>', desc = "Run the current file" },
-    { 'cpR', '<CMD>CompetiTest run_no_compile<CR>', "Run the current file without compiling" },
-    { 'cpe', '<CMD>CompetiTest edit<CR>', "Edit test cases" },
-    { 'cpa', '<CMD>CompetiTest add<CR>', "Add new test case" },
+    { 'cpt', ':CompetiTest receive testcases<CR>', desc = "Receive test cases" },
+    { 'cpp', ':CompetiTest receive problem<CR>', desc = "Receive a problem" },
+    { 'cpc', ':CompetiTest receive contest<CR>', desc = "Receive a contest" },
+    { 'cpr', ':CompetiTest run<CR>', desc = "Run the current file" },
+    { 'cpR', ':CompetiTest run_no_compile<CR>', "Run the current file without compiling" },
+    { 'cpe', ':CompetiTest edit<CR>', "Edit test cases" },
+    { 'cpa', ':CompetiTest add<CR>', "Add new test case" },
   }
 }

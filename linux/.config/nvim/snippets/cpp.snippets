@@ -708,6 +708,7 @@ snippet code_segtree
         CustomValue() = default;
         CustomValue(ll value) { sum = mn = mx = value; }
 
+        // Node is responsible for applying the relative update
         inline CustomValue &operator+=(const RelativeUpdate &rel) {
             sum += cnt * rel.value, mn += rel.value, mx += rel.value;
             return *this;
@@ -743,8 +744,13 @@ snippet code_segtree
         }
 
         void relative_update(const RelativeUpdate rel) {
+            // we need this to be pushed later to the children
             this->rel += rel;
             pending_relative_update = true;
+        }
+
+        void apply_relupdate() {
+            value += rel;
         }
     };
 
@@ -807,8 +813,8 @@ snippet code_segtree
             if (tree[i].pending_relative_update) {
                 if (i < n) tree[left].relative_update(tree[i].rel);
                 if (i < n) tree[right].relative_update(tree[i].rel);
-                tree[i].value += tree[i].rel;
-                tree[i].rel = RelativeUpdate();
+                tree[i].apply_relupdate();
+                tree[i].rel = RelativeUpdate(); // reset
                 tree[i].pending_relative_update = false;
             }
         }

@@ -89,9 +89,6 @@ additional_commands = [
 npms = [
     "eslint",
     "prettier",
-    "bash-language-server",
-    "vim-language-server",
-    "git-file-history", # htts://githistory.xyz
 ]
 
 cargos = ["fastmod", "ripgrep", "exa", "br", "rmem", "sd"]

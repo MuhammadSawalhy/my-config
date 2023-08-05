@@ -82,9 +82,7 @@ require('lazy').setup({
   {
     'numToStr/Comment.nvim',
     config = function()
-      local comment = require("Comment")
-      local api = require("Comment.api")
-      comment.setup()
+      require("Comment").setup()
       vim.cmd([[nmap <C-_> gcc]])
       vim.cmd([[xmap <C-_> gc]])
     end
@@ -143,6 +141,24 @@ require('lazy').setup({
     end
   },
 
+
+  {
+    'Wansmer/treesj',
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+    keys = { '\\m', '\\M' },
+    opts = {},
+    config = function()
+      local tsj = require('treesj')
+      tsj.setup({ --[[ your config ]] })
+      -- For use default preset and it work with dot
+      vim.keymap.set('n', '\\m', tsj.toggle, { desc = "Join Split - TOGGLE" })
+      -- For extending default preset with `recursive = true`, but this doesn't work with dot
+      vim.keymap.set('n', '\\M', function()
+        tsj.toggle({ split = { recursive = true } })
+      end, { desc = "Join Split - TOGGLE" })
+    end,
+  },
+
   {
     "Pocco81/true-zen.nvim",
     config = function()
@@ -154,8 +170,9 @@ require('lazy').setup({
     end
   },
 
-  { 'jiangmiao/auto-pairs' },
+  -- { 'jiangmiao/auto-pairs' },
   { 'tpope/vim-surround' },
+  { 'windwp/nvim-autopairs',  opts = {} },
   { 'famiu/bufdelete.nvim',   cmd = { 'Bdelete', 'Bwipeout' } },
   { 'mg979/vim-visual-multi', branch = 'master' },
 
@@ -205,26 +222,6 @@ require('lazy').setup({
       { 't', '<Plug>Sneak_t' },
       { 'T', '<Plug>Sneak_T' },
     },
-  },
-
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    opts = {
-      reveal = true,
-      source_selector = {
-        winbar = true,
-        statusline = true
-      },
-      window = { width = 25 },
-    },
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
-    },
-    keys = {
-      { "<leader>e", ":Neotree toggle<cr>", desc = "NeoTree" },
-    }
   },
 
   { import = 'plugins' },
@@ -296,8 +293,8 @@ function CopyBuffer()
   end
 end
 
-vim.keymap.set('x', '<leader>y', '"+y', { desc = "Copy selection to sys clipboard" })
-vim.keymap.set('n', '<leader>wc', CopyBuffer, { desc = "Copy current buffer to sys clipboard" })
+vim.keymap.set('x', '\\y', '"+y', { desc = "Copy selection to sys clipboard" })
+vim.keymap.set('n', '\\wc', CopyBuffer, { desc = "Copy current buffer to sys clipboard" })
 vim.keymap.set('x', 'gsw', "'<,'> ! awk '{ print length(), $0 } | sort -n | cut -d\\  -f2-'<CR><ESC>",
   { desc = "Sort selected lines by line width" })
 

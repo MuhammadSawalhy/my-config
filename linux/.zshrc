@@ -121,10 +121,5 @@ export GPG_TTY=$(tty)
 [ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
 fpath+=~/.zfunc
 
-source "$HOME/.cargo/env"
+export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.volta/bin:$PATH"
-
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-

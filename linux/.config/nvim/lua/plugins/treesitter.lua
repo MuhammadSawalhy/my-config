@@ -6,7 +6,16 @@ return {
     ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
     auto_install = false,
     highlight = { enable = true },
-    indent = { enable = true },
+    indent = {
+      enable = true,
+
+      -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+      -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+      -- Using this option may slow down your editor, and you may see some duplicate highlights.
+      -- Instead of true it can also be a list of languages
+      additional_vim_regex_highlighting = false,
+    },
+
     incremental_selection = {
       enable = true,
       keymaps = {
@@ -19,7 +28,7 @@ return {
     textobjects = {
       select = {
         enable = true,
-        lookahead = true,   -- Automatically jump forward to textobj, similar to targets.vim
+        lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
         keymaps = {
           -- You can use the capture groups defined in textobjects.scm
           ['aa'] = '@parameter.outer',
@@ -32,7 +41,7 @@ return {
       },
       move = {
         enable = true,
-        set_jumps = true,   -- whether to set jumps in the jumplist
+        set_jumps = true, -- whether to set jumps in the jumplist
         goto_next_start = {
           [']m'] = '@function.outer',
           [']]'] = '@class.outer',

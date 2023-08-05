@@ -23,10 +23,7 @@ return {
     --  This function gets run when an LSP connects to a particular buffer.
     local on_attach = function(_, bufnr)
       local nmap = function(keys, func, desc)
-        if desc then
-          desc = 'LSP: ' .. desc
-        end
-
+        if desc then desc = 'LSP: ' .. desc end
         vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
       end
 
@@ -42,7 +39,7 @@ return {
 
       -- See `:help K` for why this keymap
       nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-      nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+      -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
       -- Lesser used LSP functionality
       nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -61,10 +58,12 @@ return {
     local servers = {
       -- rust_analyzer = {},
       -- gopls = {},
+      bashls = {},
       clangd = {},
       pyright = {},
       tsserver = {},
-      html = { filetypes = { 'html', 'twig', 'hbs'} },
+      eslint = {},
+      html = { filetypes = { 'html', 'twig', 'hbs' } },
 
       lua_ls = {
         Lua = {
@@ -84,13 +83,8 @@ return {
     -- Ensure the servers above are installed
     local mason_lspconfig = require 'mason-lspconfig'
 
-    -- mason_lspconfig.setup {
-    --   ensure_installed = vim.tbl_keys(servers),
-    -- }
-
-    require'lspconfig'.clangd.setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
+    mason_lspconfig.setup {
+      ensure_installed = vim.tbl_keys(servers),
     }
 
     mason_lspconfig.setup_handlers {

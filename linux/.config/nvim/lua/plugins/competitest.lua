@@ -60,7 +60,7 @@ return {
     { 'cpc', ':CompetiTest receive contest<CR>', desc = "Receive a contest" },
     { 'cpr', ':CompetiTest run<CR>', desc = "Run the current file" },
     { 'cpR', ':CompetiTest run_no_compile<CR>', "Run the current file without compiling" },
-    { 'cpe', ':CompetiTest edit<CR>', "Edit test cases" },
-    { 'cpa', ':CompetiTest add<CR>', "Add new test case" },
+    { 'cpe', ':CompetiTest edit_testcase<CR>', "Edit test cases" },
+    { 'cpa', ':CompetiTest add_testcase<CR>', "Add new test case" },
   }
 }

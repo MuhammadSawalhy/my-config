@@ -225,4 +225,3 @@ function wpy() {
 
   nodemon -w "$file" -e c -x python "$file"
 }
-. "$HOME/.cargo/env"

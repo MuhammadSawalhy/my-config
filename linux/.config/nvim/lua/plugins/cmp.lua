@@ -11,12 +11,15 @@ return {
 
     -- Adds a number of user-friendly snippets
     'rafamadriz/friendly-snippets',
+
+    "benfowler/telescope-luasnip.nvim",
   },
   config = function()
     local cmp = require 'cmp'
     local luasnip = require 'luasnip'
     require('luasnip.loaders.from_vscode').lazy_load()
-    require("luasnip.loaders.from_snipmate").lazy_load({ paths = {"./snippets"} })
+    require("luasnip.loaders.from_snipmate").lazy_load({ paths = { "./snippets" } })
+    require("telescope").load_extension('luasnip')
     luasnip.config.setup {}
 
     cmp.setup {

@@ -1,39 +1,39 @@
 # files to be hard-linked
 # make sure that the correct user executes './linux-hard-link.bash'
 
-~/._بسم_الله_الرحمن_الرحيم
+._بسم_الله_الرحمن_الرحيم
 
-~/bin
+bin
 
-~/.zshrc
-~/.bash_profile
-~/.bashrc
-~/.profile
-~/.gitconfig
-~/.tmux.conf
-~/.xinitrc
-~/.Xmodmap
+.zshrc
+.bash_profile
+.bashrc
+.profile
+.gitconfig
+.tmux.conf
+.xinitrc
+.Xmodmap
 
 # WARNING: includes auth token
-# ~/.npmrc
+# .npmrc
 
-~/.mlterm
-!~/.mlterm/Mlterm-Color-Schames
+.mlterm
+!.mlterm/Mlterm-Color-Schames
 
-~/.config/alacritty/
-!~/.config/alacritty/colors/
+.config/alacritty/
+!.config/alacritty/colors/
 
-~/.config/nvim/
-!~/.config/nvim/plugins/
-!~/.config/nvim/mini-init.vim
+.config/nvim/
+!.config/nvim/plugins/
+!.config/nvim/mini-init.vim
 
-~/.config/ranger/
-!~/.config/ranger/plugins/
-!~/.config/ranger/history
+.config/ranger/
+!.config/ranger/plugins/
+!.config/ranger/history
 
-~/.config/mpv/
-~/.config/gitui/
-~/.config/zathura/
-~/.config/fontconfig/
-~/.config/Typora/themes/
+.config/mpv/
+.config/gitui/
+.config/zathura/
+.config/fontconfig/
+.config/Typora/themes/
 

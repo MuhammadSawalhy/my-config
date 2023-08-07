@@ -1,90 +1,63 @@
-/**
- * When isReverse, we are dealing with all files inside ./linux,
- * paths relative to ./linux, e.g., bin/my_script not linux/bin/my_script.
- * In either of isReverse, let make sure that the targetted path is there,
- * In case of isReverse = false, lets handle patterns to ignore that
- * starts with "!".
- *
- * When isDry = try, all the previous actions won't have physical
- * effect to the hard disk.
- */
-
 const fs = require("fs");
 const path = require("path");
-const patterns = process.argv.slice(2);
-const relativePaths = new Set();
-const linkDirs = new Set();
-const isDry = !!process.env.DRY;
-const isForce = !!process.env.FORCE;
-const isReverse = !!process.env.REVERSE;
-const isFill = !!process.env.FILL;
+const source = process.argv[2];
+const patterns = process.argv.slice(3);
 let errorOccured = false;
 
-while (patterns.length) {
-  const p = patterns.shift();
-  if (!isIncludedFile(p)) continue;
-  const linkingInfo = getFileInfo(p);
+main();
 
-  if (!fs.existsSync(linkingInfo.path)) {
-    continue;
-  }
-
-  const stats = fs.lstatSync(linkingInfo.path);
-
-  // if it is file
-  if (stats.isFile()) {
-    if (fs.existsSync(linkingInfo.link)) {
-      // this is now handled in the bash script
-      // if (isFill) continue; // skip this file as it exists
-      if (!isForce && !isFill) {
-        error(
-          "targetted link will overwrite exsiting file: " + linkingInfo.link
-        );
-      }
-    }
-    relativePaths.add(linkingInfo.relPath);
-    linkDirs.add(linkingInfo.linkDir);
-  } else if (stats.isDirectory()) {
-    // it is directory
-    let content = fs
-      .readdirSync(linkingInfo.path, { withFileTypes: true })
-      .map((dirent) => resolve(linkingInfo.path, dirent.name))
-      .filter(isIncludedFile);
-    // put the at the beginning of our patterns, FIFO
-    patterns.unshift(...content);
-  } else {
-    error(`unkown file type: ${linkingInfo.relPath}`);
-  }
+function main() {
+  const relativePaths = processPatterns(patterns);
+  if (errorOccured) process.exit(1);
+  relativePaths.forEach((f) => console.log(f));
 }
 
-function resolve(...p) {
-  let homeRootPath = p.find((_) => _.startsWith("~"));
-  if (homeRootPath)
-    return path.resolve(process.env.HOME, homeRootPath.slice(2));
-  return path.resolve(...p);
-}
+/**
+ * Get relative paths to the source files that match the patterns
+ * @param {String[]} patterns gitignore-like patterns
+ * @returns {String[]}
+ */
+function processPatterns(patterns) {
+  const relativePaths = [];
 
-function getFileInfo(f) {
-  let relPath = f;
-  if (!isReverse) {
-    relPath = resolve(f); // if starts with ~, resolve it to get the full path
-    relPath = path.relative(process.env.HOME, relPath);
-    if (relPath.startsWith("..")) {
-      error("patterns should be inside the $HOME directory");
+  patterns.reverse();
+
+  while (patterns.length) {
+    const p = patterns.pop();
+    if (!isIncludedFile(p)) continue;
+    const linkingInfo = getFileInfo(p);
+    if (!fs.existsSync(linkingInfo.fullPath)) continue;
+    const stats = fs.lstatSync(linkingInfo.fullPath);
+
+    // if it is file
+    if (stats.isFile()) {
+      relativePaths.push(linkingInfo.relPath);
+    } else if (stats.isDirectory()) {
+      // it is directory
+      let content = fs
+        .readdirSync(linkingInfo.fullPath, { withFileTypes: true })
+        .map((dirent) =>
+          path.relative(source, path.resolve(linkingInfo.fullPath, dirent.name))
+        )
+        .filter(isIncludedFile);
+      patterns.push(...content);
+    } else {
+      error(`unkown file type: ${linkingInfo.relPath}`);
     }
   }
-  let linksRootDir = isReverse ? process.env.HOME : "./linux";
-  let srcRootDir = isReverse ? "./linux" : process.env.HOME;
+
+  return relativePaths;
+}
+
+function getFileInfo(relPath) {
   return {
-    path: resolve(srcRootDir, relPath),
-    dir: resolve(srcRootDir, path.dirname(relPath)),
-    linkDir: resolve(linksRootDir, path.dirname(relPath)),
-    link: resolve(linksRootDir, relPath),
+    fullPath: path.resolve(source, relPath),
     relPath,
   };
 }
 
 function isIncludedFile(p) {
+  return true;
   return !p.startsWith("!") && !isIgnored(p);
 }
 
@@ -92,10 +65,11 @@ function isIgnored(pathToCheck) {
   return (
     patterns.findIndex(function (ignorePattern) {
       if (ignorePattern[0] !== "!") return false; // it is a pattern to include files
-      ignorePattern = resolve(ignorePattern.slice(1)); // get rid of "!"
-      pathToCheck = resolve(pathToCheck);
+      ignorePattern = path.resolve(source, ignorePattern.slice(1)); // get rid of "!"
+      pathToCheck = path.resolve(source, pathToCheck);
       if (ignorePattern === pathToCheck) return true; // exact match
-      // ignore sub files and directories if the ignore pattern is a directory
+      // 1. ignore sub files and directories if the ignore pattern is a directory
+      // 2. if it is a directory and dosn't exists, then this file will be skipped before reaching here
       if (!fs.existsSync(ignorePattern)) return false;
       if (
         fs.statSync(ignorePattern).isDirectory() &&
@@ -110,8 +84,3 @@ function error(...msgs) {
   console.error(...msgs);
   errorOccured = true;
 }
-
-if (errorOccured) process.exit(1);
-
-!isDry && linkDirs.forEach((d) => fs.mkdirSync(d, { recursive: true }));
-relativePaths.forEach((f) => console.log(f));

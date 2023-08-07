@@ -123,3 +123,11 @@ fpath+=~/.zfunc
 
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.volta/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/home/ms/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end

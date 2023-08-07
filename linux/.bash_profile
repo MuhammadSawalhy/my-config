@@ -10,6 +10,7 @@
 #              aliases
 # ------------------------------------
 
+alias pn=pnpm
 alias o=xdg-open
 alias r="ranger"
 alias l='exa -la --icons --sort=type'
@@ -26,13 +27,8 @@ alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
 alias clipptoc="xclip -sel p -o | xclip -sel clip"
 alias cliprev="xclip -sel p -t UTF8_STRING -o | rev | xclip -sel clip -t UTF8_STRING"
 
-alias myp="cd ~/myp/"
-alias myc="cd ~/my-config"
-alias edu="cd ~/Documents/edu/2nd-2"
-
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
-alias ywsi="yarn workspaces foreach --include"
 alias interact="python3 ~/myp/problem-solving/.stress-testing/interact.py"
 
 # ------------------------------------

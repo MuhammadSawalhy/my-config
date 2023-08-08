@@ -26,7 +26,7 @@ require('lazy').setup({
   'tpope/vim-sleuth',
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',   opts = {} },
+  { 'folke/which-key.nvim', opts = {} },
 
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -89,63 +89,25 @@ require('lazy').setup({
     end
   },
 
-  -- Fuzzy Finder (files, lsp, etc)
-  {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      {
-        'nvim-telescope/telescope-fzf-native.nvim',
-        build = 'make',
-        cond = function()
-          return vim.fn.executable 'make' == 1
-        end,
-      },
-    },
-    opt = {
-      defaults = {
-        mappings = {
-          i = {
-            ['<C-u>'] = false,
-            ['<C-d>'] = false,
-          },
-        },
-      },
-    },
-    config = function()
-      pcall(require('telescope').load_extension, 'fzf')
-      vim.keymap.set('n', '<leader>O', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-      vim.keymap.set('n', '<leader>o', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-      vim.keymap.set('n', '<leader>p', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-      vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-      vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-      vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-      vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-      vim.keymap.set('n', '<leader>/', function()
-        -- You can pass additional configuration to telescope to change theme, layout, etc.
-        require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
-          previewer = false,
-        })
-      end, { desc = '[/] Fuzzily search in current buffer' })
-    end
-  },
-
   {
     "Pocco81/true-zen.nvim",
-    config = function()
-      vim.api.nvim_set_keymap("n", "<leader>zn", ":TZNarrow<CR>", {})
-      vim.api.nvim_set_keymap("v", "<leader>zn", ":'<,'>TZNarrow<CR>", {})
-      vim.api.nvim_set_keymap("n", "<leader>zf", ":TZFocus<CR>", {})
-      vim.api.nvim_set_keymap("n", "<leader>zm", ":TZMinimalist<CR>", {})
-      vim.api.nvim_set_keymap("n", "<leader>za", ":TZAtaraxis<CR>", {})
-    end
+    keys = {
+      { "<leader>zn", ":TZNarrow<CR>",     {} },
+      { "<leader>zf", ":TZFocus<CR>",      {} },
+      { "<leader>zm", ":TZMinimalist<CR>", {} },
+      { "<leader>za", ":TZAtaraxis<CR>",   {} },
+      { mode = "v",   "<leader>zn",        ":'<,'>TZNarrow<CR>", {} },
+    }
   },
 
-  { 'tpope/vim-surround' },
-  { 'windwp/nvim-autopairs',  opts = {} },
+  {
+    'tpope/vim-surround',
+    keys = { "ys", { mode = "v", "S" } },
+    opts = {},
+  },
+
+  { 'windwp/nvim-autopairs', },
+
   { 'famiu/bufdelete.nvim',   cmd = { 'Bdelete', 'Bwipeout' } },
   { 'mg979/vim-visual-multi', branch = 'master' },
 
@@ -158,9 +120,8 @@ require('lazy').setup({
 
   {
     'mbbill/undotree',
-    cmd = 'UndotreeToggle',
     config = function()
-      vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+      vim.opt.undodir = vim.fn.stdpath 'data' .. '/undotree'
     end
   },
 
@@ -180,11 +141,10 @@ require('lazy').setup({
   },
 
   {
-    'AndrewRadev/splitjoin.vim',
-    keys = {
-      { "gj", vim.cmd.SplitjoinJoin },
-      { "gk", vim.cmd.SplitjoinSplit },
-    }
+    'tanvirtin/vgit.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    cmd = "VGit",
+    opts = {},
   },
 
   {
@@ -266,8 +226,8 @@ function CopyBuffer()
   end
 end
 
-vim.keymap.set('x', '\\y', '"+y', { desc = "Copy selection to sys clipboard" })
-vim.keymap.set('n', '\\wc', CopyBuffer, { desc = "Copy current buffer to sys clipboard" })
+vim.keymap.set('x', ';y', '"+y', { desc = "Copy selection to sys clipboard" })
+vim.keymap.set('n', ';wc', CopyBuffer, { desc = "Copy current buffer to sys clipboard" })
 vim.keymap.set('x', 'gsw', "'<,'> ! awk '{ print length(), $0 } | sort -n | cut -d\\  -f2-'<CR><ESC>",
   { desc = "Sort selected lines by line width" })
 
@@ -287,13 +247,13 @@ vim.keymap.set('n', '<tab>l', ':tabnext<CR>', {})
 vim.keymap.set('n', '<tab>h', ':tabprevious<CR>', {})
 
 -- delete without yanking
-vim.keymap.set('n', '\\d', '"_d', {})
-vim.keymap.set('n', '\\c', '"_c', {})
-vim.keymap.set('n', '\\D', '"_D', {})
-vim.keymap.set('v', '\\d', '"_d', {})
-vim.keymap.set('v', '\\c', '"_c', {})
-vim.keymap.set('v', '\\D', '"_D', {})
-vim.keymap.set('v', '\\p', '"_dP', {})
+vim.keymap.set('n', ';d', '"_d', {})
+vim.keymap.set('n', ';c', '"_c', {})
+vim.keymap.set('n', ';D', '"_D', {})
+vim.keymap.set('v', ';d', '"_d', {})
+vim.keymap.set('v', ';c', '"_c', {})
+vim.keymap.set('v', ';D', '"_D', {})
+vim.keymap.set('v', ';p', '"_dP', {})
 
 -- Highlight on yank
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })

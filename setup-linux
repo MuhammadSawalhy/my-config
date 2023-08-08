@@ -82,7 +82,7 @@ additional_commands = [
 
     # pnpm
     """
-    curl -fsSL https://get.pnpm.io/install.sh | sh -
+    curl -L https://unpkg.com/@pnpm/self-installer | node
     """
 ]
 

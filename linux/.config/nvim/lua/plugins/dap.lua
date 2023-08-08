@@ -2,9 +2,13 @@ return {
   'mfussenegger/nvim-dap',
   dependencies = {
     -- Creates a beautiful debugger UI
-    'rcarriga/nvim-dap-ui',
-    'theHamsta/nvim-dap-virtual-text', -- required treesitter plugin
     'nvim-telescope/telescope-dap.nvim',
+    { 'rcarriga/nvim-dap-ui', opts = {} },
+    {
+      'theHamsta/nvim-dap-virtual-text',
+      dependencies = { 'nvim-treesitter/nvim-treesitter' },
+      opts = {}
+    },
 
     -- Installs the debug adapters for you
     'williamboman/mason.nvim',
@@ -16,7 +20,6 @@ return {
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
-    dapui.setup()
 
     require('telescope').load_extension('dap')
 

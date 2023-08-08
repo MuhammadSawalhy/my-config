@@ -133,16 +133,6 @@ require('lazy').setup({
   },
 
   {
-    'AndrewRadev/splitjoin.vim',
-    config = function()
-      -- use native J to join lines
-      vim.keymap.set('n', 'gj', ':SplitjoinJoin<CR>', {})
-      vim.keymap.set('n', 'gk', ':SplitjoinSplit<CR>', {})
-    end
-  },
-
-
-  {
     'Wansmer/treesj',
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     keys = { '\\m', '\\M' },

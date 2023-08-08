@@ -12,7 +12,7 @@ return {
     {
       'benfowler/telescope-luasnip.nvim',
       dependencies = { 'nvim-telescope/telescope.nvim', }
-    }
+    },
 
     -- Display vscode-like pictograms to neovim built-in lsp
     'onsails/lspkind.nvim',

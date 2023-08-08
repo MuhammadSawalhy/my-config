@@ -18,36 +18,11 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
-
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
-
-  {
-    -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      -- See `:help gitsigns.txt`
-      signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
-      },
-      on_attach = function(bufnr)
-        vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk,
-          { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
-        vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
-        vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
-      end,
-    },
-  },
+  { 'folke/which-key.nvim',        opts = {} },
 
   {
     -- Theme inspired by Atom
@@ -60,6 +35,7 @@ require('lazy').setup({
 
   {
     'nvim-lualine/lualine.nvim',
+    priority = 1001,
     opts = {
       options = {
         icons_enabled = false,
@@ -72,58 +48,60 @@ require('lazy').setup({
 
   {
     'lukas-reineke/indent-blankline.nvim',
+    priority = 1002,
     opts = {
-      char = '┊',
-      show_trailing_blankline_indent = false,
+      space_char_blankline = ' ',
+      show_current_context = true,       -- requires treesitter
+      show_current_context_start = true, -- required treesitter
     },
   },
 
-  -- "gc" to comment visual regions/lines
   {
     'numToStr/Comment.nvim',
-    keys = { "gc", { "<C-_>", mode = { "n", "x" } }, },
+    keys = { 'gc', mode = { 'x', 'n' } },
     config = function()
-      require("Comment").setup()
+      require('Comment').setup()
       vim.cmd([[nmap <C-_> gcc]])
       vim.cmd([[xmap <C-_> gc]])
     end
   },
 
   {
-    "Pocco81/true-zen.nvim",
+    'Pocco81/true-zen.nvim',
     keys = {
-      { "<leader>zn", ":TZNarrow<CR>",     {} },
-      { "<leader>zf", ":TZFocus<CR>",      {} },
-      { "<leader>zm", ":TZMinimalist<CR>", {} },
-      { "<leader>za", ":TZAtaraxis<CR>",   {} },
-      { mode = "v",   "<leader>zn",        ":'<,'>TZNarrow<CR>", {} },
+      { '<leader>zn', ':TZNarrow<CR>',     {} },
+      { '<leader>zf', ':TZFocus<CR>',      {} },
+      { '<leader>zm', ':TZMinimalist<CR>', {} },
+      { '<leader>za', ':TZAtaraxis<CR>',   {} },
+      { mode = 'v',   '<leader>zn',        ":'<,'>TZNarrow<CR>", {} },
     }
   },
 
   {
     'tpope/vim-surround',
-    keys = { "ys", { mode = "v", "S" } },
-    opts = {},
+    keys = { 'ys', { mode = 'v', 'S' } },
   },
 
-  { 'windwp/nvim-autopairs', },
+  { 'windwp/nvim-autopairs',       opts = {} },
 
-  { 'famiu/bufdelete.nvim',   cmd = { 'Bdelete', 'Bwipeout' } },
-  { 'mg979/vim-visual-multi', branch = 'master' },
+  { 'famiu/bufdelete.nvim',        cmd = { 'Bdelete', 'Bwipeout' } },
+  { 'mg979/vim-visual-multi',      branch = 'master' },
+
+  { 'norcalli/nvim-colorizer.lua', opts = {} },
 
   {
     'junegunn/vim-easy-align',
-    keys = {
-      { 'ga', '<Plug>(EasyAlign)', mode = { "x", "n" } }
-    }
+    keys = { 'ga', '<Plug>(EasyAlign)', mode = { 'x', 'n' } }
   },
 
   {
     'mbbill/undotree',
+    cmd = 'UndotreeToggle',
     config = function()
-      vim.opt.undodir = vim.fn.stdpath 'data' .. '/undotree'
+      vim.opt.undodir = os.getenv('HOME') .. '/.vim/undodir'
     end
   },
+
 
   {
     'fedepujol/move.nvim',
@@ -143,7 +121,6 @@ require('lazy').setup({
   {
     'tanvirtin/vgit.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    cmd = "VGit",
     opts = {},
   },
 
@@ -155,6 +132,16 @@ require('lazy').setup({
       { 't', '<Plug>Sneak_t' },
       { 'T', '<Plug>Sneak_T' },
     },
+  },
+
+  {
+    'iamcco/markdown-preview.nvim',
+    build = function() vim.fn['mkdp#util#install']() end,
+    config = function() vim.g.mkdp_filetypes = { 'markdown' } end,
+    ft = { 'markdown' },
+    keys = {
+      { '<leader>P', '<Plug>MarkdownPreviewToggle', { desc = '[P]review markdown in the browser' } }
+    }
   },
 
   { import = 'plugins' },
@@ -177,7 +164,7 @@ vim.o.mouse = 'a'
 -- Sync clipboard between OS and Neovim.
 -- vim.o.clipboard = 'unnamedplus'
 
--- Disable wrap
+-- Disable
 vim.o.wrap = false
 
 -- Enable break indent
@@ -205,6 +192,10 @@ vim.o.termguicolors = true
 
 -- Padding in top and bottom while move up and down in the buffer
 vim.o.scrolloff = 10
+
+-- End of line and tabs symbols
+vim.opt.list = true
+vim.opt.listchars:append "eol:↴"
 
 ---------------------------------------------------------------
 ---------------------------------------------------------------
@@ -245,6 +236,11 @@ vim.keymap.set({ 'n', 'i', 'v' }, '<C-k>', '<C-w>k', {})
 vim.keymap.set('n', '<tab>n', ':tabnew<Space>', {})
 vim.keymap.set('n', '<tab>l', ':tabnext<CR>', {})
 vim.keymap.set('n', '<tab>h', ':tabprevious<CR>', {})
+
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz")
+-- vim.keymap.set("n", "<C-u>", "<C-u>zz")
+-- vim.keymap.set("n", "n", "nzzzv")
+-- vim.keymap.set("n", "N", "Nzzzv")
 
 -- delete without yanking
 vim.keymap.set('n', ';d', '"_d', {})

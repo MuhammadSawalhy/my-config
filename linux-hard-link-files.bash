@@ -69,6 +69,10 @@ if [ ! "$is_reverse" ]; then
     <(printf '%s\n' "${target_files[@]}" | sort) \
     <(printf '%s\n' "${source_files[@]}" | sort)
   )
+
+  if test "${deleted_files[*]}" == ""; then
+    deleted_files=()
+  fi
 fi
 
 if [ ! "$is_force" ]; then
@@ -78,6 +82,10 @@ if [ ! "$is_force" ]; then
     <(printf '%s\n' "${target_files[@]}" | sort) \
     <(printf '%s\n' "${source_files[@]}" | sort)
   )
+
+  if test "${source_files[*]}" == ""; then
+    source_files=()
+  fi
 fi
 
 confirm () {

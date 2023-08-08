@@ -1,7 +1,10 @@
 return {
   {
     'nvim-treesitter/nvim-treesitter',
-    dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects', },
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+      'windwp/nvim-ts-autotag'
+    },
     build = ':TSUpdate',
     opt = {
       ensure_installed = {
@@ -27,7 +30,6 @@ return {
         -- Instead of true it can also be a list of languages
         additional_vim_regex_highlighting = false,
       },
-
       incremental_selection = {
         enable = true,
         keymaps = {
@@ -36,6 +38,9 @@ return {
           scope_incremental = '<c-s>',
           node_decremental = '<c-s-space>',
         },
+      },
+      autotag = {
+        enable = true,
       },
       textobjects = {
         select = {

@@ -1,10 +1,48 @@
+-- [[ TSPlaygroundToggle ]]
 return {
   'nvim-treesitter/nvim-treesitter',
-  dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
+
+  dependencies = {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    'windwp/nvim-ts-autotag',
+
+    {
+      'nvim-treesitter/playground',
+      cmd = { 'TSPlaygroundToggle', 'TSHighlightCapturesUnderCursor', 'TSNodeUnderCursor' }
+    },
+
+    {
+      'Wansmer/treesj',
+      keys = { '\\m', '\\M' },
+      opts = {},
+      config = function()
+        local tsj = require('treesj')
+        tsj.setup({ use_default_keymaps = false })
+        -- For use default preset and it work with dot
+        vim.keymap.set('n', '\\m', tsj.toggle, { desc = "Join Split - TOGGLE" })
+        -- For extending default preset with `recursive = true`, but this doesn't work with dot
+        vim.keymap.set('n', '\\M', function()
+          tsj.toggle({ split = { recursive = true } })
+        end, { desc = "Join Split - TOGGLE" })
+      end,
+    },
+  },
+
   build = ':TSUpdate',
   opt = {
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
-    auto_install = false,
+    ensure_installed = {
+      'c',
+      'cpp',
+      'go',
+      'lua',
+      'python',
+      'rust',
+      'tsx',
+      'typescript',
+      'vimdoc',
+      'vim',
+    },
+    auto_install = true,
     highlight = { enable = true },
     indent = {
       enable = true,
@@ -15,7 +53,6 @@ return {
       -- Instead of true it can also be a list of languages
       additional_vim_regex_highlighting = false,
     },
-
     incremental_selection = {
       enable = true,
       keymaps = {
@@ -24,6 +61,9 @@ return {
         scope_incremental = '<c-s>',
         node_decremental = '<c-s-space>',
       },
+    },
+    autotag = {
+      enable = true,
     },
     textobjects = {
       select = {

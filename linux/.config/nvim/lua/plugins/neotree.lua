@@ -54,7 +54,7 @@ return {
     },
     source_selector = {
       winbar = true,
-      statusline = true
+      statusline = false
     },
   },
 }

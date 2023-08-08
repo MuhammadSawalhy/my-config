@@ -81,6 +81,7 @@ require('lazy').setup({
   -- "gc" to comment visual regions/lines
   {
     'numToStr/Comment.nvim',
+    keys = { "gc", { "<C-_>", mode = { "n", "x" } }, },
     config = function()
       require("Comment").setup()
       vim.cmd([[nmap <C-_> gcc]])
@@ -133,23 +134,6 @@ require('lazy').setup({
   },
 
   {
-    'Wansmer/treesj',
-    dependencies = { 'nvim-treesitter/nvim-treesitter' },
-    keys = { '\\m', '\\M' },
-    opts = {},
-    config = function()
-      local tsj = require('treesj')
-      tsj.setup({ --[[ your config ]] })
-      -- For use default preset and it work with dot
-      vim.keymap.set('n', '\\m', tsj.toggle, { desc = "Join Split - TOGGLE" })
-      -- For extending default preset with `recursive = true`, but this doesn't work with dot
-      vim.keymap.set('n', '\\M', function()
-        tsj.toggle({ split = { recursive = true } })
-      end, { desc = "Join Split - TOGGLE" })
-    end,
-  },
-
-  {
     "Pocco81/true-zen.nvim",
     config = function()
       vim.api.nvim_set_keymap("n", "<leader>zn", ":TZNarrow<CR>", {})
@@ -160,7 +144,6 @@ require('lazy').setup({
     end
   },
 
-  -- { 'jiangmiao/auto-pairs' },
   { 'tpope/vim-surround' },
   { 'windwp/nvim-autopairs',  opts = {} },
   { 'famiu/bufdelete.nvim',   cmd = { 'Bdelete', 'Bwipeout' } },
@@ -234,7 +217,7 @@ vim.o.mouse = 'a'
 -- Sync clipboard between OS and Neovim.
 -- vim.o.clipboard = 'unnamedplus'
 
--- Disable
+-- Disable wrap
 vim.o.wrap = false
 
 -- Enable break indent
@@ -302,11 +285,6 @@ vim.keymap.set({ 'n', 'i', 'v' }, '<C-k>', '<C-w>k', {})
 vim.keymap.set('n', '<tab>n', ':tabnew<Space>', {})
 vim.keymap.set('n', '<tab>l', ':tabnext<CR>', {})
 vim.keymap.set('n', '<tab>h', ':tabprevious<CR>', {})
-
--- vim.keymap.set("n", "<C-d>", "<C-d>zz")
--- vim.keymap.set("n", "<C-u>", "<C-u>zz")
--- vim.keymap.set("n", "n", "nzzzv")
--- vim.keymap.set("n", "N", "Nzzzv")
 
 -- delete without yanking
 vim.keymap.set('n', '\\d', '"_d', {})

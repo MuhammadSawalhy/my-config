@@ -22,7 +22,7 @@ require('lazy').setup({
   'tpope/vim-sleuth',
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',        opts = {} },
+  { 'folke/which-key.nvim',   opts = {} },
 
   {
     -- Theme inspired by Atom
@@ -47,18 +47,45 @@ require('lazy').setup({
   },
 
   {
+    'akinsho/bufferline.nvim',
+    version = "*",
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require("bufferline").setup {
+        options = {
+          diagnostics = "nvim_lsp",
+          separator_style = "slope",
+          hover = {
+            enabled = true,
+            delay = 200,
+            reveal = { 'close' }
+          }
+        }
+      }
+
+      vim.keymap.set('n', '<tab>n', '<CMD>tabnew<CR>', {})
+      vim.keymap.set('n', '<tab>l', '<CMD>BufferLineCycleNext<CR>', {})
+      vim.keymap.set('n', '<tab>h', '<CMD>BufferLineCyclePrev<CR>', {})
+      vim.keymap.set('n', '<tab>x', '<CMD>BufferLineCloseOthers<CR>', {})
+      vim.keymap.set('n', '<tab>p', '<CMD>BufferLinePick<CR>', {})
+    end
+  },
+
+  {
     'lukas-reineke/indent-blankline.nvim',
     priority = 1002,
     opts = {
       space_char_blankline = ' ',
-      show_current_context = true,       -- requires treesitter
-      show_current_context_start = true, -- required treesitter
+      show_current_context = true, -- requires treesitter
     },
   },
 
   {
     'numToStr/Comment.nvim',
-    keys = { 'gc', mode = { 'x', 'n' } },
+    keys = {
+      { 'gc',    mode = { 'x', 'n' }, desc = 'Comment' },
+      { '<C-_>', mode = { 'x', 'n' }, desc = 'Comment' },
+    },
     config = function()
       require('Comment').setup()
       vim.cmd([[nmap <C-_> gcc]])
@@ -79,15 +106,24 @@ require('lazy').setup({
 
   {
     'tpope/vim-surround',
-    keys = { 'ys', { mode = 'v', 'S' } },
+    keys = { { 'ds' }, { 'cs' }, { 'ys' }, { 'S', mode = 'v' } },
   },
 
-  { 'windwp/nvim-autopairs',       opts = {} },
+  { 'windwp/nvim-autopairs',  opts = {} },
 
-  { 'famiu/bufdelete.nvim',        cmd = { 'Bdelete', 'Bwipeout' } },
-  { 'mg979/vim-visual-multi',      branch = 'master' },
+  { 'famiu/bufdelete.nvim',   cmd = { 'Bdelete', 'Bwipeout' } },
+  { 'mg979/vim-visual-multi', branch = 'master', },
 
-  { 'norcalli/nvim-colorizer.lua', opts = {} },
+  {
+    'brenoprata10/nvim-highlight-colors',
+    config = function()
+      require("nvim-highlight-colors").setup {
+        render = 'background', -- or 'foreground' or 'first_column'
+        enable_named_colors = true,
+        enable_tailwind = true,
+      }
+    end
+  },
 
   {
     'junegunn/vim-easy-align',
@@ -121,7 +157,7 @@ require('lazy').setup({
   {
     'tanvirtin/vgit.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {},
+    opts = {}
   },
 
   {
@@ -226,16 +262,14 @@ vim.keymap.set('x', 'gsw', "'<,'> ! awk '{ print length(), $0 } | sort -n | cut 
 vim.keymap.set('n', 'j', "v:count ? 'j' : 'gj'", { silent = true, expr = true })
 vim.keymap.set('n', 'k', "v:count ? 'k' : 'gk'", { silent = true, expr = true })
 
+-- navigate tabs done by bufferline plugin
 -- navigate windows
-vim.keymap.set({ 'n', 'i', 'v' }, '<C-l>', '<C-w>l', {})
-vim.keymap.set({ 'n', 'i', 'v' }, '<C-h>', '<C-w>h', {})
-vim.keymap.set({ 'n', 'i', 'v' }, '<C-j>', '<C-w>j', {})
-vim.keymap.set({ 'n', 'i', 'v' }, '<C-k>', '<C-w>k', {})
-
--- navigate tabs
-vim.keymap.set('n', '<tab>n', ':tabnew<Space>', {})
-vim.keymap.set('n', '<tab>l', ':tabnext<CR>', {})
-vim.keymap.set('n', '<tab>h', ':tabprevious<CR>', {})
+vim.keymap.set('n', '<C-w><C-q>', '<CMD>bd<cr>', { desc = 'Delete buffer' })
+vim.keymap.set('n', '<C-w>q', '<CMD>bd<cr>', { desc = 'Delete buffer' })
+vim.keymap.set('n', '<C-l>', '<C-w>l', {})
+vim.keymap.set('n', '<C-h>', '<C-w>h', {})
+vim.keymap.set('n', '<C-j>', '<C-w>j', {})
+vim.keymap.set('n', '<C-k>', '<C-w>k', {})
 
 -- vim.keymap.set("n", "<C-d>", "<C-d>zz")
 -- vim.keymap.set("n", "<C-u>", "<C-u>zz")

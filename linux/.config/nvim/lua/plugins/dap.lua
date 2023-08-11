@@ -86,8 +86,8 @@ return {
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, 'Set Conditional Breakpoint')
 
-    nmap('<leader>dc', ':Telescope dap commands<CR>', '')
-    nmap('<leader>db', ':Telescope dap list_breakpoints<CR>', '')
+    nmap('<leader>dc', ':Telescope dap commands<CR>', 'Telescope dap commands')
+    nmap('<leader>db', ':Telescope dap list_breakpoints<CR>', 'Telescope list breakpoints')
     nmap('<leader>du', dapui.toggle, 'Toggle dap UI')
     nmap('<leader>de', dapui.eval, 'Evaluate under cursor')
     nmap('<leader>dE', function()

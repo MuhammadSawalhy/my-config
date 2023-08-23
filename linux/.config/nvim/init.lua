@@ -87,7 +87,14 @@ require('lazy').setup({
       { '<C-_>', mode = { 'x', 'n' }, desc = 'Comment' },
     },
     config = function()
-      require('Comment').setup()
+      require('Comment').setup({
+        mappings = {
+          ---Operator-pending mapping; `gcc` `gbc` `gc[count]{motion}` `gb[count]{motion}`
+          basic = true,
+          ---Extra mapping; `gco`, `gcO`, `gcA`
+          extra = true,
+        }
+      })
       vim.cmd([[nmap <C-_> gcc]])
       vim.cmd([[xmap <C-_> gc]])
     end
@@ -126,8 +133,15 @@ require('lazy').setup({
   },
 
   {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
+
+  {
     'junegunn/vim-easy-align',
-    keys = { 'ga', '<Plug>(EasyAlign)', mode = { 'x', 'n' } }
+    keys = {
+      { 'ga', '<Plug>(EasyAlign)', mode = { 'x', 'n' } }
+    }
   },
 
   {
@@ -176,7 +190,7 @@ require('lazy').setup({
     config = function() vim.g.mkdp_filetypes = { 'markdown' } end,
     ft = { 'markdown' },
     keys = {
-      { '<leader>P', '<Plug>MarkdownPreviewToggle', { desc = '[P]review markdown in the browser' } }
+      { '<leader>P', '<Plug>MarkdownPreviewToggle', desc = '[P]review markdown in the browser' }
     }
   },
 

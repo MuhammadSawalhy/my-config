@@ -62,7 +62,7 @@ return {
 
       -- Diagnostic keymaps
       vim.keymap.set('n', '[d', '<CMD>Lspsaga diagnostic_jump_prev<cr>', { desc = 'Go to previous diagnostic message' })
-      vim.keymap.set('n', ']d', '<CMD>Lspsaga diagnostic_jump_prev<cr>', { desc = 'Go to next diagnostic message' })
+      vim.keymap.set('n', ']d', '<CMD>Lspsaga diagnostic_jump_next<cr>', { desc = 'Go to next diagnostic message' })
       vim.keymap.set('n', '<leader>dd', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
       --  This function gets run when an LSP connects to a particular buffer.
@@ -101,6 +101,9 @@ return {
 
         -- Create a command `:Format` local to the LSP buffer
         vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
+          vim.lsp.buf.format()
+        end, { desc = 'Format current buffer with LSP' })
+        vim.api.nvim_buf_create_user_command(bufnr, 'F', function(_)
           vim.lsp.buf.format()
         end, { desc = 'Format current buffer with LSP' })
       end
@@ -173,16 +176,16 @@ return {
           null_ls.builtins.formatting.prettier,
         },
         on_attach = function(client, bufnr)
-          if client.supports_method("textDocument/formatting") then
-            vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-            vim.api.nvim_create_autocmd("BufWritePre", {
-              group = augroup,
-              buffer = bufnr,
-              callback = function()
-                lsp_formatting(bufnr)
-              end,
-            })
-          end
+          -- if client.supports_method("textDocument/formatting") then
+          --   vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+          --   vim.api.nvim_create_autocmd("BufWritePre", {
+          --     group = augroup,
+          --     buffer = bufnr,
+          --     callback = function()
+          --       lsp_formatting(bufnr)
+          --     end,
+          --   })
+          -- end
         end
       }
 

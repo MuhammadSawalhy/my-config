@@ -22,14 +22,14 @@ alias prgs='printf "$(git status)"'
 alias pasteimage="xclip -sel clip -t image/png -o"
 alias copyimage="xclip -sel clip -t image/png"
 alias imgptoc="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
-# to paste the image itself in obsidian, I don't want to use the online version
-alias imgctoc="xclip -sel clip -t image/png -o | xclip -sel clip -t image/png"
-alias clipptoc="xclip -sel p -o | xclip -sel clip"
-alias cliprev="xclip -sel p -t UTF8_STRING -o | rev | xclip -sel clip -t UTF8_STRING"
 
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
 alias interact="python3 ~/myp/problem-solving/.stress-testing/interact.py"
+
+# For WSL
+alias pbcopy="clip.exe"
+alias pbpaste="powershell.exe -command 'Get-Clipboard' | tr -d '\r'"
 
 # ------------------------------------
 #       default common setting

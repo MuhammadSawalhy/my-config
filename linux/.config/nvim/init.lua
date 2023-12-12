@@ -21,8 +21,54 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
+  -- Generative AI (copilot alternative)
+  {
+    'Exafunction/codeium.vim',
+    event = 'BufEnter'
+  },
+
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',   opts = {} },
+  { 'folke/which-key.nvim', opts = {} },
+
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    ---@type Flash.Config
+    opts = {},
+    -- stylua: ignore
+    keys = {
+      {
+        "s",
+        mode = { "n", "o", "x" },
+        function() require("flash").jump() end,
+        desc = "Flash",
+      },
+      {
+        "S",
+        mode = { "n", "o" },
+        function() require("flash").treesitter() end,
+        desc = "Flash Treesitter",
+      },
+      {
+        "r",
+        mode = "o",
+        function() require("flash").remote() end,
+        desc = "Remote Flash",
+      },
+      {
+        "R",
+        mode = { "o", "x" },
+        function() require("flash").treesitter_search() end,
+        desc = "Treesitter Search",
+      },
+      {
+        "<c-s>",
+        mode = { "c" },
+        function() require("flash").toggle() end,
+        desc = "Toggle Flash Search",
+      },
+    },
+  },
 
   {
     -- Theme inspired by Atom
@@ -54,7 +100,7 @@ require('lazy').setup({
       require("bufferline").setup {
         options = {
           diagnostics = "nvim_lsp",
-          separator_style = "slope",
+          separator_style = "slant",
           hover = {
             enabled = true,
             delay = 200,
@@ -68,11 +114,13 @@ require('lazy').setup({
       vim.keymap.set('n', '<tab>h', '<CMD>BufferLineCyclePrev<CR>', {})
       vim.keymap.set('n', '<tab>x', '<CMD>BufferLineCloseOthers<CR>', {})
       vim.keymap.set('n', '<tab>p', '<CMD>BufferLinePick<CR>', {})
+      vim.keymap.set('n', '<tab>P', '<CMD>BufferLineTogglePin<CR>', {})
     end
   },
 
   {
     'lukas-reineke/indent-blankline.nvim',
+    event = 'BufEnter',
     priority = 1002,
     opts = {
       space_char_blankline = ' ',
@@ -114,13 +162,22 @@ require('lazy').setup({
 
   {
     'tpope/vim-surround',
-    keys = { { 'ds' }, { 'cs' }, { 'ys' }, { 'S', mode = 'v' } },
+    keys = { { 'ds' }, { 'cs' }, { 'ys' }, { 'S', mode = 'x' } },
   },
 
-  { 'windwp/nvim-autopairs',  opts = {} },
+  {
+    'windwp/nvim-autopairs',
+    event = "BufEnter",
+    opts = {},
+  },
 
-  { 'famiu/bufdelete.nvim',   cmd = { 'Bdelete', 'Bwipeout' } },
-  { 'mg979/vim-visual-multi', branch = 'master', },
+  { 'famiu/bufdelete.nvim', cmd = { 'Bdelete', 'Bwipeout' } },
+
+  {
+    'mg979/vim-visual-multi',
+    priority = 1000,
+    branch = 'master',
+  },
 
   {
     'brenoprata10/nvim-highlight-colors',
@@ -135,7 +192,9 @@ require('lazy').setup({
 
   {
     "folke/todo-comments.nvim",
+    event = "VeryLazy",
     dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {}
   },
 
   {
@@ -149,7 +208,7 @@ require('lazy').setup({
     'mbbill/undotree',
     cmd = 'UndotreeToggle',
     config = function()
-      vim.opt.undodir = os.getenv('HOME') .. '/.vim/undodir'
+      vim.o.undodir = os.getenv('HOME') .. '/.vim/undodir'
     end
   },
 
@@ -245,7 +304,7 @@ vim.o.termguicolors = true
 vim.o.scrolloff = 10
 
 -- End of line and tabs symbols
-vim.opt.list = true
+vim.o.list = true
 vim.opt.listchars:append "eol:↴"
 
 ---------------------------------------------------------------
@@ -254,17 +313,19 @@ vim.opt.listchars:append "eol:↴"
 
 -- copy to clipboard
 function CopyBuffer()
-  if vim.fn.executable("clip.exe") then
-    vim.cmd('silent write !clip.exe')
-    print("Buffer is copied")
-  elseif vim.fn.executable("xsel") then
+  -- if vim.fn.executable("clip.exe") then
+  --   vim.cmd('silent write !clip.exe')
+  --   print('Buffer is copied')
+  --   return
+  -- end
+  if vim.fn.executable('xsel') then
     vim.cmd('silent write !xsel -ib')
-    print("Buffer is copied")
-  elseif vim.fn.executable("xclip") then
+    print('Buffer is copied')
+  elseif vim.fn.executable('xclip') then
     vim.cmd('silent write !xclip -sel clip')
-    print("Buffer is copied")
+    print('Buffer is copied')
   else
-    vim.cmd.echoerr("Can't find a clip program, please install xsel or xclip!")
+    vim.cmd.echoerr('Can\'t find a clip program, please install xsel or xclip!')
   end
 end
 

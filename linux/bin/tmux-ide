@@ -1,15 +1,15 @@
 #!/bin/bash
 
-ide_num=$1
+ide_num="$1"
 shift
 
-case $ide_num in
+case "$ide_num" in
   1)
-    tmux split-window -h -p 25 $@
-    tmux split-window -v -p 50 $@
+    tmux split-window -h -p 25 "$@"
+    tmux split-window -v -p 50 "$@"
     ;;
   2)
-    tmux split-window -v -p 25 $@
-    tmux split-window -h -p 33 $@
+    tmux split-window -v -p 20 "$@"
+    tmux split-window -h -p 33 "$@"
     ;;
 esac

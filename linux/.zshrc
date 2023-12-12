@@ -8,11 +8,12 @@ export ZSH="/home/ms/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="arrow"
-ZSH_THEME="eastwood"
+
 ZSH_THEME="flazz"
-ZSH_THEME="fishy"
+ZSH_THEME="eastwood"
 ZSH_THEME="gnzh"
+ZSH_THEME="fishy"
+ZSH_THEME="arrow"
 
 # fpath+=$HOME/.zsh/pure
 # autoload -U promptinit; promptinit
@@ -118,16 +119,11 @@ bindkey -M menuselect '^[[Z' reverse-menu-complete
 export GPG_TTY=$(tty)
 
 [ -f ~/.bash_profile ] && . ~/.bash_profile
-[ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
-fpath+=~/.zfunc
+
+# Setting fd as the default source for fzf
+export FZF_DEFAULT_COMMAND='fd --strip-cwd-prefix'
+# To apply the command to CTRL-T as well
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.volta/bin:$PATH"
-
-# pnpm
-export PNPM_HOME="/home/ms/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end

@@ -120,8 +120,8 @@ go() {
   force_opt=$([ "$is_force" ] && echo '-f' || echo '')
   for f in "${source_files[@]}"; do
     mkdir -p "$(dirname "$TARGET/$f")"
-    echo -\> ln "$force_opt" "$SOURCE/$f" "$TARGET/$f"
-    ln "$force_opt" "$SOURCE/$f" "$TARGET/$f"
+    echo -\> ln $force_opt "$SOURCE/$f" "$TARGET/$f"
+    ln $force_opt "$SOURCE/$f" "$TARGET/$f"
   done
 }
 

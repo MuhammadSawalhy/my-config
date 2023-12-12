@@ -41,7 +41,9 @@ function processPatterns(patterns) {
         )
         .filter(isIncludedFile);
       patterns.push(...content);
-    } else {
+    } else if (stats.isSymbolicLink()) {
+      console.error(`skip symlink: ${linkingInfo.relPath}`);
+    }else {
       error(`unkown file type: ${linkingInfo.relPath}`);
     }
   }

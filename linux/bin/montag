@@ -15,6 +15,7 @@ cat <<- EOF
 │-t│ --to        │ End point, the same format as start (needs --start)
 │-x│ --speed     │ Speed of the output video (multiplier, e.g., 1.75)
 │  │ --yes       │ Work on the video immediately without the user's consent
+│  │ --mute      │ Mute audio
 │  │ --crop      │ Frame to crop the video, e.g. "in_w:in_h-40", see crop
 │  │             │   filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
 ├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
@@ -25,8 +26,8 @@ cat <<- EOF
 │  │ --width     │ Width of the output (aspect ratio is preserved)
 │  │ --fps       │ Frames persecond
 ├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
-│  │ --ytdl      │ youtube-dl (yt-dlp) additional args incase of inputing "https://*"
-│  │ --ydi       │ youtube-dl (yt-dlp) interactive mode, requires whiptail
+│  │ --ytdl      │ yt-dlp additional args
+│  │ --ydi       │ yt-dlp interactive mode, requires whiptail
 └──┴─────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
 
 USAGE:
@@ -38,7 +39,7 @@ EXAMPLES:
 
   # get the specified range of the video from "--start" to "--to" and speed up
   montag -i my-input-video.mp4 --start 00:10:21 --t 00:11:30 --speed 2
-  montag -i my-input-video.mp4 -s 00:10:21 -t 00:11:30 -x 2
+  montag -i my-input-video.mp4 -s 00:10:21 -t 00:11:30 -x 2 --ytdl "-u username -p password"
 EOF
 }
 
@@ -104,6 +105,10 @@ collect-arg-and-validate() {
   fi
 }
 
+echo-debug() {
+  [ "$is_quiet" ] || >&2 echo "=>" "$@"
+}
+
 prepare-input-and-output() {
   [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
 
@@ -121,12 +126,12 @@ prepare-input-and-output() {
   then
     quality_settings="-f best[height<=720]"
     if [ "$is_ydi" ]; then
-      [ $is_quiet ] || >&2 echo "=>" ydi -p \""$input"\"
+      echo-debug ydi -p \""$input"\"
       quality_settings="-f $(ydi -p "$input")"
     fi
     ytdl_options+=($quality_settings)
-    [ $is_quiet ] || >&2 echo "=>" youtube-dl \""${ytdl_options[*]}"\" --no-playlist -O \''%(title)s.%(ext)s'\' \""$input"\"
-    output="$(youtube-dl "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$input")"
+    echo-debug yt-dlp \""${ytdl_options[*]}"\" --no-playlist -O \''%(title)s.%(ext)s'\' \""$input"\"
+    output="$(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$input")"
     output="${output/\//\\\\}" # replace / with \\
     output_ext=$(ext "$output")
     tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
@@ -160,9 +165,9 @@ get-input-args() {
 
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
-    
-    [ $is_quiet ] || >&2 echo "=>" youtube-dl --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
-    read -r -a links <<< "$(youtube-dl --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
+
+    [ $is_quiet ] || >&2 echo "=>" yt-dlp --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
+    read -r -a links <<< "$(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
 
     # put link inside 'single qutaion mark'
     if [ ${#links[@]} = 1 ]; then
@@ -172,7 +177,7 @@ get-input-args() {
       echo -n "${argv[*]} -i '${links[1]}' "
       echo -map 0:v -map 1:a
     else
-      1>&2 echo 'ERROR: invalid output from "youtube-dl -g <url>"'
+      1>&2 echo 'ERROR: invalid output from "yt-dlp -g <url>"'
       [ ! $is_quiet ] &&
         1>&2 printf '==============\n%s\n' "${links[@]}"
       exit 1

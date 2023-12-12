@@ -60,13 +60,18 @@ array=()
 
 while read -r line; do
   array+=("$(echo "$line" | awk '{print $1}')" "$line")
-done <<< "$(youtube-dl "${ytdl_options[@]}" -F --no-playlist "$url" | sed '0,/--------/d')"
+done <<< "$(yt-dlp "${ytdl_options[@]}" -F --no-playlist "$url" | sed '0,/--------/d')"
 
 # printf "%s\n" "${array[@]}"
 # exit 0
 
+if ! which whiptail 1>&2 2> /dev/null; then
+  echo "whiptail program is not found, please install it" >&2
+  exit 1
+fi
+
 answer=$(
-  whiptail --notags --title "Youtube-DL" --menu 'Select which one' 20 120 10 "${array[@]}" 3>&1 1>&2 2>&3
+  whiptail --notags --title "yt-dlp" --menu 'Select which one' 20 120 10 "${array[@]}" 3>&1 1>&2 2>&3
 )
 
 quality_settings=$(echo "$answer" | awk '{print $1}')
@@ -84,4 +89,4 @@ if [ $is_print ]; then
 fi
 
 # use ytdl_options at the end to allow overriding default options 
-youtube-dl -f "$quality_settings" --no-playlist -ciw -o "%(title)s.%(ext)s" "${ytdl_options[@]}" "$url"
+yt-dlp -f "$quality_settings" --no-playlist -ciw -o "%(title)s.%(ext)s" "${ytdl_options[@]}" "$url"

@@ -30,6 +30,7 @@ alias interact="python3 ~/myp/problem-solving/.stress-testing/interact.py"
 # For WSL
 alias pbcopy="clip.exe"
 alias pbpaste="powershell.exe -command 'Get-Clipboard' | tr -d '\r'"
+export DISPLAY="127.0.0.1:0.0"
 
 # ------------------------------------
 #       default common setting
@@ -221,3 +222,5 @@ function wpy() {
 
   nodemon -w "$file" -e c -x python "$file"
 }
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"

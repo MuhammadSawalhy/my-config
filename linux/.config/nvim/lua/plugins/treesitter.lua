@@ -22,7 +22,11 @@ return {
           'vim',
         },
         auto_install = false,
-        autotag = { enable = true, },
+        autotag = {
+          enable = true,
+          enable_rename = true,
+          enable_close_on_slash = false,
+        },
         indent = { enable = true, },
         context_commentstring = { enable = true, },
         highlight = {
@@ -88,6 +92,12 @@ return {
           },
         },
       }
+
+      -- Folding
+      -- NOTE: 'kevinhwang91/nvim-ufo' now handles it
+      -- vim.o.foldmethod = "expr"
+      -- vim.o.foldexpr = "nvim_treesitter#foldexpr()"
+      -- vim.o.foldenable = false
     end
   },
 

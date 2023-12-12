@@ -24,10 +24,10 @@ return {
           require('telescope').load_extension('refactoring')
 
           vim.keymap.set(
-            {'n', 'x'},
+            { 'n', 'x' },
             ';rr',
             require('telescope').extensions.refactoring.refactors,
-            { desc = 'Refactor (telescope)' }
+            { desc = 'LSP: Refactor (telescope)' }
           )
         end,
       },
@@ -53,14 +53,6 @@ return {
             lightbulb = {
               enable = false
             },
-            outline = {
-              layout = 'float'
-            },
-            rename = {
-              keys = {
-                quit = "<C-c>"
-              }
-            }
           })
         end
       },
@@ -80,53 +72,54 @@ return {
       })
 
       -- Diagnostic keymaps
-      vim.keymap.set('n', '[d', '<CMD>Lspsaga diagnostic_jump_prev<cr>', { desc = 'Go to previous diagnostic message' })
-      vim.keymap.set('n', ']d', '<CMD>Lspsaga diagnostic_jump_next<cr>', { desc = 'Go to next diagnostic message' })
-      vim.keymap.set('n', '<leader>dd', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+      vim.keymap.set('n', '[d', '<CMD>Lspsaga diagnostic_jump_prev<cr>',
+        { desc = 'LSP: Go to previous diagnostic message' })
+      vim.keymap.set('n', ']d', '<CMD>Lspsaga diagnostic_jump_next<cr>', { desc = 'LSP: Go to next diagnostic message' })
+      vim.keymap.set('n', '<leader>dd', vim.diagnostic.setloclist, { desc = 'LSP: Open diagnostics list' })
 
       --  This function gets run when an LSP connects to a particular buffer.
       local on_attach = function(_, bufnr)
-        vim.keymap.set('n', ';rn', vim.lsp.buf.rename, { desc = '[R]e[n]ame' })
+        vim.keymap.set('n', ';rn', vim.lsp.buf.rename, { desc = 'LSP: [R]e[n]ame' })
         vim.keymap.set({ 'n', 'x' }, ';ri', ':Refactor inline_var')
 
         vim.keymap.set({ 'n', 'v' }, ';ac', '<CMD>Lspsaga code_action<cr>', { desc = 'LSP: Code [Ac]tion' })
-        vim.keymap.set('n', 'gd', '<CMD>Lspsaga goto_definition<cr>', { desc = '[G]oto [D]efinition' })
-        vim.keymap.set('n', 'gp', '<CMD>Lspsaga peek_definition<cr>', { desc = '[P]eek definition' })
-        vim.keymap.set('n', 'gtd', '<CMD>Lspsaga goto_type_definition<cr>', { desc = '[G]oto [T]ype [D]efinition' })
-        vim.keymap.set('n', 'gtp', '<CMD>Lspsaga peek_type_definition<cr>', { desc = '[P]eek [T]ype definition' })
-        vim.keymap.set('n', 'gr', '<CMD>Lspsaga finder<cr>', { desc = '[G]oto [R]eferences' })
-        vim.keymap.set('n', 'gI', vim.lsp.buf.implementation, { desc = '[G]oto [I]mplementation' })
-        vim.keymap.set('n', '<leader>t', '<CMD>Lspsaga outline<cr>', { desc = 'Ou[t]line' })
-        vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, { desc = 'Type [D]efinition' })
+        vim.keymap.set('n', 'gd', '<CMD>Lspsaga goto_definition<cr>', { desc = 'LSP: [G]oto [D]efinition' })
+        vim.keymap.set('n', 'gp', '<CMD>Lspsaga peek_definition<cr>', { desc = 'LSP: [P]eek definition' })
+        vim.keymap.set('n', 'gtd', '<CMD>Lspsaga goto_type_definition<cr>', { desc = 'LSP: [G]oto [T]ype [D]efinition' })
+        vim.keymap.set('n', 'gtp', '<CMD>Lspsaga peek_type_definition<cr>', { desc = 'LSP: [P]eek [T]ype definition' })
+        vim.keymap.set('n', 'gr', '<CMD>Lspsaga finder<cr>', { desc = 'LSP: [G]oto [R]eferences' })
+        vim.keymap.set('n', 'gI', vim.lsp.buf.implementation, { desc = 'LSP: [G]oto [I]mplementation' })
+        vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, { desc = 'LSP: Type [D]efinition' })
         vim.keymap.set('n', '<leader>ds', require('telescope.builtin').lsp_document_symbols,
-          { desc = '[D]ocument [S]ymbols' })
+          { desc = 'LSP: [D]ocument [S]ymbols' })
         vim.keymap.set('n', '<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols,
-          { desc = '[W]orkspace [S]ymbols' })
+          { desc = 'LSP: [W]orkspace [S]ymbols' })
 
         -- See `:help K` for why this keymap
-        vim.keymap.set('n', 'K', ':Lspsaga hover_doc<cr>', { desc = 'Hover Documentation' })
+        vim.keymap.set('n', 'K', ':Lspsaga hover_doc<cr>', { desc = 'LSP: Hover Documentation' })
         -- Get information about parameters of a function when calling it
         vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, { desc = 'LSP: Signature Documentation' })
 
         -- Lesser used LSP functionality
-        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, { desc = '[G]oto [D]eclaration' })
-        vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, { desc = '[W]orkspace [A]dd Folder' })
-        vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, { desc = '[W]orkspace [R]emove Folder' })
+        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, { desc = 'LSP: [G]oto [D]eclaration' })
+        vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, { desc = 'LSP: [W]orkspace [A]dd Folder' })
+        vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder,
+          { desc = 'LSP: [W]orkspace [R]emove Folder' })
         vim.keymap.set('n', '<leader>wl', function()
           print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-        end, { desc = '[W]orkspace [L]ist Folders' })
+        end, { desc = 'LSP: [W]orkspace [L]ist Folders' })
 
         -- Create a command `:Format` local to the LSP buffer
         vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-          vim.lsp.buf.format({ 
+          vim.lsp.buf.format({
             timeout_ms = 5000,
           })
-        end, { desc = 'Format current buffer with LSP' })
+        end, { desc = 'LSP: Format current buffer with LSP' })
         vim.api.nvim_buf_create_user_command(bufnr, 'F', function(_)
-          vim.lsp.buf.format({ 
+          vim.lsp.buf.format({
             timeout_ms = 5000,
           })
-        end, { desc = 'Format current buffer with LSP' })
+        end, { desc = 'LSP: Format current buffer with LSP' })
       end
 
       local servers = {
@@ -138,7 +131,6 @@ return {
         tsserver = {},
         eslint = {},
         html = { filetypes = { 'html', 'twig', 'hbs' } },
-
         lua_ls = {
           Lua = {
             workspace = { checkThirdParty = false },
@@ -174,7 +166,7 @@ return {
       }
 
       require("mason-null-ls").setup({
-        ensure_installed = { "prettier" },
+        ensure_installed = { "prettier", "black", "mypy", "shellcheck" },
         automatic_installation = true,
         handlers = nil,
       })
@@ -195,19 +187,25 @@ return {
       null_ls.setup {
         sources = {
           null_ls.builtins.formatting.prettier,
+          null_ls.builtins.formatting.black,
+          null_ls.builtins.diagnostics.mypy,
+          null_ls.builtins.diagnostics.shellcheck,
         },
-        on_attach = function(client, bufnr)
-          -- if client.supports_method("textDocument/formatting") then
-          --   vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-          --   vim.api.nvim_create_autocmd("BufWritePre", {
-          --     group = augroup,
-          --     buffer = bufnr,
-          --     callback = function()
-          --       lsp_formatting(bufnr)
-          --     end,
-          --   })
-          -- end
-        end
+
+        -- FORMAT ON SAVE
+        --
+        -- on_attach = function(client, bufnr)
+        --   if client.supports_method("textDocument/formatting") then
+        --     vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+        --     vim.api.nvim_create_autocmd("BufWritePre", {
+        --       group = augroup,
+        --       buffer = bufnr,
+        --       callback = function()
+        --         lsp_formatting(bufnr)
+        --       end,
+        --     })
+        --   end
+        -- end
       }
 
       vim.api.nvim_create_user_command(
@@ -218,5 +216,11 @@ return {
         { nargs = 0 }
       )
     end
+  },
+
+  {
+    'simrat39/symbols-outline.nvim',
+    cmd = { 'SymbolsOutline' },
+    opts = {},
   },
 }

@@ -23,9 +23,8 @@ return {
 
     require('telescope').load_extension('dap')
 
-    vim.fn.sign_define('DapBreakpoint', { text = '🔴', texthl = '', linehl = '', numhl = '' })
-    vim.fn.sign_define('DapBreakpointRejected', { text = '🟤', texthl = '', linehl = '', numhl = '' })
-    vim.fn.sign_define('DapStopped', { text = '👉', texthl = '', linehl = '', numhl = '' })
+    vim.fn.sign_define('DapBreakpoint', { text = '⬤', texthl = 'ErrorMsg', linehl = '', numhl = 'ErrorMsg' })
+    vim.fn.sign_define('DapBreakpointCondition', { text = '⬤', texthl = 'ErrorMsg', linehl = '', numhl = 'SpellBad' })
 
     require('mason-nvim-dap').setup {
       automatic_setup = true,
@@ -68,33 +67,35 @@ return {
       },
     }
 
-    local nmap = function(keys, func, desc)
-      if desc then desc = 'Debug: ' .. desc end
-      vim.keymap.set('n', keys, func, { desc = desc })
+    local nvmap = function(keys, func, desc)
+      if desc then desc = 'Dap: ' .. desc end
+      vim.keymap.set({ 'n', 'v' }, keys, func, { desc = desc })
     end
 
     -- Basic debugging keymaps, feel free to change to your liking!
-    nmap('<F5>', dap.continue, 'Start/Continue')
+    nvmap('<F5>', dap.continue, 'Start/Continue')
+    nvmap('<F6>', dap.close, 'Start/Continue')
     -- Toggle to see last session result. Without this,
     -- you can't see session output in case of unhandled exception.
-    nmap('<F7>', dapui.toggle, 'See last session result.')
-    nmap('<F10>', dap.step_over, 'Step Over')
-    nmap('<F11>', dap.step_into, 'Step Into')
-    nmap('<F23>', dap.step_out, 'Step Out') -- shift + f11
-    nmap('<leader>b', dap.toggle_breakpoint, 'Toggle Breakpoint')
-    nmap('<leader>B', function()
-      dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
-    end, 'Set Conditional Breakpoint')
+    nvmap('<F7>', dapui.toggle, 'See last session result.')
+    nvmap('<F10>', dap.step_over, 'Step Over')
+    nvmap('<F11>', dap.step_into, 'Step Into')
+    nvmap('<F23>', dap.step_out, 'Step Out') -- shift + f11
 
-    nmap('<leader>dc', ':Telescope dap commands<CR>', 'Telescope dap commands')
-    nmap('<leader>db', ':Telescope dap list_breakpoints<CR>', 'Telescope list breakpoints')
-    nmap('<leader>du', dapui.toggle, 'Toggle dap UI')
-    nmap('<leader>de', dapui.eval, 'Evaluate under cursor')
-    nmap('<leader>dE', function()
+    nvmap('<leader>db', dap.toggle_breakpoint, 'Toggle breakpoint')
+    nvmap('<leader>dB', function()
+      dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
+    end, 'Set conditional breakpoint')
+    nvmap('<leader>dl', function()
+      require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
+    end, 'Set log point')
+
+    nvmap('<leader>dc', ':Telescope dap commands<CR>', 'Telescope dap commands')
+    nvmap('<leader>du', dapui.toggle, 'Toggle dap UI')
+    nvmap('<leader>de', dapui.eval, 'Evaluate under cursor')
+    nvmap('<leader>dE', function()
       dapui.eval(vim.fn.input('Expression: '))
     end, 'Input an expression to evaluate')
-
-    vim.keymap.set('v', '<leader>de', dapui.eval, { desc = "Debug : Evaluate selection" })
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close

@@ -19,9 +19,9 @@ then
   tmux new-window -n lazygit -t "$SESSIONNAME" -c "$FRONT_PATH"
   send-command "lazygit"
 
-  # # backend window
-  # tmux new-window -n backend -t "$SESSIONNAME" -c "$BACK_PATH"
-  # send-command "mvn spring-boot:run"
+  # backend window
+  tmux new-window -n backend -t "$SESSIONNAME" -c "$BACK_PATH"
+  send-command "mvn spring-boot:run"
 
   # go back to the frontend window
   tmux select-window -t "$SESSIONNAME":frontend

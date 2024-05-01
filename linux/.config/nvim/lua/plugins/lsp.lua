@@ -130,6 +130,7 @@ return {
         pyright = {},
         tsserver = {},
         eslint = {},
+        intelephense = {},
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         lua_ls = {
           Lua = {
@@ -166,7 +167,7 @@ return {
       }
 
       require("mason-null-ls").setup({
-        ensure_installed = { "prettier", "black", "mypy", "shellcheck" },
+        ensure_installed = { "prettier", "black", "mypy", "shellcheck", "beautysh", },
         automatic_installation = true,
         handlers = nil,
       })
@@ -188,6 +189,8 @@ return {
         sources = {
           null_ls.builtins.formatting.prettier,
           null_ls.builtins.formatting.black,
+          null_ls.builtins.formatting.beautysh,
+          null_ls.builtins.formatting.pint,
           null_ls.builtins.diagnostics.mypy,
           null_ls.builtins.diagnostics.shellcheck,
         },

@@ -84,6 +84,11 @@ additional_commands = [
     """
     curl -L https://unpkg.com/@pnpm/self-installer | node
     """
+
+    # glow for markdown
+    """
+    go install github.com/charmbracelet/glow@latest
+    """,
 ]
 
 npms = [

@@ -4,7 +4,8 @@ return {
     dependencies = {
       'JoosepAlviste/nvim-ts-context-commentstring',
       'nvim-treesitter/nvim-treesitter-textobjects',
-      'windwp/nvim-ts-autotag'
+      'windwp/nvim-ts-autotag',
+      'HiPhish/nvim-ts-rainbow2'
     },
     build = ':TSUpdate',
     config = function()
@@ -46,6 +47,13 @@ return {
             scope_incremental = '<c-s>',
             node_decremental = '<c-s-space>',
           },
+        },
+        rainbow = {
+          enable = true,
+          -- Which query to use for finding delimiters
+          query = 'rainbow-parens',
+          -- Highlight the entire buffer all at once
+          strategy = require('ts-rainbow').strategy.global,
         },
         textobjects = {
           select = {

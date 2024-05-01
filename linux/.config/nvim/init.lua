@@ -21,14 +21,14 @@ require('lazy').setup({
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
+  -- Useful plugin to show you pending keybinds.
+  { 'folke/which-key.nvim', opts = {} },
+
   -- Generative AI (copilot alternative)
   {
     'Exafunction/codeium.vim',
-    event = 'BufEnter'
+    event = "BufEnter",
   },
-
-  -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
 
   {
     "folke/flash.nvim",
@@ -120,11 +120,14 @@ require('lazy').setup({
 
   {
     'lukas-reineke/indent-blankline.nvim',
+    main = "ibl",
     event = 'BufEnter',
     priority = 1002,
     opts = {
-      space_char_blankline = ' ',
-      show_current_context = true, -- requires treesitter
+      indent = { char = "┊" },
+      scope = {
+        show_start = false,
+      }
     },
   },
 
@@ -207,6 +210,9 @@ require('lazy').setup({
   {
     'mbbill/undotree',
     cmd = 'UndotreeToggle',
+    keys = {
+      { "<leader>u", ':UndotreeToggle<CR>', mode = 'n' }
+    },
     config = function()
       vim.o.undodir = os.getenv('HOME') .. '/.vim/undodir'
     end
@@ -231,7 +237,27 @@ require('lazy').setup({
   {
     'tanvirtin/vgit.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    opts = {}
+    opts = {},
+    config = function()
+      require('vgit').setup({
+        keymaps = {
+          ['n <leader>gs'] = function() require('vgit').buffer_hunk_stage() end,
+          ['n <leader>gr'] = function() require('vgit').buffer_hunk_reset() end,
+          ['n <leader>gp'] = function() require('vgit').buffer_hunk_preview() end,
+          ['n <leader>gb'] = function() require('vgit').buffer_blame_preview() end,
+          ['n <leader>gf'] = function() require('vgit').buffer_diff_preview() end,
+          ['n <leader>gh'] = function() require('vgit').buffer_history_preview() end,
+          ['n <leader>gu'] = function() require('vgit').buffer_reset() end,
+          ['n <leader>gg'] = function() require('vgit').buffer_gutter_blame_preview() end,
+          ['n <leader>glu'] = function() require('vgit').buffer_hunks_preview() end,
+          ['n <leader>gls'] = function() require('vgit').project_hunks_staged_preview() end,
+          ['n <leader>gd'] = function() require('vgit').project_diff_preview() end,
+          ['n <leader>gq'] = function() require('vgit').project_hunks_qf() end,
+          ['n <leader>gx'] = function() require('vgit').toggle_diff_preference() end,
+        },
+      })
+    end
+
   },
 
   {
@@ -263,7 +289,7 @@ require('lazy').setup({
 
 -- Set highlight on search
 vim.o.hlsearch = false
-vim.o.incsearch = true
+vim.o.incsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
@@ -279,6 +305,10 @@ vim.o.wrap = false
 
 -- Enable break indent
 vim.o.breakindent = true
+
+vim.o.tabstop = 4
+vim.o.softtabstop = 4
+vim.o.shiftwidth = 4
 
 -- Save undo history
 vim.o.undofile = true
@@ -360,6 +390,12 @@ vim.keymap.set('v', ';d', '"_d', {})
 vim.keymap.set('v', ';c', '"_c', {})
 vim.keymap.set('v', ';D', '"_D', {})
 vim.keymap.set('v', ';p', '"_dP', {})
+
+vim.cmd [[
+command! LocalTerm let s:term_dir=expand('%:p:h') | below new | call termopen([&shell], {'cwd': s:term_dir })
+]]
+
+vim.keymap.set('n', '<space>t', ':LocalTerm<cr>', { desc = 'Open a terminal in the current file\'s directory' })
 
 -- Highlight on yank
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })

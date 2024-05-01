@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # seek help: man info apropos whatis tldr
@@ -17,6 +18,8 @@ alias l='exa -la --icons --sort=type'
 alias ll='exa -l --icons --sort=type'
 alias ls=exa
 alias lg=lazygit
+alias lzd=lazydocker
+alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 alias alacritty="LIBGL_ALWAYS_SOFTWARE=1 alacritty"
 alias prgs='printf "$(git status)"'
 alias pasteimage="xclip -sel clip -t image/png -o"
@@ -25,12 +28,11 @@ alias imgptoc="xclip -sel p -t image/png -o | xclip -sel clip -t image/png"
 
 alias yws="yarn workspace"
 alias ywsf="yarn workspaces foreach"
-alias interact="python3 ~/myp/problem-solving/.stress-testing/interact.py"
 
 # For WSL
 alias pbcopy="clip.exe"
 alias pbpaste="powershell.exe -command 'Get-Clipboard' | tr -d '\r'"
-export DISPLAY="127.0.0.1:0.0"
+export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0
 
 # ------------------------------------
 #       default common setting
@@ -159,7 +161,7 @@ function rg++() {
   bin="$(realpath "$bin")"
 
   shift
-  g++ "$GXX" "$file" -o "$bin" && "$bin" "$@"
+  g++ $GXX "$file" -o "$bin" && "$bin" "$@"
 }
 
 function wg++() {
@@ -222,5 +224,4 @@ function wpy() {
 
   nodemon -w "$file" -e c -x python "$file"
 }
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
+

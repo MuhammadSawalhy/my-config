@@ -1,5 +1,6 @@
 return {
   'mfussenegger/nvim-dap',
+  event = "VeryLazy",
   dependencies = {
     -- Creates a beautiful debugger UI
     'nvim-telescope/telescope-dap.nvim',
@@ -40,11 +41,19 @@ return {
               program = function()
                 local file = vim.fn.expand('%:p')
                 local exefile = vim.fn.expand('%:p:r')
+                print("compiling: " .. file)
                 os.execute(string.format([[g++ -g "%s" -o "%s"]], file, exefile))
                 return exefile
               end,
               cwd = '${fileDirname}',
               stopAtEntry = true,
+              setupCommands = {
+                {
+                  text = '-enable-pretty-printing',
+                  description = 'enable pretty printing',
+                  ignoreFailures = false
+                },
+              },
             },
             {
               name = 'Launch file',
@@ -59,6 +68,13 @@ return {
               end,
               cwd = '${fileDirname}',
               stopAtEntry = true,
+              setupCommands = {
+                {
+                  text = '-enable-pretty-printing',
+                  description = 'enable pretty printing',
+                  ignoreFailures = false
+                },
+              },
             },
           }
 
@@ -74,28 +90,29 @@ return {
 
     -- Basic debugging keymaps, feel free to change to your liking!
     nvmap('<F5>', dap.continue, 'Start/Continue')
-    nvmap('<F6>', dap.close, 'Start/Continue')
+    nvmap('<F6>', dap.close, 'Close session')
     -- Toggle to see last session result. Without this,
     -- you can't see session output in case of unhandled exception.
     nvmap('<F7>', dapui.toggle, 'See last session result.')
-    nvmap('<F10>', dap.step_over, 'Step Over')
-    nvmap('<F11>', dap.step_into, 'Step Into')
-    nvmap('<F23>', dap.step_out, 'Step Out') -- shift + f11
+    nvmap('<F10>', dap.step_over, 'Step over')
+    nvmap('<F11>', dap.step_into, 'Step into')
+    nvmap('<F23>', dap.step_out, 'Step out') -- shift + f11
 
-    nvmap('<leader>db', dap.toggle_breakpoint, 'Toggle breakpoint')
-    nvmap('<leader>dB', function()
+    nvmap(';db', dap.toggle_breakpoint, 'toggle Breakpoint')
+    nvmap(';dB', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, 'Set conditional breakpoint')
-    nvmap('<leader>dl', function()
+    nvmap(';dl', function()
       require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
     end, 'Set log point')
 
-    nvmap('<leader>dc', ':Telescope dap commands<CR>', 'Telescope dap commands')
-    nvmap('<leader>du', dapui.toggle, 'Toggle dap UI')
-    nvmap('<leader>de', dapui.eval, 'Evaluate under cursor')
-    nvmap('<leader>dE', function()
+    nvmap(';dh', dap.run_to_cursor, 'come (h)ere')
+    nvmap(';dc', ':Telescope dap commands<CR>', 'telescope dap commands')
+    nvmap(';du', dapui.toggle, 'toggle dap UI')
+    nvmap(';de', dapui.eval, 'evaluate under cursor')
+    nvmap(';dE', function()
       dapui.eval(vim.fn.input('Expression: '))
-    end, 'Input an expression to evaluate')
+    end, 'input an expression to evaluate')
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open
     dap.listeners.before.event_terminated['dapui_config'] = dapui.close

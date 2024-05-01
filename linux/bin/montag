@@ -109,6 +109,15 @@ echo-debug() {
   [ "$is_quiet" ] || >&2 echo "=>" "$@"
 }
 
+get-file-name-from-url() {
+  local output
+  echo-debug Getting the file name from a url
+  echo-debug yt-dlp "$(printf '"%s" ' "${ytdl_options[@]}")" --no-playlist -O \''%(title)s.%(ext)s'\' "\""$1"\""
+  output="$(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")"
+  output="${output/\//\\\\}" # replace / with \\
+  echo "$output"
+}
+
 prepare-input-and-output() {
   [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
 
@@ -121,19 +130,22 @@ prepare-input-and-output() {
 
   if
     echo "$input" |
-    grep -oP '^https?://' > /dev/null &&
-    [ ! "$output" ]
+    grep -oP '^https?://' > /dev/null
   then
-    quality_settings="-f best[height<=720]"
+    # set video quality to <= 720p by default
+    quality_settings="best[height<=720]"
     if [ "$is_ydi" ]; then
       echo-debug ydi -p \""$input"\"
-      quality_settings="-f $(ydi -p "$input")"
+      quality_settings="$(ydi -p "$input")"
     fi
-    ytdl_options+=($quality_settings)
-    echo-debug yt-dlp \""${ytdl_options[*]}"\" --no-playlist -O \''%(title)s.%(ext)s'\' \""$input"\"
-    output="$(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$input")"
-    output="${output/\//\\\\}" # replace / with \\
+    ytdl_options+=(-f "$quality_settings")
+
+    # get output file name
+    if [ ! "$output" ]; then
+        output=$(get-file-name-from-url "$input")
+    fi
     output_ext=$(ext "$output")
+
     tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
     tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
     if [ "$is_gif" ]; then
@@ -166,7 +178,7 @@ get-input-args() {
   if echo "$input" | grep -oP '^https?://' > /dev/null; then
     # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
 
-    [ $is_quiet ] || >&2 echo "=>" yt-dlp --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
+    [ $is_quiet ] || >&2 echo-debug yt-dlp --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
     read -r -a links <<< "$(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
 
     # put link inside 'single qutaion mark'

@@ -2,15 +2,21 @@ local function sanitize(path)
   return path:gsub('[<>:"\\|?*]', '_')
 end
 
+local function trim(s)
+   return s:match'^%s*(.*%S)' or ''
+end
+
 local function relative_path(task, file_extension)
-  local hyphen = string.find(task.group, ' - ')
+  local hyphen = string.find(task.group, ' %- ')
+  local problem_name = trim(task.name)
   local judge, contest
+
   if not hyphen then
     judge = task.group
     contest = 'unknown_contest'
   else
-    judge = string.sub(task.group, 1, hyphen - 1)
-    contest = string.sub(task.group, hyphen + 3)
+    judge = trim(string.sub(task.group, 1, hyphen - 1))
+    contest = trim(string.sub(task.group, hyphen + 3))
   end
 
   local file_name = 'main'
@@ -23,7 +29,7 @@ local function relative_path(task, file_extension)
     contest = contest_id .. ' - ' .. contest
   end
 
-  return sanitize(string.format('%s/%s/%s/%s.%s', judge, contest, task.name, file_name, file_extension))
+  return sanitize(string.format('%s/%s/%s/%s.%s', judge, contest, problem_name, file_name, file_extension))
 end
 
 local function full_path(...)
@@ -36,8 +42,8 @@ return {
   opts = {
     -- output_compare_method = 'exact',
     compile_command = {
-      c = { exec = 'gcc', args = { '-DSAWALHY', '-Wall', '$(FNAME)', '-o', '$(FNOEXT)' } },
-      cpp = { exec = 'g++', args = { '-std=c++17', '-DSAWALHY', '-Wall', '$(FNAME)', '-o', '$(FNOEXT)' } },
+      c = { exec = 'gcc', args = { '-DSAWALHY', '-Wall', '$(FNAME)', '-O3', '-o', '$(FNOEXT)' } },
+      cpp = { exec = 'g++', args = { '-std=c++17', '-DSAWALHY', '-Wall', '$(FNAME)', '-O3', '-o', '$(FNOEXT)' } },
       rust = { exec = 'rustc', args = { '$(FNAME)' } },
       java = { exec = 'javac', args = { '$(FNAME)' } },
     },

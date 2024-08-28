@@ -17,12 +17,6 @@ bin
 # WARNING: includes auth token
 # .npmrc
 
-.mlterm
-!.mlterm/Mlterm-Color-Schames
-
-.config/alacritty/
-!.config/alacritty/colors/
-
 .config/nvim/
 !.config/nvim/plugins/
 !.config/nvim/mini-init.vim
@@ -35,5 +29,3 @@ bin
 .config/gitui/
 .config/zathura/
 .config/fontconfig/
-.config/Typora/themes/
-

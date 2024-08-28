@@ -1,9 +1,37 @@
+local lfs = require("lfs") -- run `luarocks install luafilesystem`
+
+local base_path = string.format('%s/myp/problem-solving', vim.loop.os_homedir())
+
+local judgesMap = {
+  codeforces = "Codeforces",
+  spoj = "SPOJ",
+  uva = "UVa",
+  virtual = "Virtual Judge",
+  timus = "Timus",
+  euler = "Project Euler",
+  poj = "POJ",
+  meta = "Meta",
+  hackerrank = "HackerRank",
+  dmoj = "DMOJ",
+  cses = "CSES",
+  atcoder = "AtCoder"
+}
+
 local function sanitize(path)
-  return path:gsub('[<>:"\\|?*]', '_')
+  return path:gsub('[<>:"\\|?*#]', '_')
 end
 
 local function trim(s)
-   return s:match'^%s*(.*%S)' or ''
+  return s:match '^%s*(.-)%s*$' or ''
+end
+
+local function find_contest_folder(our_base_path, contest_id)
+  for folder in lfs.dir(our_base_path) do
+    if folder:find('^' .. contest_id .. ' %-') then
+      return folder
+    end
+  end
+  return nil
 end
 
 local function relative_path(task, file_extension)
@@ -19,21 +47,48 @@ local function relative_path(task, file_extension)
     contest = trim(string.sub(task.group, hyphen + 3))
   end
 
+  local original_judge = judge            -- Save the original judge name
+  local lower_judge = string.lower(judge) -- Lowercase the judge name
+
+  -- Check if lower_judge contains any key from judgesMap
+  local found = false
+  for key, value in pairs(judgesMap) do
+    if string.find(lower_judge, key, 1, true) then
+      judge = value
+      found = true
+      break
+    end
+  end
+
+  if not found then
+    judge = original_judge
+  end
+
   local file_name = 'main'
-  if file_extension == 'java' then
+  if file_extension == 'java' and task.languages and task.languages.java and task.languages.java.taskClass then
     file_name = task.languages.java.taskClass
   end
 
-  if judge == 'Codeforces' then
+  if lower_judge == 'codeforces' then
     local contest_id = string.match(task.url, '%w+/(%d+)')
-    contest = contest_id .. ' - ' .. contest
+    if contest_id then
+      local our_base_path = sanitize(string.format('%s/%s', base_path, judge))
+      local existing_folder = find_contest_folder(our_base_path, contest_id)
+
+      if existing_folder then
+        -- some contests have problems some as PDF which results in different contest name but the same contest id
+        contest = existing_folder
+      else
+        contest = contest_id .. ' - ' .. contest
+      end
+    end
   end
 
   return sanitize(string.format('%s/%s/%s/%s.%s', judge, contest, problem_name, file_name, file_extension))
 end
 
 local function full_path(...)
-  return string.format('%s/myp/problem-solving/%s', vim.loop.os_homedir(), relative_path(...))
+  return string.format('%s/%s', base_path, relative_path(...))
 end
 
 return {
@@ -43,16 +98,22 @@ return {
     -- output_compare_method = 'exact',
     compile_command = {
       c = { exec = 'gcc', args = { '-DSAWALHY', '-Wall', '$(FNAME)', '-O3', '-o', '$(FNOEXT)' } },
-      cpp = { exec = 'g++', args = { '-std=c++17', '-DSAWALHY', '-Wall', '$(FNAME)', '-O3', '-o', '$(FNOEXT)' } },
+      cpp = { exec = 'g++', args = { '-std=c++23', '-DSAWALHY', '-Wall', '-Wextra', '-Wconversion', '-static', '-O2', '$(FNAME)', '-o', '$(FNOEXT)' } },
       rust = { exec = 'rustc', args = { '$(FNAME)' } },
       java = { exec = 'javac', args = { '$(FNAME)' } },
+      go = { exec = 'go', args = { 'build', '-o', '$(FNOEXT)', '$(FNAME)' }, },
+    },
+
+    run_command = {
+      go = { exec = './$(FNOEXT)' },
+      python = { exec = "python3", args = { "$(FNAME)" } },
     },
 
     template_file = '~/myp/problem-solving/template.$(FEXT)',
     received_files_extension = 'cpp',
     received_problems_path = full_path,
     received_contests_problems_path = relative_path,
-    received_contests_directory = '$(HOME)/myp/problem-solving',
+    received_contests_directory = base_path,
 
     evaluate_template_modifiers = true,
     received_problems_prompt_path = false,

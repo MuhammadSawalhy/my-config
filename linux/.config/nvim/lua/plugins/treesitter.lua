@@ -1,11 +1,17 @@
+-- skip backwards compatibility routines and speed up loading
+vim.g.skip_ts_context_commentstring_module = true
+
 return {
   {
     'nvim-treesitter/nvim-treesitter',
     dependencies = {
-      'JoosepAlviste/nvim-ts-context-commentstring',
       'nvim-treesitter/nvim-treesitter-textobjects',
       'windwp/nvim-ts-autotag',
-      'HiPhish/nvim-ts-rainbow2'
+      -- 'HiPhish/nvim-ts-rainbow2',
+      {
+        'JoosepAlviste/nvim-ts-context-commentstring',
+        opts = { enable_autocmd = false, }
+      }
     },
     build = ':TSUpdate',
     config = function()
@@ -29,7 +35,6 @@ return {
           enable_close_on_slash = false,
         },
         indent = { enable = true, },
-        context_commentstring = { enable = true, },
         highlight = {
           enable = true,
 
@@ -47,13 +52,6 @@ return {
             scope_incremental = '<c-s>',
             node_decremental = '<c-s-space>',
           },
-        },
-        rainbow = {
-          enable = true,
-          -- Which query to use for finding delimiters
-          query = 'rainbow-parens',
-          -- Highlight the entire buffer all at once
-          strategy = require('ts-rainbow').strategy.global,
         },
         textobjects = {
           select = {
@@ -92,7 +90,7 @@ return {
           swap = {
             enable = true,
             swap_next = {
-              [';a'] = '@parameter.inner',
+              [';aa'] = '@parameter.inner',
             },
             swap_previous = {
               [';A'] = '@parameter.inner',

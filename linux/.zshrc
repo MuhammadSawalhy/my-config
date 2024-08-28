@@ -129,13 +129,10 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export PATH="/snap/bin:$PATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.volta/bin:$PATH"
-export PATH="$HOME/go/bin:$PATH"
-
-
-# bun completions
-[ -s "/home/ms/.bun/_bun" ] && source "/home/ms/.bun/_bun"
+export PATH=$PATH:/usr/local/go/bin
 
 # bun
+[ -s "/home/ms/.bun/_bun" ] && source "/home/ms/.bun/_bun"
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 

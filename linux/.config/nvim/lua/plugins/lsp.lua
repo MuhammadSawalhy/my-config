@@ -124,7 +124,7 @@ return {
 
       local servers = {
         -- rust_analyzer = {},
-        -- gopls = {},
+        gopls = {},
         bashls = {},
         clangd = {},
         pyright = {},
@@ -141,7 +141,9 @@ return {
       }
 
       -- Setup neovim lua configuration
-      require('neodev').setup()
+      require("neodev").setup({
+        library = { plugins = { "nvim-dap-ui" }, types = true },
+      })
 
       -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
       local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -167,7 +169,7 @@ return {
       }
 
       require("mason-null-ls").setup({
-        ensure_installed = { "prettier", "black", "mypy", "shellcheck", "beautysh", },
+        ensure_installed = { "ast_grep", "prettier", "black", "mypy", "shellcheck", "beautysh", },
         automatic_installation = true,
         handlers = nil,
       })

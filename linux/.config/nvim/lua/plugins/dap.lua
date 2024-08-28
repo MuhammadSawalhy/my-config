@@ -4,7 +4,7 @@ return {
   dependencies = {
     -- Creates a beautiful debugger UI
     'nvim-telescope/telescope-dap.nvim',
-    { 'rcarriga/nvim-dap-ui', opts = {} },
+    { "rcarriga/nvim-dap-ui", dependencies = { "nvim-neotest/nvim-nio" } },
     {
       'theHamsta/nvim-dap-virtual-text',
       dependencies = { 'nvim-treesitter/nvim-treesitter' },
@@ -26,6 +26,8 @@ return {
 
     vim.fn.sign_define('DapBreakpoint', { text = '⬤', texthl = 'ErrorMsg', linehl = '', numhl = 'ErrorMsg' })
     vim.fn.sign_define('DapBreakpointCondition', { text = '⬤', texthl = 'ErrorMsg', linehl = '', numhl = 'SpellBad' })
+
+    dapui.setup()
 
     require('mason-nvim-dap').setup {
       automatic_setup = true,
@@ -98,25 +100,34 @@ return {
     nvmap('<F11>', dap.step_into, 'Step into')
     nvmap('<F23>', dap.step_out, 'Step out') -- shift + f11
 
-    nvmap(';db', dap.toggle_breakpoint, 'toggle Breakpoint')
-    nvmap(';dB', function()
+    nvmap('<space>db', dap.toggle_breakpoint, 'toggle Breakpoint')
+    nvmap('<space>dB', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, 'Set conditional breakpoint')
-    nvmap(';dl', function()
+    nvmap('<space>dl', function()
       require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
     end, 'Set log point')
 
-    nvmap(';dh', dap.run_to_cursor, 'come (h)ere')
-    nvmap(';dc', ':Telescope dap commands<CR>', 'telescope dap commands')
-    nvmap(';du', dapui.toggle, 'toggle dap UI')
-    nvmap(';de', dapui.eval, 'evaluate under cursor')
-    nvmap(';dE', function()
+    nvmap('<space>dh', dap.run_to_cursor, 'come (h)ere')
+    nvmap('<space>dc', ':Telescope dap commands<CR>', 'telescope dap commands')
+    nvmap('<space>du', dapui.toggle, 'toggle dap UI')
+    nvmap('<space>de', dapui.eval, 'evaluate under cursor')
+    nvmap('<space>dE', function()
       dapui.eval(vim.fn.input('Expression: '))
     end, 'input an expression to evaluate')
 
-    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
+    dap.listeners.before.attach.dapui_config = function()
+      dapui.open()
+    end
+    dap.listeners.before.launch.dapui_config = function()
+      dapui.open()
+    end
+    dap.listeners.before.event_terminated.dapui_config = function()
+      dapui.close()
+    end
+    dap.listeners.before.event_exited.dapui_config = function()
+      dapui.close()
+    end
 
     -- Install golang specific config
     -- require('dap-go').setup()

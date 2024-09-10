@@ -5,7 +5,7 @@
 set -e
 
 print-help () {
-cat <<- EOF
+    cat <<- EOF
 ┌──┬─────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
 │-h│ --help      │ Show this help message
 │-q│ --quiet     │ See outputs of ffmpeg while processing
@@ -19,9 +19,9 @@ cat <<- EOF
 │  │ --crop      │ Frame to crop the video, e.g. "in_w:in_h-40", see crop
 │  │             │   filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
 ├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
-│  │ --gif       │ Convert to gif, this will set these defaults: --fps 10
-│  │ --gif-loop  │ How many loops your gif will do
-│  │ --gif-delay │ How long to delay the gif
+│  │ --gif       │ Convert to gif, this will set these --fps to 10
+│  │ --gif-loop  │ How many loops your gif will do (default false)
+│  │ --gif-delay │ How long to delay the gif (default 10)
 ├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
 │  │ --width     │ Width of the output (aspect ratio is preserved)
 │  │ --fps       │ Frames persecond
@@ -44,305 +44,243 @@ EOF
 }
 
 collect-arg-and-validate() {
-  while (($#)); do
-    arg=$1; shift
+    while (($#)); do
+        arg=$1; shift
+        case "$arg" in
+            -q|--quiet) is_quiet=1 ;;
+            -h|--help) is_help=1 ;;
+            --yes) is_yes=1 ;;
+            --mute) mute_audio=1 ;;
+            --ytdi) is_ydi=1 ;;
+            --ytdl) ytdl_options=("$1") && shift ;;
+            --input|-i) input="$1"; shift ;;
+            --start|-s) start_point="$1"; shift ;;
+            --duration|-d) duration="$1"; shift ;;
+            --to|-t) end_point="$1"; shift ;;
+            --speed|-x) speed="$1"; shift ;;
+            --crop) crop="$1"; shift ;;
+            --width) width="$1"; shift ;;
+            --fps) fps="$1"; shift ;;
 
-    [ "$arg" = "--quiet"     ] && is_quiet=1       && continue
-    [ "$arg" = "-q"          ] && is_quiet=1       && continue
-    [ "$arg" = "--help"      ] && is_help=1        && break
-    [ "$arg" = "-h"          ] && is_help=1        && break
-    [ "$arg" = "--gif"       ] && is_gif=1         && continue
-    [ "$arg" = "--yes"       ] && is_yes=1  && continue
-    [ "$arg" = "--gif-loop"  ] && gif_loop="$1"    && shift && continue
-    [ "$arg" = "--gif-delay" ] && gif_delay="$1"   && shift && continue
+            --gif) is_gif=1 ;;
+            --gif-loop) gif_loop="$1"; shift ;;
+            --gif-delay) gif_delay="$1"; shift ;;
 
-    [ "$arg" = "--input"     ] && input="$1"       && shift && continue
-    [ "$arg" = "-i"          ] && input="$1"       && shift && continue
-    [ "$arg" = "--start"     ] && start_point="$1" && shift && continue
-    [ "$arg" = "-s"          ] && start_point="$1" && shift && continue
-    [ "$arg" = "--duration"  ] && duration="$1"    && shift && continue
-    [ "$arg" = "-d"          ] && duration="$1"    && shift && continue
-    [ "$arg" = "--to"        ] && end_point="$1"   && shift && continue
-    [ "$arg" = "-t"          ] && end_point="$1"   && shift && continue
-    [ "$arg" = "--speed"     ] && speed="$1"       && shift && continue
-    [ "$arg" = "-x"          ] && speed="$1"       && shift && continue
-    [ "$arg" = "--crop"      ] && crop="$1"        && shift && continue
-    [ "$arg" = "--width"     ] && width="$1"       && shift && continue
-    [ "$arg" = "--fps"       ] && fps="$1"         && shift && continue
+            *)
+                output="$arg"
+                (($#)) && >&2 echo error: invalid number of arguments && exit 2
+                ;;
+        esac
+    done
 
-    [ "$arg" = "--ytdl"      ] && ytdl_options=($1)   && shift && continue
-    [ "$arg" = "--ydi"       ] && is_ydi=1            && continue
+    ((is_help)) && print-help && exit 0
 
-    output="$arg"
-    (($#)) && >&2 echo error: invalid number of arguments && exit 2
-  done
+    # ----- IO -----
 
-  ((is_help)) && print-help && exit 0
+    prepare-input-and-output
 
-  # ----- IO -----
+    # ----- cutting -----
 
-  prepare-input-and-output
+    if [ "$end_point" ] && [ "$duration" ]; then
+        >&2 echo error\(cutting\): both end point and duration are provided
+        exit 2
+    fi
 
-  # ----- cutting -----
+    if [ "$end_point" ] || [ "$duration" ]; then
+        start_point=$([ "$start_point" ] && echo "$start_point" || echo "00:00:00")
+    fi
 
-  if [ "$end_point" ] && [ "$duration" ]; then
-    >&2 echo error\(cutting\): both end point and duration are provided
-    exit 2
-  fi
+    # ----- giffing -----
 
-  if
-    [ -n "$duration" ] ||
-    [ -n "$end_point" ] && [ -z "$start_point" ]
-  then
-    start_point=0
-  fi
-
-  # ----- giffing -----
-
-  if [ "$loop" ] && [ ! "$is_gif" ]; then
-    >&2 echo error\(giffing\): can\'t use --loop without --gif
-    exit 2
-  fi
+    if [ "$loop" ] && [ ! "$is_gif" ]; then
+        >&2 echo error\(giffing\): can\'t use --loop without --gif
+        exit 2
+    fi
 }
 
 echo-debug() {
-  [ "$is_quiet" ] || >&2 echo "=>" "$@"
+    [ "$is_quiet" ] || >&2 echo "=>" "$@"
 }
 
 get-file-name-from-url() {
-  local output
-  echo-debug Getting the file name from a url
-  echo-debug yt-dlp "$(printf '"%s" ' "${ytdl_options[@]}")" --no-playlist -O \''%(title)s.%(ext)s'\' "\""$1"\""
-  output="$(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")"
-  output="${output/\//\\\\}" # replace / with \\
-  echo "$output"
+    local output
+    echo-debug Getting the file name from a url
+    echo-debug yt-dlp "$(printf '"%s" ' "${ytdl_options[@]}")" --no-playlist -O \''%(title)s.%(ext)s'\' \'"$1"\'
+    output="$(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")"
+    output="${output/\//\\\\}" # replace / with \\
+        echo "$output"
 }
 
 prepare-input-and-output() {
-  [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
+    [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
 
-  mkdir -p /tmp/montag
-
-  ext() {
-    basename=$(basename "$1")
-    echo "${basename##*.}"
-  }
-
-  if
+    if
     echo "$input" |
     grep -oP '^https?://' > /dev/null
-  then
-    # set video quality to <= 720p by default
-    quality_settings="best[height<=720]"
-    if [ "$is_ydi" ]; then
-      echo-debug ydi -p \""$input"\"
-      quality_settings="$(ydi -p "$input")"
-    fi
-    ytdl_options+=(-f "$quality_settings")
+    then
+        # set video quality to <= 720p by default
+        quality_settings="best[height<=720]"
+        if [ "$is_ydi" ]; then
+            echo-debug ydi -p \""$input"\"
+            quality_settings="$(ydi -p "$input")"
+        fi
+        ytdl_options+=(-f "$quality_settings")
 
-    # get output file name
-    if [ ! "$output" ]; then
-        output=$(get-file-name-from-url "$input")
-    fi
-    output_ext=$(ext "$output")
-
-    tmpfile_1="/tmp/montag/$RANDOM.$output_ext"
-    tmpfile_2="/tmp/montag/$RANDOM.$output_ext"
-    if [ "$is_gif" ]; then
-      # use the same name with .gif as extension
-      output="${output%.*}.gif"
-    fi
-  else
-    if [ ! "$output" ] && [ "$is_gif" ]; then
-      # use the same name with .gif as extension
-      output="${input%.*}.gif"
+        if [ ! "$output" ]; then
+            output=$(get-file-name-from-url "$input")
+        fi
     elif [ ! "$output" ]; then
-      # then same extension as the input
-      output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
-    elif [ "$input" = "$output" ]; then
-      >&2 echo error\(IO\): input should differ from output
-      exit 2
+        # then same extension as the input
+        output="$(echo "$input" | sed -e 's/^\(.*\)\.\(.*\)$/\1-montaged.\2/')"
     fi
-    input_ext=$(ext "$input")
-    tmpfile_1="/tmp/montag/$RANDOM.$input_ext"
-    tmpfile_2="/tmp/montag/$RANDOM.$input_ext"
-  fi
+
+    if [ "$is_gif" ]; then
+        # use the same name with .gif as extension
+        output="${output%.*}.gif"
+    fi
 }
 
 get-input-args() {
-  set -e # we have to do this again because this function is called as a command substitution
-  local argv=("$@")
-  local input="${argv[-1]}"
-  unset 'argv[-1]'
+    set -e # we have to do this again because this function is called as a command substitution
+    local argv=("$@")
+    local input="${argv[-1]}"
+    unset 'argv[-1]'
 
-  if echo "$input" | grep -oP '^https?://' > /dev/null; then
-    # https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
+    if echo "$input" | grep -oP '^https?://' > /dev/null; then
+        # see: https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
 
-    [ $is_quiet ] || >&2 echo-debug yt-dlp --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
-    read -r -a links <<< "$(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
+        [ $is_quiet ] || >&2 echo-debug yt-dlp --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
+        read -r -a links <<< "$(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
 
-    # put link inside 'single qutaion mark'
-    if [ ${#links[@]} = 1 ]; then
-      echo -n "${argv[*]} -i '${links[0]}' "
-    elif [ ${#links[@]} = 2 ]; then
-      echo -n "${argv[*]} -i '${links[0]}' "
-      echo -n "${argv[*]} -i '${links[1]}' "
-      echo -map 0:v -map 1:a
-    else
-      1>&2 echo 'ERROR: invalid output from "yt-dlp -g <url>"'
-      [ ! $is_quiet ] &&
-        1>&2 printf '==============\n%s\n' "${links[@]}"
-      exit 1
+        # put link inside 'single qutaion mark'
+        if [ ${#links[@]} = 1 ]; then
+            cmd+=("${argv[@]}" -i "${links[0]}")
+        elif [ ${#links[@]} = 2 ]; then
+            cmd+=("${argv[@]}" -i "${links[0]}" -i "${links[1]}" -map 0:v -map 1:a)
+        else
+            1>&2 echo 'ERROR: invalid output from "yt-dlp -g <url>"'
+            [ ! "$is_quiet" ] &&
+            1>&2 printf '==============\n%s\n' "${links[@]}"
+            exit 1
+        fi
+
+        return 0
     fi
 
-    return 0
-  fi
-
-  echo "-i '$input'"
+    cmd+=("$@")
 }
 
-do-cut() {
-  [ "$duration"  ] && end_point_arg="-t '$duration'"
-  [ "$end_point" ] && end_point_arg="-to '$end_point'"
-  input_args="$(get-input-args -ss "$start_point" "$1")"
+# do-speedup() {
+#     input_args="$(get-input-args "$1")"
+#     cmd="ffmpeg $input_args -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
+#     echo-title "⏩️ ... speedup the cut video x$speed"
+# }
 
-  if [ "$duration"  ]
-  then extra_description="with length $duration"
-  elif [ "$end_point" ]
-  then extra_description="to $end_point"
-  fi
-  cmd="ffmpeg $input_args -ss '$start_point' $end_point_arg -copyts '$2'"
-  echo-title "✂️  ... cut part of the video from $start_point $extra_description"
-}
+# do-convert-gif() {
+#     local lfps=10 lloop=0 ldelay=10
+#     [ -n "$fps"       ] && lfps=$fps
+#     [ -n "$gif_loop"  ] && lloop=$gif_loop
+#     [ -n "$gif_delay" ] && ldelay=$gif_delay
+#     if [ "$width" ]; then local scale_filter=",scale=$width:-1:flags=lanczos"; fi
+#     input_args="$(get-input-args "$1")"
+#     # convert comes from `extra/imagemagick` Arch package
+#     cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - |
+#     convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
+#     echo-title "🏃 ... generating a gif"
+# }
 
-do-speedup() {
-  input_args="$(get-input-args "$1")"
-  cmd="ffmpeg $input_args -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
-  echo-title "⏩️ ... speedup the cut video x$speed"
-}
-
-do-crop() {
-  # source: https://video.stackexchange.com/questions/4563/how-can-i-crop-a-video-with-ffmpeg
-  input_args="$(get-input-args "$1")"
-  cmd="ffmpeg $input_args -filter:v 'crop=$crop' '$2'"
-  echo-title "🔳 ... crop the video with: $crop"
-}
-
-do-convert-gif() {
-  local lfps=10 lloop=0 ldelay=10
-  [ -n "$fps"       ] && lfps=$fps
-  [ -n "$gif_loop"  ] && lloop=$gif_loop
-  [ -n "$gif_delay" ] && ldelay=$gif_delay
-  if [ "$width" ]; then local scale_filter=",scale=$width:-1:flags=lanczos"; fi
-  input_args="$(get-input-args "$1")"
-  # convert comes from `extra/imagemagick` Arch package
-  cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - |
-    convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
-  echo-title "🏃 ... generating a gif"
-}
-
-echo-title() {
-  local title="$1"
-  local title_len="${#title}"
-  local num_of_dashes=$title_len
-  [ "$num_of_dashes" -lt 50 ] &&
-    num_of_dashes=50
-  [ "$num_of_dashes" -gt "$(tput cols)" ] &&
-    num_of_dashes="$(tput cols)"
-  local dashes="$(for i in $(seq 1 "$num_of_dashes");do printf "-";done)"
-  echo "$dashes"
-  echo-in-the-center "$title" "$num_of_dashes"
-  echo "$dashes"
-}
-
-echo-in-the-center() {
-  local line="$1"
-  local term_w="${2:-$(tput cols)}"
-  local padding=$(( (term_w - ${#line}) / 2)) # always integer
-  if [ $padding -gt 0 ]; then
-    printf "%${padding}s" # padding with spaces
-  fi
-  echo "$line"
+print-cmd() {
+    for arg in "$@"; do
+        # add quotes if arg conatians a space
+        if [[ "$arg" =~ " " ]]; then
+            arg="\"$arg\""
+        fi
+        echo -n "$arg "
+    done
 }
 
 get-user-acceptance() {
-  [ $is_yes ] && return
-  read -r -p "continue ? ([Y]/n): " ans
-  ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
-  [ ! "$ans" = "n" ] || clear-and-exit 1
-}
+    [ "$is_yes" ] && return
+    echo "👇 This is the final command"
 
-run-commands() {
-  while (($#)); do
-    if [ ! $is_quiet ]; then
-      eval "$1" 
-    else 
-      eval "$1" &> /dev/null 
+    print-cmd "${cmd[@]}"
+    if [[ ${#convert_cmd[@]} -gt 1 ]]; then
+        echo " |"
+        print-cmd "${convert_cmd[@]}"
     fi
-    exit_code=$?
-    if ((exit_code)); then # if it is other than 0
-      echo-title "❌️ This command failed with code: $exit_code"
-      echo "$1"; clear-and-exit $exit_code
-    fi
-    shift
-  done
+    echo -n "\"$output\""
+    echo
+    echo
+
+    read -r -p "continue ? ([Y]/n): " ans
+    ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
+    [ "$ans" = "y" ] || [ -z "$ans" ] || clear-and-exit 1
 }
 
 clear-and-exit() {
-  # remove the temp file
-  exit_code="${1:-0}"
-  [ -f "$tmpfile_1" ] && rm -f "$tmpfile_1"
-  [ -f "$tmpfile_2" ] && rm -f "$tmpfile_2"
-  exit "$exit_code"
+    # remove the temp file
+    exit_code="${1:-0}"
+    exit "$exit_code"
 }
 
-do-processing() {
-  declare -a tasks
-  declare -a cmds
-  [ "$start_point" ] && tasks+=("do-cut")
-  [ "$speed"       ] && tasks+=("do-speedup")
-  [ "$crop"        ] && tasks+=("do-crop")
-  [ "$is_gif"      ] && tasks+=("do-convert-gif")
+build-ffmpeg-command() {
+    cmd=(ffmpeg)
+    convert_cmd=(convert)
 
-  # if empty -> throw error
-  (( ${#tasks} )) ||
-  { >&2 echo error: no commands provided; clear-and-exit 1; }
+    # Quiet logs
+    [ "$is_quiet" ] && cmd+=(-loglevel error)
 
-  current_input="$input"
-  current_output="$tmpfile_1"
+    # Cut (Slice)
+    if [ "$start_point" ]; then
+        extra_description=$([ "$duration"  ] && echo "with length $duration" || echo "to $end_point")
+        echo "✂️  ... cut part of the video from $start_point $extra_description"
 
-  # intermidiate tasks, swap between the 2 tmp files
-  collect-intermediate-cmds() {
-    for (( i = 0; i < ${#tasks[@]} - 1; i++ )); do
-      [ -f "$current_output" ] && rm -f "$current_output"
-      current_task=${tasks[$i]}
-      $current_task "$current_input" "$current_output"
-      cmds+=("$cmd")
-      echo "$cmd"
-      echo
+        cut_args=(-ss "$start_point")
+        [ "$duration"  ] && cut_args+=(-t "$duration")
+        [ "$end_point" ] && cut_args+=(-to "$end_point")
 
-      # swap and prepare for the next iteration
-      if [ "$current_input" = "$tmpfile_1" ]; then
-        current_input="$tmpfile_2"
-        current_output="$tmpfile_1"
-      else
-        current_input="$tmpfile_1"
-        current_output="$tmpfile_2"
-      fi
-    done
-  }
+        get-input-args "${cut_args[@]}" "$input"
+    else
+        get-input-args "$input"
+    fi
 
-  collect-intermediate-cmds
-  # finally, do the last task with the final destination "$output"
-  last_task="${tasks[-1]}"
-  $last_task "$current_input" "$output"
-  cmds+=("$cmd")
-  echo "$cmd"
-  echo
-  get-user-acceptance
-  run-commands "${cmds[@]}"
+    # Speed
+    if [ "$speed" ]; then
+        echo "⏩️  ... speedup the cut video x$speed"
+        cmd+=(-filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed")
+    fi
+
+    # Crop
+    if [ "$crop" ]; then
+        echo "🖼️  ... crop the video with $crop"
+        cmd+=(-vf "crop=$crop")
+    fi
+
+    # Mute audio
+    if [ "$mute_audio" ]; then
+        echo "🔇 ... mute the audio"
+        cmd+=(-an)
+    fi
+
+    # GIF conversion
+    if [ "$is_gif" ]; then
+        echo 📽️ ... generating a gif
+        fps=$((fps || 10))
+        lloop=$((gif_loop || 0))
+        ldelay=$((gif_delay || 10))
+        cmd+=(-vf "fps=${fps}${width:+,scale=$width:-1:flags=lanczos}" -c:v pam -f image2pipe -)
+        convert_cmd+=(-delay "$ldelay" - -loop "$lloop" -layers optimize)
+    fi
+
+    get-user-acceptance
+
+    if [[ ${#convert_cmd[@]} -gt 1 ]]; then
+        "${cmd[@]}" | "${convert_cmd[@]}" "$output" # run the final command
+    else
+        "${cmd[@]}" "$output"
+    fi
 }
 
 collect-arg-and-validate "$@"
-do-processing
+build-ffmpeg-command
 clear-and-exit 0

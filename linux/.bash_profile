@@ -32,7 +32,8 @@ alias ywsf="yarn workspaces foreach"
 # For WSL
 alias pbcopy="clip.exe"
 alias pbpaste="powershell.exe -command 'Get-Clipboard' | tr -d '\r'"
-export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0
+# export DISPLAY=$(grep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0
+export DISPLAY=$(ip route show | grep 'default via' | awk '{ print $3 }'):0
 
 # ------------------------------------
 #       default common setting

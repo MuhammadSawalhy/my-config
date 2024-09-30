@@ -22,13 +22,13 @@ require('lazy').setup({
   'tpope/vim-sleuth',
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',    opts = {} },
+  { 'folke/which-key.nvim', opts = {} },
 
   -- Generative AI (copilot alternative)
-  -- {
-  --   'Exafunction/codeium.vim',
-  --   event = "BufEnter",
-  -- },
+  {
+    'Exafunction/codeium.vim',
+    event = "BufEnter",
+  },
 
   {
     "folke/flash.nvim",
@@ -130,11 +130,12 @@ require('lazy').setup({
       }
     },
   },
+
   {
     'numToStr/Comment.nvim',
     keys = {
       { 'gc',    mode = { 'x', 'n' }, desc = 'Comment' },
-      { '<C-_>' --[[<C-/>]], mode = { 'x', 'n' }, desc = 'Comment' },
+      { '<C-_>', mode = { 'x', 'n' }, desc = 'Comment' },
     },
     config = function()
       require('Comment').setup({
@@ -256,6 +257,7 @@ require('lazy').setup({
         },
       })
     end
+
   },
 
   {
@@ -266,16 +268,6 @@ require('lazy').setup({
       { 't', '<Plug>Sneak_t' },
       { 'T', '<Plug>Sneak_T' },
     },
-  },
-
-  {
-    'iamcco/markdown-preview.nvim',
-    build = function() vim.fn['mkdp#util#install']() end,
-    config = function() vim.g.mkdp_filetypes = { 'markdown' } end,
-    ft = { 'markdown' },
-    keys = {
-      { '<leader>P', '<Plug>MarkdownPreviewToggle', desc = '[P]review markdown in the browser' }
-    }
   },
 
   { import = 'plugins' },
@@ -390,7 +382,7 @@ vim.keymap.set('v', ';D', '"_D', {})
 vim.keymap.set('v', ';p', '"_dP', {})
 
 vim.cmd [[
-  command! LocalTerm let s:term_dir=expand('%:p:h') | below new | call termopen([&shell], {'cwd': s:term_dir })
+command! LocalTerm let s:term_dir=expand('%:p:h') | below new | call termopen([&shell], {'cwd': s:term_dir })
 ]]
 
 vim.keymap.set('n', '<space>t', ':LocalTerm<cr>', { desc = 'Open a terminal in the current file\'s directory' })
@@ -404,4 +396,3 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
-

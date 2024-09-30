@@ -4,6 +4,7 @@
 ._بسم_الله_الرحمن_الرحيم
 
 bin
+!bin/montag2
 
 .zshrc
 .bash_profile
@@ -20,6 +21,8 @@ bin
 .config/nvim/
 !.config/nvim/plugins/
 !.config/nvim/mini-init.vim
+# should be hard linked to the snippets in problem-solving repo
+!.config/nvim/snippets/cpp.snippets
 
 .config/ranger/
 !.config/ranger/plugins/

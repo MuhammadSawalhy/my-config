@@ -4,9 +4,9 @@
 
 programs = [
     # terminal programs
-    "git", "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "ranger", "fzf",
+    "git", "zsh", "tmux", "mousepad", "neovim", "xsel", "xclip", "ranger", "fzf", "fd-find",
     # additional non-essential terminal programs
-    "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core","postgresql", "gitui",
+    "github-cli","git-delta","yt-dlp", "ffmpeg", "pandoc", "texlive-core", "gitui",
     "lazygit", "bat",
     # gui tools
     "mpv", "typora", "obsidian", "copyq", "megasync-bin", "syncthing", "simplescreenrecorder", 
@@ -89,11 +89,6 @@ additional_commands = [
     """
     go install github.com/charmbracelet/glow@latest
     """,
-]
-
-npms = [
-    "eslint",
-    "prettier",
 ]
 
 cargos = ["fastmod", "ripgrep", "exa", "br", "rmem", "sd"]

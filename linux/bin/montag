@@ -18,6 +18,10 @@ print-help () {
 │  │ --mute      │ Mute audio
 │  │ --crop      │ Frame to crop the video, e.g. "in_w:in_h-40", see crop
 │  │             │   filter of ffmpeg: http://ffmpeg.org/ffmpeg-filters.html#crop
+│  │ --thumb     │ Get a thumbnail of the video or set it by providing a URI for it
+├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+│  │ --text      │ Speech to text (convert the audio to text, Whisper will be used)
+│  │             │ Default whisper args: --language auto --verbose False --model medium
 ├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
 │  │ --gif       │ Convert to gif, this will set these --fps to 10
 │  │ --gif-loop  │ How many loops your gif will do (default false)
@@ -40,6 +44,9 @@ EXAMPLES:
   # get the specified range of the video from "--start" to "--to" and speed up
   montag -i my-input-video.mp4 --start 00:10:21 --t 00:11:30 --speed 2
   montag -i my-input-video.mp4 -s 00:10:21 -t 00:11:30 -x 2 --ytdl "-u username -p password"
+
+  # get a transcription of a part of a video
+  montag -i <uri> -s 00:10:11 -d 30 --text --whisper "--language auto" | xsel -ib
 EOF
 }
 
@@ -61,28 +68,33 @@ collect-arg-and-validate() {
             --crop) crop="$1"; shift ;;
             --width) width="$1"; shift ;;
             --fps) fps="$1"; shift ;;
-
+            --thumb)
+                is_thumb=1
+                [ $# = 0 ] || [[ "$1" = -* ]] && continue;
+                thumb="$1"; shift ;;
             --gif) is_gif=1 ;;
             --gif-loop) gif_loop="$1"; shift ;;
             --gif-delay) gif_delay="$1"; shift ;;
 
+            --text) is_text=1 ;;
+
             *)
+                if [[ "$arg" = -* ]] || (($#))
+                then
+                    echo-debug error: invalid arguments
+                    exit 2
+                fi
                 output="$arg"
-                (($#)) && >&2 echo error: invalid number of arguments && exit 2
                 ;;
         esac
     done
 
     ((is_help)) && print-help && exit 0
 
-    # ----- IO -----
-
-    prepare-input-and-output
-
     # ----- cutting -----
 
     if [ "$end_point" ] && [ "$duration" ]; then
-        >&2 echo error\(cutting\): both end point and duration are provided
+        echo-debug error\(cutting\): both end point and duration are provided
         exit 2
     fi
 
@@ -93,38 +105,77 @@ collect-arg-and-validate() {
     # ----- giffing -----
 
     if [ "$loop" ] && [ ! "$is_gif" ]; then
-        >&2 echo error\(giffing\): can\'t use --loop without --gif
+        echo-debug error\(giffing\): can\'t use --loop without --gif
         exit 2
     fi
+
+    # ---- text ----
+    if [ "$is_text" ] && [ ! -d ~/bin/montag2 ]; then
+        echo-debug error\(text\): can\'t find the whisper model in ~/bin/montag2
+        >&2 echo 'mkdir -p ~/bin/montag2 && cd ~/bin/montag2'
+        >&2 echo 'python3 -m venv env'
+        >&2 echo 'source env/bin/activate'
+        >&2 echo 'pip install git+https://github.com/openai/whisper.git'
+        exit 2
+    fi
+
+    # ----- IO -----
+
+    prepare-input-and-output
 }
 
 echo-debug() {
     [ "$is_quiet" ] || >&2 echo "=>" "$@"
 }
 
+echo-info() {
+    >&2 echo "->" "$@"
+}
+
+print-cmd() {
+    for arg in "$@"; do
+        # add quotes if arg conatians a space
+        [[ "$arg" =~ " " ]] && arg="\"$arg\""
+        echo -n "$arg "
+    done
+    echo
+}
+
 get-file-name-from-url() {
+    [ ! "$thumb" ] && [ "$is_thumb" ] && return 0
     local output
     echo-debug Getting the file name from a url
-    echo-debug yt-dlp "$(printf '"%s" ' "${ytdl_options[@]}")" --no-playlist -O \''%(title)s.%(ext)s'\' \'"$1"\'
-    output="$(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")"
-    output="${output/\//\\\\}" # replace / with \\
-        echo "$output"
+    temp_cmd=(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")
+    echo-debug "$(print-cmd "${temp_cmd[@]}")"
+    output="$("${temp_cmd[@]}")"
+    output="${output/\//\\\\}" # replace / with \\ .
+    echo "$output"
+}
+
+temp_files=()
+
+get-temp-file() {
+    mkdir -p /tmp/montag
+    file=/tmp/montag/"$RANDOM.$1"
+    temp_files+=("$file")
+    echo "$file"
 }
 
 prepare-input-and-output() {
-    [ ! "$input" ] && echo error\(IO\): input file is required && exit 2
+    [ ! "$input" ] && echo-debug error\(IO\): input file is required && exit 2
 
     if
     echo "$input" |
     grep -oP '^https?://' > /dev/null
     then
-        # set video quality to <= 720p by default
-        quality_settings="best[height<=720]"
         if [ "$is_ydi" ]; then
             echo-debug ydi -p \""$input"\"
-            quality_settings="$(ydi -p "$input")"
+            ytdl_options+=(-f "$(ydi -p "$input")")
+        elif [ "$is_text" ]; then
+            ytdl_options+=(-f 'bestaudio[abr<=128k]' --extract-audio --audio-format mp3 --audio-quality 5)
+        else
+            ytdl_options+=(-f "best[height<=720]")
         fi
-        ytdl_options+=(-f "$quality_settings")
 
         if [ ! "$output" ]; then
             output=$(get-file-name-from-url "$input")
@@ -146,21 +197,28 @@ get-input-args() {
     local input="${argv[-1]}"
     unset 'argv[-1]'
 
-    if echo "$input" | grep -oP '^https?://' > /dev/null; then
+    if [[ "$input" =~ ^https?:// ]] && { [[ "$is_thumb" && "$thumb" ]] || [ ! "$is_thumb" ]; }; then
         # see: https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
 
-        [ $is_quiet ] || >&2 echo-debug yt-dlp --no-playlist --youtube-skip-dash-manifest -g \""${ytdl_options[*]}"\"
-        read -r -a links <<< "$(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")"
+        temp_cmd=(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")
+        echo-debug "$(print-cmd "${temp_cmd[@]}")"
+        read -r -a links <<< "$("${temp_cmd[@]}")"
 
         # put link inside 'single qutaion mark'
         if [ ${#links[@]} = 1 ]; then
-            cmd+=("${argv[@]}" -i "${links[0]}")
+            if [ "$thumb" ]
+            then cmd+=("${argv[@]}" -i "${links[0]}" -i "$thumb" -map 0 -map 1 -c copy -disposition:v:1 attached_pic)
+            else cmd+=("${argv[@]}" -i "${links[0]}")
+            fi
         elif [ ${#links[@]} = 2 ]; then
-            cmd+=("${argv[@]}" -i "${links[0]}" -i "${links[1]}" -map 0:v -map 1:a)
+            if [ "$thumb" ]
+            then cmd+=("${argv[@]}" -i "${links[0]}" -i "$thumb" -map 0 -map 1 -c copy -disposition:v:1 attached_pic)
+            else cmd+=("${argv[@]}" -i "${links[0]}" -i "${links[1]}" -map 0:v -map 1:a -map 2 -c:v copy -c:a copy -disposition:v:2 attached_pic)
+            fi
         else
-            1>&2 echo 'ERROR: invalid output from "yt-dlp -g <url>"'
+            echo-debug 'error: invalid output from "yt-dlp -g <url>"'
             [ ! "$is_quiet" ] &&
-            1>&2 printf '==============\n%s\n' "${links[@]}"
+            >&2 printf '==============\n%s\n' "${links[@]}"
             exit 1
         fi
 
@@ -170,47 +228,23 @@ get-input-args() {
     cmd+=("$@")
 }
 
-# do-speedup() {
-#     input_args="$(get-input-args "$1")"
-#     cmd="ffmpeg $input_args -filter:v 'setpts=PTS/$speed' -filter:a 'atempo=$speed' '$2'"
-#     echo-title "⏩️ ... speedup the cut video x$speed"
-# }
-
-# do-convert-gif() {
-#     local lfps=10 lloop=0 ldelay=10
-#     [ -n "$fps"       ] && lfps=$fps
-#     [ -n "$gif_loop"  ] && lloop=$gif_loop
-#     [ -n "$gif_delay" ] && ldelay=$gif_delay
-#     if [ "$width" ]; then local scale_filter=",scale=$width:-1:flags=lanczos"; fi
-#     input_args="$(get-input-args "$1")"
-#     # convert comes from `extra/imagemagick` Arch package
-#     cmd="ffmpeg $input_args -vf 'fps=$lfps$scale_filter' -c:v pam -f image2pipe - |
-#     convert -delay $ldelay - -loop $lloop -layers optimize '$2'"
-#     echo-title "🏃 ... generating a gif"
-# }
-
-print-cmd() {
-    for arg in "$@"; do
-        # add quotes if arg conatians a space
-        if [[ "$arg" =~ " " ]]; then
-            arg="\"$arg\""
-        fi
-        echo -n "$arg "
-    done
-}
-
 get-user-acceptance() {
     [ "$is_yes" ] && return
-    echo "👇 This is the final command"
+    echo-info
+    echo-info "👇 This is the final command"
+    echo-info
 
-    print-cmd "${cmd[@]}"
     if [[ ${#convert_cmd[@]} -gt 1 ]]; then
-        echo " |"
-        print-cmd "${convert_cmd[@]}"
+        echo-info "$(print-cmd "${cmd[@]::${#cmd[@]}-1}" "|" "${convert_cmd[@]}" "$output")"
+    elif [[ ${#whisper_cmd[@]} -gt 1 ]]; then
+        echo-info "$(print-cmd "${cmd[@]}")"
+        echo-info
+        echo-info "$(print-cmd "${whisper_cmd[@]}")"
+    else
+        echo-info "$(print-cmd "${cmd[@]}")"
     fi
-    echo -n "\"$output\""
-    echo
-    echo
+
+    echo-info
 
     read -r -p "continue ? ([Y]/n): " ans
     ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
@@ -219,6 +253,7 @@ get-user-acceptance() {
 
 clear-and-exit() {
     # remove the temp file
+    for file in "${temp_files[@]}"; do rm -rf "$file"; done
     exit_code="${1:-0}"
     exit "$exit_code"
 }
@@ -226,6 +261,7 @@ clear-and-exit() {
 build-ffmpeg-command() {
     cmd=(ffmpeg)
     convert_cmd=(convert)
+    whisper_cmd=(whisper)
 
     # Quiet logs
     [ "$is_quiet" ] && cmd+=(-loglevel error)
@@ -233,7 +269,7 @@ build-ffmpeg-command() {
     # Cut (Slice)
     if [ "$start_point" ]; then
         extra_description=$([ "$duration"  ] && echo "with length $duration" || echo "to $end_point")
-        echo "✂️  ... cut part of the video from $start_point $extra_description"
+        echo-debug "✂️  ... cut part of the video from $start_point $extra_description"
 
         cut_args=(-ss "$start_point")
         [ "$duration"  ] && cut_args+=(-t "$duration")
@@ -246,25 +282,41 @@ build-ffmpeg-command() {
 
     # Speed
     if [ "$speed" ]; then
-        echo "⏩️  ... speedup the cut video x$speed"
+        echo-debug "⏩️  ... speedup the cut video x$speed"
         cmd+=(-filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed")
     fi
 
     # Crop
     if [ "$crop" ]; then
-        echo "🖼️  ... crop the video with $crop"
+        echo-debug "🖼️  ... crop the video with $crop"
         cmd+=(-vf "crop=$crop")
     fi
 
     # Mute audio
     if [ "$mute_audio" ]; then
-        echo "🔇 ... mute the audio"
+        echo-debug "🔇 ... mute the audio"
         cmd+=(-an)
+    fi
+
+    exclusive=0
+
+    if [ "$is_thumb" ]; then
+        if [ -n "$thumb" ]
+        then
+            echo-debug "🖼️  ... use '$thumb' as thumbnail"
+        else
+            [ "$exclusive" = 1 ] && echo-debug "error: you using two options together like --gif --thumb" && exit 1
+            exclusive=1
+            echo-debug "🖼️  ... generate thumbnail"
+            cmd=(yt-dlp --skip-download --write-thumbnail --convert-thumbnails jpg "${ytdl_options[@]}" "$input")
+        fi
     fi
 
     # GIF conversion
     if [ "$is_gif" ]; then
-        echo 📽️ ... generating a gif
+        [ "$exclusive" = 1 ] && echo-debug "error: you using two options together like --gif --thumb" && exit 1
+        exclusive=1
+        echo-debug 📽️ ... generating a gif
         fps=$((fps || 10))
         lloop=$((gif_loop || 0))
         ldelay=$((gif_delay || 10))
@@ -272,12 +324,43 @@ build-ffmpeg-command() {
         convert_cmd+=(-delay "$ldelay" - -loop "$lloop" -layers optimize)
     fi
 
+    if [ "$is_text" ]; then
+        [ "$exclusive" = 1 ] && echo-debug "error: you using two options together like --gif --thumb" && exit 1
+        exclusive=1
+        echo-debug "🗣️  ... convert the video to text"
+        output="$(get-temp-file "$(basename "$output")")"
+        whisper_cmd+=("$output" --verbose False --model medium --output_format txt --output_dir /tmp/montag)
+    fi
+
+    [ "${cmd[0]}" = ffmpeg ] && cmd+=("$output")
+
     get-user-acceptance
 
+    # we have 4 different modes
+    # - modifiying a video by using a file or a remote URL
+    # - generating a gif file
+    # - generating a thumbnail
+    # - generating a text from the audio (speech to text)
+
     if [[ ${#convert_cmd[@]} -gt 1 ]]; then
-        "${cmd[@]}" | "${convert_cmd[@]}" "$output" # run the final command
+        "${cmd[@]::${#cmd[@]}-1}" | "${convert_cmd[@]}" "$output"
+    elif [[ ${#whisper_cmd[@]} -gt 1 ]]; then
+        "${cmd[@]}"
+        dir="$PWD"
+        cd ~/bin/montag2
+        source env/bin/activate
+
+        if ! which whisper > /dev/null; then
+            echo-debug "error: you should install whisper first"
+            clear-and-exit 1
+        fi
+
+        "${whisper_cmd[@]}"
+        cat "${output%.*}.txt"
+
+        cd "$dir"
     else
-        "${cmd[@]}" "$output"
+        "${cmd[@]}"
     fi
 }
 

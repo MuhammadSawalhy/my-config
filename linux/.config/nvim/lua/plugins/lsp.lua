@@ -124,14 +124,15 @@ return {
 
       local servers = {
         -- rust_analyzer = {},
-        gopls = {},
+        -- gopls = {},
         bashls = {},
         clangd = {},
         pyright = {},
-        tsserver = {},
+        ts_ls = {},
         eslint = {},
         intelephense = {},
         html = { filetypes = { 'html', 'twig', 'hbs' } },
+        asm_lsp = {},
         lua_ls = {
           Lua = {
             workspace = { checkThirdParty = false },
@@ -141,9 +142,7 @@ return {
       }
 
       -- Setup neovim lua configuration
-      require("neodev").setup({
-        library = { plugins = { "nvim-dap-ui" }, types = true },
-      })
+      require('neodev').setup()
 
       -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
       local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -169,7 +168,7 @@ return {
       }
 
       require("mason-null-ls").setup({
-        ensure_installed = { "ast_grep", "prettier", "black", "mypy", "shellcheck", "beautysh", },
+        ensure_installed = { "prettier", "black", "mypy", "shellcheck", "beautysh" },
         automatic_installation = true,
         handlers = nil,
       })
@@ -192,7 +191,8 @@ return {
           null_ls.builtins.formatting.prettier,
           null_ls.builtins.formatting.black,
           null_ls.builtins.formatting.beautysh,
-          null_ls.builtins.formatting.pint,
+          -- null_ls.builtins.formatting.pint,
+          null_ls.builtins.formatting.asmfmt,
           null_ls.builtins.diagnostics.mypy,
           null_ls.builtins.diagnostics.shellcheck,
         },

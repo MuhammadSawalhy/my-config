@@ -99,6 +99,10 @@ return {
         },
       }
 
+      require('ts_context_commentstring').setup {
+        enable_autocmd = false,
+      }
+
       -- Folding
       -- NOTE: 'kevinhwang91/nvim-ufo' now handles it
       -- vim.o.foldmethod = "expr"

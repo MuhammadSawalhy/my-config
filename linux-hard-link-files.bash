@@ -61,8 +61,8 @@ get_files() {
   SOURCE_FILES=/tmp/source-files-qoiweru
   TARGET_FILES=/tmp/target-files-qoiweru
 
-  node ./linux-linked-files.js "$TARGET" "${patterns[@]}" > "$TARGET_FILES"
-  node ./linux-linked-files.js "$SOURCE" "${patterns[@]}" > "$SOURCE_FILES"
+  node ./linux-linked-files.mjs "$TARGET" "${patterns[@]}" > "$TARGET_FILES"
+  node ./linux-linked-files.mjs "$SOURCE" "${patterns[@]}" > "$SOURCE_FILES"
 
   readarray -t source_files < <(sed -n "/$filtering_pattern/ p" "$SOURCE_FILES")
   readarray -t target_files < <(sed -n "/$filtering_pattern/ p" "$TARGET_FILES")

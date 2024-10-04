@@ -1,4 +1,5 @@
-local lfs = require("lfs") -- run `luarocks install luafilesystem`
+local lfs = require("lfs") -- install luafilesystem
+local socket = require("socket.http") -- install luasocket, apt install libssl-dev
 
 local base_path = string.format('%s/myp/problem-solving', vim.loop.os_homedir())
 
@@ -23,6 +24,14 @@ end
 
 local function trim(s)
   return s:match '^%s*(.-)%s*$' or ''
+end
+
+-- Function to fetch HTML content from a URL
+function fetch_html(url)
+    local body, code, headers, status = socket.request(url)
+    if code == 200 then
+        return body
+    end
 end
 
 local function find_contest_folder(our_base_path, contest_id)
@@ -80,6 +89,16 @@ local function relative_path(task, file_extension)
         contest = existing_folder
       else
         contest = contest_id .. ' - ' .. contest
+      end
+    end
+  end
+
+  if lower_judge == 'cses' and contest == 'CSES Problem Set' then
+    local body = fetch_html(task.url)
+    if body then
+      local category = string.match(body, '<h4>(.-)</h4>')
+      if category then
+        contest = string.format('%s/%s', contest, category)
       end
     end
   end

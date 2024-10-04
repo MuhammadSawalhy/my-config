@@ -125,6 +125,7 @@ return {
       local servers = {
         -- rust_analyzer = {},
         -- gopls = {},
+        -- asm_lsp = {},
         bashls = {},
         clangd = {},
         pyright = {},
@@ -132,7 +133,6 @@ return {
         eslint = {},
         intelephense = {},
         html = { filetypes = { 'html', 'twig', 'hbs' } },
-        asm_lsp = {},
         lua_ls = {
           Lua = {
             workspace = { checkThirdParty = false },
@@ -192,7 +192,7 @@ return {
           null_ls.builtins.formatting.black,
           null_ls.builtins.formatting.beautysh,
           -- null_ls.builtins.formatting.pint,
-          null_ls.builtins.formatting.asmfmt,
+          -- null_ls.builtins.formatting.asmfmt,
           null_ls.builtins.diagnostics.mypy,
           null_ls.builtins.diagnostics.shellcheck,
         },

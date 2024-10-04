@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # source: https://www.reddit.com/r/commandline/comments/hb50u0/is_there_a_youtubedl_interactive_script/
 # this is a modified version of the above code, but I started from their
 
@@ -7,13 +8,13 @@ set -e
 bin=$(basename "$0")
 
 print-help () {
-cat <<- EOF
+    cat <<- EOF
 OPTIONS:
 ┌──┬────────────┬───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
 │-h│ --help     │ Show this help message
 │-p│ --print    │ Just print the choosen quality settings
 └──┴────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
- 
+
 USAGE:
   $bin [OPTIONS] <URL> -- [ytdl OPTIONS]
 
@@ -27,66 +28,70 @@ EOF
 }
 
 collect-arg-and-validate() {
-  local arg
-  while (($#)); do
-    arg="$1"; shift
-    [ "$arg" = "--help"    ] && is_help=1           && break
-    [ "$arg" = "-h"        ] && is_help=1           && break
-    [ "$arg" = "--print"   ] && is_print=1          && continue
-    [ "$arg" = "-p"        ] && is_print=1          && continue
-    [ "$arg" = "--"        ] && ytdl_options=("$@") && break
+    local arg
+    while (($#)); do
+        arg="$1"; shift
+        [ "$arg" = "--help"    ] && is_help=1           && break
+        [ "$arg" = "-h"        ] && is_help=1           && break
+        [ "$arg" = "--print"   ] && is_print=1          && continue
+        [ "$arg" = "-p"        ] && is_print=1          && continue
+        [ "$arg" = "--"        ] && ytdl_options=("$@") && break
 
-    [ "$url" ] && >&2 echo error: can\'t receive more than URL && exit 2
-    url="$arg"
-  done
+        [ "$url" ] && >&2 echo error: can\'t receive more than one URL && exit 1
+        url="$arg"
+    done
 
-  # ----- help -----
+    # ----- help -----
 
-  if [ "$is_help" ]; then
-    print-help 
-    exit 0
-  fi
+    if [ "$is_help" ]; then
+        print-help
+        exit 0
+    fi
 
-  # ----- validate -----
-  [ -z "$url" ] && >&2 echo error: no URL provided && exit 2
-  if ! echo "$url" | grep -qE '^https?://'; then
-    >&2 echo error: URL is not valid && exit 2
-  fi
+    # ----- validate -----
+    [ -z "$url" ] && >&2 echo error: no URL provided && exit 2
+    if ! echo "$url" | grep -qE '^https?://'; then
+        >&2 echo error: URL is not valid && exit 2
+    fi
 }
+
+function join_by { local IFS="$1"; shift; echo "$*"; }
 
 collect-arg-and-validate "$@"
 
-array=()
+choices=()
 
 while read -r line; do
-  array+=("$(echo "$line" | awk '{print $1}')" "$line")
-done <<< "$(yt-dlp "${ytdl_options[@]}" -F --no-playlist "$url" | sed '0,/--------/d')"
+    choices+=("$(echo "$line" | awk '{print $1}')" "$line" OFF)
+done <<< "$(yt-dlp "${ytdl_options[@]}" -F --no-playlist "$url" | sed '0,/--------/d' | tac)"
 
 # printf "%s\n" "${array[@]}"
 # exit 0
 
-if ! which whiptail 1>&2 2> /dev/null; then
-  echo "whiptail program is not found, please install it" >&2
-  exit 1
+if ! which whiptail > /dev/null 2>&1; then
+    echo "whiptail program is not found, please install it" >&2
+    exit 1
 fi
 
-answer=$(
-  whiptail --notags --title "yt-dlp" --menu 'Select which one' 20 120 10 "${array[@]}" 3>&1 1>&2 2>&3
-)
+readarray -t answer <<< "$(
+  whiptail --separate-output --notags --title "Choose your media quality for yt-dlp" --checklist 'Multi-choice menu' 20 120 10 "${choices[@]}" 3>&1 1>&2 2>&3
+)"
 
-quality_settings=$(echo "$answer" | awk '{print $1}')
-audio=(249 250 140 251)
-
-[ -z "$answer" ] && exit 1
-if [[ ! ${audio[*]} =~ $quality_settings ]]; then
-  # not audio choose "bestaudio"
-  quality_settings="$quality_settings"+bestaudio
+if [ ${#answer[@]} -eq 0 ] || [ "${answer[*]}" = "" ]; then
+    >&2 echo error: no quality settings selected
+    exit 1
 fi
 
-if [ $is_print ]; then
-  echo "$quality_settings"
-  exit 0
+quality_settings="$(join_by + "${answer[@]}")"
+
+if [ "$is_print" ]; then
+    echo -f "$quality_settings"
+    exit 0
 fi
 
-# use ytdl_options at the end to allow overriding default options 
+echo Choosen quality settings: "$quality_settings"
+
+echo "Downloading... =>" yt-dlp -f "$quality_settings" --no-playlist -ciw -o "%(title)s.%(ext)s" "${ytdl_options[@]}" "$url"
+
+# use ytdl_options at the end to allow overriding default options
 yt-dlp -f "$quality_settings" --no-playlist -ciw -o "%(title)s.%(ext)s" "${ytdl_options[@]}" "$url"

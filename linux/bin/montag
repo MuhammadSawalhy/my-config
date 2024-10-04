@@ -58,8 +58,8 @@ collect-arg-and-validate() {
             -h|--help) is_help=1 ;;
             --yes) is_yes=1 ;;
             --mute) mute_audio=1 ;;
-            --ytdi) is_ydi=1 ;;
-            --ytdl) ytdl_options=("$1") && shift ;;
+            --ydi) is_ydi=1 ;;
+            --ytdl) ytdl_options=($1) && shift ;; # TODO: how to parse arguments with spaces
             --input|-i) input="$1"; shift ;;
             --start|-s) start_point="$1"; shift ;;
             --duration|-d) duration="$1"; shift ;;
@@ -169,12 +169,17 @@ prepare-input-and-output() {
     grep -oP '^https?://' > /dev/null
     then
         if [ "$is_ydi" ]; then
-            echo-debug ydi -p \""$input"\"
-            ytdl_options+=(-f "$(ydi -p "$input")")
-        elif [ "$is_text" ]; then
-            ytdl_options+=(-f 'bestaudio[abr<=128k]' --extract-audio --audio-format mp3 --audio-quality 5)
-        else
-            ytdl_options+=(-f "best[height<=720]")
+            echo-debug "$(print-cmd ydi -p "$input")"
+            read -ra quality_settings < <(ydi -p "$input")
+            ytdl_options+=("${quality_settings[@]}")
+        fi
+
+        if [ ${#ytdl_options[@]} = 0 ]; then
+            if [ "$is_text" ]; then
+                ytdl_options+=(-f 'bestaudio[abr<=128k]' --extract-audio --audio-format mp3 --audio-quality 5)
+            else
+                ytdl_options+=(-f "best[height<=720]")
+            fi
         fi
 
         if [ ! "$output" ]; then
@@ -202,7 +207,7 @@ get-input-args() {
 
         temp_cmd=(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")
         echo-debug "$(print-cmd "${temp_cmd[@]}")"
-        read -r -a links <<< "$("${temp_cmd[@]}")"
+        readarray -t links <<< "$("${temp_cmd[@]}")"
 
         # put link inside 'single qutaion mark'
         if [ ${#links[@]} = 1 ]; then
@@ -212,8 +217,8 @@ get-input-args() {
             fi
         elif [ ${#links[@]} = 2 ]; then
             if [ "$thumb" ]
-            then cmd+=("${argv[@]}" -i "${links[0]}" -i "$thumb" -map 0 -map 1 -c copy -disposition:v:1 attached_pic)
-            else cmd+=("${argv[@]}" -i "${links[0]}" -i "${links[1]}" -map 0:v -map 1:a -map 2 -c:v copy -c:a copy -disposition:v:2 attached_pic)
+            then cmd+=("${argv[@]}" -i "${links[0]}" "${argv[@]}" -i "${links[1]}" -i "$thumb" -map 0:v -map 1:a -map 2 -c:v copy -c:a copy -disposition:v:2 attached_pic)
+            else cmd+=("${argv[@]}" -i "${links[0]}" "${argv[@]}" -i "${links[1]}" -map 0:v -map 1:a)
             fi
         else
             echo-debug 'error: invalid output from "yt-dlp -g <url>"'

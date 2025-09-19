@@ -5,6 +5,7 @@
 
 bin
 !bin/montag2
+!bin/arch-scripts/
 
 .zshrc
 .bash_profile

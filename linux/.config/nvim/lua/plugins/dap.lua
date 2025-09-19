@@ -1,18 +1,18 @@
 return {
   'mfussenegger/nvim-dap',
-  event = "VeryLazy",
+  event = 'VeryLazy',
   dependencies = {
     -- Creates a beautiful debugger UI
     'nvim-telescope/telescope-dap.nvim',
     {
       'rcarriga/nvim-dap-ui',
       dependencies = { 'nvim-neotest/nvim-nio' },
-      opts = {}
+      opts = {},
     },
     {
       'theHamsta/nvim-dap-virtual-text',
       dependencies = { 'nvim-treesitter/nvim-treesitter' },
-      opts = {}
+      opts = {},
     },
 
     -- Installs the debug adapters for you
@@ -26,7 +26,7 @@ return {
     local dap = require 'dap'
     local dapui = require 'dapui'
 
-    require('telescope').load_extension('dap')
+    require('telescope').load_extension 'dap'
 
     vim.fn.sign_define('DapBreakpoint', { text = '⬤', texthl = 'ErrorMsg', linehl = '', numhl = 'ErrorMsg' })
     vim.fn.sign_define('DapBreakpointCondition', { text = '⬤', texthl = 'ErrorMsg', linehl = '', numhl = 'SpellBad' })
@@ -43,9 +43,9 @@ return {
               type = 'cppdbg',
               request = 'launch',
               program = function()
-                local file = vim.fn.expand('%:p')
-                local exefile = vim.fn.expand('%:p:r')
-                print("compiling: " .. file)
+                local file = vim.fn.expand '%:p'
+                local exefile = vim.fn.expand '%:p:r'
+                print('compiling: ' .. file)
                 os.execute(string.format([[g++ -g "%s" -o "%s"]], file, exefile))
                 return exefile
               end,
@@ -55,7 +55,7 @@ return {
                 {
                   text = '-enable-pretty-printing',
                   description = 'enable pretty printing',
-                  ignoreFailures = false
+                  ignoreFailures = false,
                 },
               },
             },
@@ -64,7 +64,7 @@ return {
               type = 'cppdbg',
               request = 'launch',
               program = function()
-                local exefile = vim.fn.expand('%:p:r')
+                local exefile = vim.fn.expand '%:p:r'
                 if not vim.fn.filereadable(exefile) then
                   exefile = vim.fn.getcwd() .. '/'
                 end
@@ -76,7 +76,7 @@ return {
                 {
                   text = '-enable-pretty-printing',
                   description = 'enable pretty printing',
-                  ignoreFailures = false
+                  ignoreFailures = false,
                 },
               },
             },
@@ -88,7 +88,9 @@ return {
     }
 
     local nvmap = function(keys, func, desc)
-      if desc then desc = 'Dap: ' .. desc end
+      if desc then
+        desc = 'Dap: ' .. desc
+      end
       vim.keymap.set({ 'n', 'v' }, keys, func, { desc = desc })
     end
 
@@ -107,15 +109,15 @@ return {
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, 'Set conditional breakpoint')
     nvmap(';dl', function()
-      require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
+      require('dap').set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
     end, 'Set log point')
 
-    nvmap(';dh', dap.run_to_cursor, 'come (h)ere')
+    nvmap(';dh', dap.run_to_cursor, 'come (h)ere (run to cursor)')
     nvmap(';dc', ':Telescope dap commands<CR>', 'telescope dap commands')
     nvmap(';du', dapui.toggle, 'toggle dap UI')
     nvmap(';de', dapui.eval, 'evaluate under cursor')
     nvmap(';dE', function()
-      dapui.eval(vim.fn.input('Expression: '))
+      dapui.eval(vim.fn.input 'Expression: ')
     end, 'input an expression to evaluate')
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open

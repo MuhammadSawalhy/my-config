@@ -226,3 +226,5 @@ function wpy() {
   nodemon -w "$file" -e c -x python "$file"
 }
 
+
+. "$HOME/.local/bin/env"

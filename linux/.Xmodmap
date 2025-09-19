@@ -1,9 +1,0 @@
-! use this command to get kwycodes
-! $ xev | awk -F'[ )]+' '/^KeyPress/ { a[NR+2] } NR in a { printf "%-3s %s\n", $5, $8 }'
-
-! Swap caps lock and escape
-remove Lock = Caps_Lock
-keycode  9 = Caps_Lock NoSymbol Caps_Lock
-keycode 66 = Escape NoSymbol Escape
-add Lock = Caps_Lock
-

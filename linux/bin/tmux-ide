@@ -4,11 +4,11 @@ ide_num="$1"
 shift
 
 case "$ide_num" in
-  1)
+  horizontal)
     tmux split-window -h -p 25 "$@"
     tmux split-window -v -p 50 "$@"
     ;;
-  2)
+  vertical)
     tmux split-window -v -p 20 "$@"
     tmux split-window -h -p 33 "$@"
     ;;

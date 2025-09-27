@@ -43,10 +43,10 @@ return {
               type = 'cppdbg',
               request = 'launch',
               program = function()
-                local file = vim.fn.expand '%:p'
-                local exefile = vim.fn.expand '%:p:r'
-                print('compiling: ' .. file)
-                os.execute(string.format([[g++ -g "%s" -o "%s"]], file, exefile))
+                local file = vim.fn.expand('%:p')
+                local exefile = vim.fn.expand('%:p:r')
+                print("compiling: " .. file)
+                os.execute(string.format([[g++ -g -DSAWALHY "%s" -o "%s"]], file, exefile))
                 return exefile
               end,
               cwd = '${fileDirname}',
@@ -104,20 +104,20 @@ return {
     nvmap('<F11>', dap.step_into, 'Step into')
     nvmap('<F23>', dap.step_out, 'Step out') -- shift + f11
 
-    nvmap(';db', dap.toggle_breakpoint, 'toggle Breakpoint')
-    nvmap(';dB', function()
+    nvmap('<leader>db', dap.toggle_breakpoint, 'toggle Breakpoint')
+    nvmap('<leader>dB', function()
       dap.set_breakpoint(vim.fn.input 'Breakpoint condition: ')
     end, 'Set conditional breakpoint')
-    nvmap(';dl', function()
-      require('dap').set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
+    nvmap('<leader>dl', function()
+      require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))
     end, 'Set log point')
 
-    nvmap(';dh', dap.run_to_cursor, 'come (h)ere (run to cursor)')
-    nvmap(';dc', ':Telescope dap commands<CR>', 'telescope dap commands')
-    nvmap(';du', dapui.toggle, 'toggle dap UI')
-    nvmap(';de', dapui.eval, 'evaluate under cursor')
-    nvmap(';dE', function()
-      dapui.eval(vim.fn.input 'Expression: ')
+    nvmap('<leader>dh', dap.run_to_cursor, 'come (h)ere')
+    nvmap('<leader>dc', ':Telescope dap commands<CR>', 'telescope dap commands')
+    nvmap('<leader>du', dapui.toggle, 'toggle dap UI')
+    nvmap('<leader>de', dapui.eval, 'evaluate under cursor')
+    nvmap('<leader>dE', function()
+      dapui.eval(vim.fn.input('Expression: '))
     end, 'input an expression to evaluate')
 
     dap.listeners.after.event_initialized['dapui_config'] = dapui.open

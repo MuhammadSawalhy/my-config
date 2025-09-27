@@ -1,5 +1,5 @@
-local lfs = require("lfs") -- install luafilesystem
-local socket = require("socket.http") -- install luasocket, apt install libssl-dev
+local lfs = require("lfs")            -- luarocks install luafilesystem
+local socket = require("socket.http") -- luarocks install luasocket && apt install libssl-dev
 
 local base_path = string.format('%s/myp/problem-solving', vim.loop.os_homedir())
 
@@ -28,10 +28,10 @@ end
 
 -- Function to fetch HTML content from a URL
 function fetch_html(url)
-    local body, code, headers, status = socket.request(url)
-    if code == 200 then
-        return body
-    end
+  local body, code, headers, status = socket.request(url)
+  if code == 200 then
+    return body
+  end
 end
 
 local function find_contest_folder(our_base_path, contest_id)
@@ -103,6 +103,10 @@ local function relative_path(task, file_extension)
     end
   end
 
+  if lower_judge == "acwing" then
+    problem_name = string.match(task.url, "/(%d+)")
+  end
+
   return sanitize(string.format('%s/%s/%s/%s.%s', judge, contest, problem_name, file_name, file_extension))
 end
 
@@ -117,7 +121,7 @@ return {
     -- output_compare_method = 'exact',
     compile_command = {
       c = { exec = 'gcc', args = { '-DSAWALHY', '-Wall', '$(FNAME)', '-O3', '-o', '$(FNOEXT)' } },
-      cpp = { exec = 'g++', args = { '-std=c++23', '-DSAWALHY', '-Wall', '-Wextra', '-Wconversion', '-static', '-O2', '$(FNAME)', '-o', '$(FNOEXT)' } },
+      cpp = { exec = 'g++', args = { '-std=c++23', '-DSAWALHY', '-Wall', '-Wextra', '-fsanitize=address', '-Wconversion', '$(FNAME)', '-o', '$(FNOEXT)' } },
       rust = { exec = 'rustc', args = { '$(FNAME)' } },
       java = { exec = 'javac', args = { '$(FNAME)' } },
       go = { exec = 'go', args = { 'build', '-o', '$(FNOEXT)', '$(FNAME)' }, },

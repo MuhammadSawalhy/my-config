@@ -4,8 +4,6 @@
 ._بسم_الله_الرحمن_الرحيم
 
 bin
-!bin/montag2
-!bin/arch-scripts/
 
 .zshrc
 .bash_profile
@@ -30,6 +28,6 @@ bin
 !.config/ranger/history
 
 .config/mpv/
-.config/gitui/
 .config/zathura/
-.config/fontconfig/
+# .config/gitui/
+# .config/fontconfig/

@@ -19,8 +19,3 @@ export GPG_TTY=$(tty)
 export FZF_DEFAULT_COMMAND='fd --strip-cwd-prefix'
 # To apply the command to CTRL-T as well
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/.volta/bin:$PATH"
-
-. "$HOME/.local/bin/env"

@@ -47,6 +47,13 @@ EXAMPLES:
 
   # get a transcription of a part of a video
   montag -i <uri> -s 00:10:11 -d 30 --text --whisper "--language auto" | xsel -ib
+
+NOTES:
+  Downloading a video is done primarly by ffmpeg but will use yt-dlp to
+  extract the links to be provided to ffmpeg directly.
+  
+  If you want to extract the text from the video or the audio it will be whisper at the end
+  so that downloading step scenarios is the same as described before.
 EOF
 }
 
@@ -59,7 +66,7 @@ collect-arg-and-validate() {
             --yes) is_yes=1 ;;
             --mute) mute_audio=1 ;;
             --ydi) is_ydi=1 ;;
-            --ytdl) ytdl_options=($1) && shift ;; # TODO: how to parse arguments with spaces
+            --ytdl) ytdl_options=("$1") && shift ;; # TODO: how to parse arguments with spaces
             --input|-i) input="$1"; shift ;;
             --start|-s) start_point="$1"; shift ;;
             --duration|-d) duration="$1"; shift ;;
@@ -112,11 +119,14 @@ collect-arg-and-validate() {
     # ---- text ----
     if [ "$is_text" ] && [ ! -d ~/bin/montag2 ]; then
         echo-debug error\(text\): can\'t find the whisper model in ~/bin/montag2
-        >&2 echo 'mkdir -p ~/bin/montag2 && cd ~/bin/montag2'
-        >&2 echo 'python3 -m venv env'
-        >&2 echo 'source env/bin/activate'
-        >&2 echo 'pip install git+https://github.com/openai/whisper.git'
-        exit 2
+        read -r -p "do you want to get it? ([Y]/n): " ans
+        ans="$(echo "$ans" | tr '[:upper:]' '[:lower:]')"
+        [ "$ans" = "y" ] || [ -z "$ans" ] || clear-and-exit 1
+        print-and-run-cmd mkdir -p "$HOME/.local/share/montag"
+        print-and-run-cmd cd "$HOME/.local/share/montag"
+        print-and-run-cmd python3 -m venv env
+        print-and-run-cmd source env/bin/activate
+        print-and-run-cmd pip install git+https://github.com/openai/whisper.git
     fi
 
     # ----- IO -----
@@ -132,23 +142,46 @@ echo-info() {
     >&2 echo "->" "$@"
 }
 
+add-quotes() {
+    local quoted_args=()
+    for arg in "$@"; do
+        quoted_args+=("\"$arg\"")
+    done
+    echo "${quoted_args[@]}"
+}
+
 print-cmd() {
     for arg in "$@"; do
-        # add quotes if arg conatians a space
-        [[ "$arg" =~ " " ]] && arg="\"$arg\""
+        # Skip escaping for common shell operators
+        if [[ "$arg" == "||" || "$arg" == "&&" || "$arg" == "|" || "$arg" == "&" || "$arg" == ";" || "$arg" == ">" || "$arg" == "<" ]]; then
+            echo -n "$arg "
+            continue
+        fi
+        
+        # Check if argument contains characters that need escaping
+        if [[ "$arg" =~ [][{}\(\)\\\*\?~\`\$\#\=\!\|\&\;\<\>\'\"] ]] || [[ "$arg" =~ [[:space:]] ]]; then
+            # shell-escape the argument
+            arg="'$(echo "$arg" | sed "s/'/'\\\\''/g")'"
+        fi
+        
         echo -n "$arg "
     done
     echo
+}
+
+print-and-run-cmd() {
+    local quoted="$(print-cmd "$@")"
+    echo-debug "$quoted"
+    # eval is used to only allow piping (using |) and chaining (using &&)
+    eval "$quoted"
 }
 
 get-file-name-from-url() {
     [ ! "$thumb" ] && [ "$is_thumb" ] && return 0
     local output
     echo-debug Getting the file name from a url
-    temp_cmd=(yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")
-    echo-debug "$(print-cmd "${temp_cmd[@]}")"
-    output="$("${temp_cmd[@]}")"
-    output="${output/\//\\\\}" # replace / with \\ .
+    output="$(print-and-run-cmd yt-dlp "${ytdl_options[@]}" --no-playlist -O '%(title)s.%(ext)s' "$1")"
+    output="${output/\//_}" # replace / with _
     echo "$output"
 }
 
@@ -164,13 +197,9 @@ get-temp-file() {
 prepare-input-and-output() {
     [ ! "$input" ] && echo-debug error\(IO\): input file is required && exit 2
 
-    if
-    echo "$input" |
-    grep -oP '^https?://' > /dev/null
-    then
+    if [[ "$input" =~ ^https?:// ]]; then
         if [ "$is_ydi" ]; then
-            echo-debug "$(print-cmd ydi -p "$input")"
-            read -ra quality_settings < <(ydi -p "$input")
+            read -ra quality_settings < <(print-and-run-cmd ydi -p "$input")
             ytdl_options+=("${quality_settings[@]}")
         fi
 
@@ -180,6 +209,17 @@ prepare-input-and-output() {
             else
                 ytdl_options+=(-f "best[height<=720]")
             fi
+        fi
+
+        # If quiet mode requested, make yt-dlp quieter: suppress warnings and progress
+        # (we still want errors to appear). Avoid adding duplicate flags.
+        if [ "$is_quiet" ]; then
+            for _flag in --no-warnings --no-progress; do
+                case " ${ytdl_options[*]} " in
+                    *" ${_flag} "*) : ;; # already present
+                    *) ytdl_options+=("${_flag}") ;;
+                esac
+            done
         fi
 
         if [ ! "$output" ]; then
@@ -196,20 +236,60 @@ prepare-input-and-output() {
     fi
 }
 
+build-ytdlp-download-section() {
+    if [ "$start_point" ] && { [ "$duration" ] || [ "$end_point" ]; }; then
+        local section_arg="*${start_point}"
+        
+        if [ "$duration" ]; then
+            # Convert start + duration to end time
+            local start_seconds=$(time-to-seconds "$start_point")
+            local duration_seconds=$(time-to-seconds "$duration")
+            local end_seconds=$((start_seconds + duration_seconds))
+            local end_time=$(seconds-to-time "$end_seconds")
+            section_arg+="-$end_time"
+        elif [ "$end_point" ]; then
+            section_arg+="-$end_point"
+        fi
+        
+        echo "$section_arg"
+    fi
+}
+
+time-to-seconds() {
+    local time_str="$1"
+    if [[ "$time_str" =~ ^[0-9]+$ ]]; then
+        echo "$time_str"
+    elif [[ "$time_str" =~ ^([0-9]+):([0-9]+)$ ]]; then
+        local minutes=${BASH_REMATCH[1]}
+        local seconds=${BASH_REMATCH[2]}
+        echo $((minutes * 60 + seconds))
+    elif [[ "$time_str" =~ ^([0-9]+):([0-9]+):([0-9]+)$ ]]; then
+        local hours=${BASH_REMATCH[1]}
+        local minutes=${BASH_REMATCH[2]}
+        local seconds=${BASH_REMATCH[3]}
+        echo $((hours * 3600 + minutes * 60 + seconds))
+    else
+        echo "$time_str"  # Return as-is if we can't parse
+    fi
+}
+
+seconds-to-time() {
+    local total_seconds=$1
+    local hours=$((total_seconds / 3600))
+    local minutes=$(( (total_seconds % 3600) / 60 ))
+    local seconds=$((total_seconds % 60))
+    printf "%02d:%02d:%02d" $hours $minutes $seconds
+}
+
 get-input-args() {
-    set -e # we have to do this again because this function is called as a command substitution
+    set -e
     local argv=("$@")
     local input="${argv[-1]}"
     unset 'argv[-1]'
 
     if [[ "$input" =~ ^https?:// ]] && { [[ "$is_thumb" && "$thumb" ]] || [ ! "$is_thumb" ]; }; then
-        # see: https://unix.stackexchange.com/questions/230481/how-to-download-portion-of-video-with-youtube-dl-command
+        readarray -t links < <(print-and-run-cmd yt-dlp --no-playlist --extractor-args youtube:skip=dash,translated_subs -g "${ytdl_options[@]}" "$input")
 
-        temp_cmd=(yt-dlp --no-playlist --youtube-skip-dash-manifest -g "${ytdl_options[@]}" "$input")
-        echo-debug "$(print-cmd "${temp_cmd[@]}")"
-        readarray -t links <<< "$("${temp_cmd[@]}")"
-
-        # put link inside 'single qutaion mark'
         if [ ${#links[@]} = 1 ]; then
             if [ "$thumb" ]
             then cmd+=("${argv[@]}" -i "${links[0]}" -i "$thumb" -map 0 -map 1 -c copy -disposition:v:1 attached_pic)
@@ -226,29 +306,27 @@ get-input-args() {
             >&2 printf '==============\n%s\n' "${links[@]}"
             exit 1
         fi
-
         return 0
     fi
 
     cmd+=("$@")
 }
 
+get-final-cmd() {
+    if [[ ${#convert_cmd[@]} -gt 1 ]]; then
+        echo "$(print-cmd "${cmd[@]::${#cmd[@]}-1}" "|" "${convert_cmd[@]}" "$output")"
+    elif [[ ${#whisper_cmd[@]} -gt 1 ]]; then
+        echo "$(print-cmd "${cmd[@]}" "&&" "${whisper_cmd[@]}")"
+    else
+        echo "$(print-cmd "${cmd[@]}")"
+    fi
+}
+
 get-user-acceptance() {
     [ "$is_yes" ] && return
     echo-info
     echo-info "👇 This is the final command"
-    echo-info
-
-    if [[ ${#convert_cmd[@]} -gt 1 ]]; then
-        echo-info "$(print-cmd "${cmd[@]::${#cmd[@]}-1}" "|" "${convert_cmd[@]}" "$output")"
-    elif [[ ${#whisper_cmd[@]} -gt 1 ]]; then
-        echo-info "$(print-cmd "${cmd[@]}")"
-        echo-info
-        echo-info "$(print-cmd "${whisper_cmd[@]}")"
-    else
-        echo-info "$(print-cmd "${cmd[@]}")"
-    fi
-
+    echo-info "$final_cmd"
     echo-info
 
     read -r -p "continue ? ([Y]/n): " ans
@@ -257,7 +335,6 @@ get-user-acceptance() {
 }
 
 clear-and-exit() {
-    # remove the temp file
     for file in "${temp_files[@]}"; do rm -rf "$file"; done
     exit_code="${1:-0}"
     exit "$exit_code"
@@ -334,22 +411,15 @@ build-ffmpeg-command() {
         exclusive=1
         echo-debug "🗣️  ... convert the video to text"
         output="$(get-temp-file "$(basename "$output")")"
-        whisper_cmd+=("$output" --verbose False --model medium --output_format txt --output_dir /tmp/montag)
+        whisper_cmd+=("$output" --verbose False --model medium --output_format txt --output_dir "$(dirname "$output")")
     fi
 
     [ "${cmd[0]}" = ffmpeg ] && cmd+=("$output")
 
+    final_cmd="$(get-final-cmd)"
     get-user-acceptance
 
-    # we have 4 different modes
-    # - modifiying a video by using a file or a remote URL
-    # - generating a gif file
-    # - generating a thumbnail
-    # - generating a text from the audio (speech to text)
-
-    if [[ ${#convert_cmd[@]} -gt 1 ]]; then
-        "${cmd[@]::${#cmd[@]}-1}" | "${convert_cmd[@]}" "$output"
-    elif [[ ${#whisper_cmd[@]} -gt 1 ]]; then
+    if [[ ${#whisper_cmd[@]} -gt 1 ]]; then
         "${cmd[@]}"
         dir="$PWD"
         cd ~/bin/montag2
@@ -360,12 +430,12 @@ build-ffmpeg-command() {
             clear-and-exit 1
         fi
 
-        "${whisper_cmd[@]}"
+        eval "${whisper_cmd[@]}"
         cat "${output%.*}.txt"
 
         cd "$dir"
     else
-        "${cmd[@]}"
+        eval "$final_cmd"
     fi
 }
 

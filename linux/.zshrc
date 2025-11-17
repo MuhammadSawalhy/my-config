@@ -125,23 +125,3 @@ export GPG_TTY=$(tty)
 export FZF_DEFAULT_COMMAND='fd --strip-cwd-prefix'
 # To apply the command to CTRL-T as well
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-
-export PATH="/snap/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$HOME/.volta/bin:$PATH"
-export PATH=$PATH:/usr/local/go/bin
-
-# bun
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# cargo
-export PATH="/usr/lib/cargo/bin:$PATH"
-export PATH="$PATH:$HOME/.foundry/bin"
-
-# php, composer, ...
-export PATH="$PATH:$HOME/.config/composer/vendor/bin"
-
-. "$HOME/.local/bin/env"
-export PATH="$HOME/.local/bin:$PATH"

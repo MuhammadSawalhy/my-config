@@ -26,6 +26,8 @@ print-help () {
 │  │ --gif       │ Convert to gif, this will set these --fps to 10
 │  │ --gif-loop  │ How many loops your gif will do (default false)
 │  │ --gif-delay │ How long to delay the gif (default 10)
+│  │ --audio     │ Output audio only (works for local files and URLs)
+│  │ --split     │ Split output into parts, e.g. 1800 or 00:30:00
 ├──┼─────────────┼───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
 │  │ --width     │ Width of the output (aspect ratio is preserved)
 │  │ --fps       │ Frames persecond
@@ -33,6 +35,13 @@ print-help () {
 │  │ --ytdl      │ yt-dlp additional args
 │  │ --ydi       │ yt-dlp interactive mode, requires whiptail
 └──┴─────────────┴───────────────────────────────────────────────────┄┄┄┄┄┄┄┄┄
+
+DESCRIPTOIN:
+This is a bash script that uses yt-dlp and ffmpeg (and other tools) to facilitate repeated
+tasks related to videos and audio, for example I have been using it to download a clip of
+a video and make it 1.5x to post it to a social platform (sharing a useful clip)
+
+Another use case it to use it to download only audio with medium quality and split it to 30min parts
 
 USAGE:
   montag -i <input-video> [options...] [-i <input-video> [options...]...] [output-video]
@@ -48,9 +57,17 @@ EXAMPLES:
   # get a transcription of a part of a video
   montag -i <uri> -s 00:10:11 -d 30 --text --whisper "--language auto" | xsel -ib
 
+  # download/process only audio (with clipping/speed if needed)
+  montag -i <uri> --audio -s 00:01:00 -d 120 -x 1.25 my-audio.mp3
+
+  # split output into 30-minute parts
+  montag -i <uri> --audio --split 00:30:00 podcast.mp3
+
 NOTES:
   Downloading a video is done primarly by ffmpeg but will use yt-dlp to
   extract the links to be provided to ffmpeg directly.
+
+  When --split is used, parts are written under "<output-name>/<output-name>_NNN.<ext>".
   
   If you want to extract the text from the video or the audio it will be whisper at the end
   so that downloading step scenarios is the same as described before.
@@ -82,6 +99,8 @@ collect-arg-and-validate() {
             --gif) is_gif=1 ;;
             --gif-loop) gif_loop="$1"; shift ;;
             --gif-delay) gif_delay="$1"; shift ;;
+            --audio|--audio-only) is_audio_only=1 ;;
+            --split) split_period="$1"; shift ;;
 
             --text) is_text=1 ;;
 
@@ -92,6 +111,7 @@ collect-arg-and-validate() {
                     exit 2
                 fi
                 output="$arg"
+                is_output_explicit=1
                 ;;
         esac
     done
@@ -127,6 +147,11 @@ collect-arg-and-validate() {
         print-and-run-cmd python3 -m venv env
         print-and-run-cmd source env/bin/activate
         print-and-run-cmd pip install git+https://github.com/openai/whisper.git
+    fi
+
+    if [ "$is_text" ] && [ "$split_period" ]; then
+        echo-debug error\(text\): --text can\'t be used with --split
+        exit 2
     fi
 
     # ----- IO -----
@@ -206,6 +231,8 @@ prepare-input-and-output() {
         if [ ${#ytdl_options[@]} = 0 ]; then
             if [ "$is_text" ]; then
                 ytdl_options+=(-f 'bestaudio[abr<=128k]' --extract-audio --audio-format mp3 --audio-quality 5)
+            elif [ "$is_audio_only" ]; then
+                ytdl_options+=(-f 'bestaudio[abr<=128k]')
             else
                 ytdl_options+=(-f "best[height<=720]")
             fi
@@ -233,6 +260,8 @@ prepare-input-and-output() {
     if [ "$is_gif" ]; then
         # use the same name with .gif as extension
         output="${output%.*}.gif"
+    elif [ "$is_audio_only" ] && [ ! "$is_output_explicit" ]; then
+        output="${output%.*}.mp3"
     fi
 }
 
@@ -290,7 +319,19 @@ get-input-args() {
     if [[ "$input" =~ ^https?:// ]] && { [[ "$is_thumb" && "$thumb" ]] || [ ! "$is_thumb" ]; }; then
         readarray -t links < <(print-and-run-cmd yt-dlp --no-playlist --extractor-args youtube:skip=dash,translated_subs -g "${ytdl_options[@]}" "$input")
 
-        if [ ${#links[@]} = 1 ]; then
+        if [ "$is_audio_only" ]; then
+            if [ ${#links[@]} = 1 ]; then
+                cmd+=("${argv[@]}" -i "${links[0]}")
+            elif [ ${#links[@]} = 2 ]; then
+                # Usually yt-dlp returns video first and audio second.
+                cmd+=("${argv[@]}" -i "${links[1]}")
+            else
+                echo-debug 'error: invalid output from "yt-dlp -g <url>"'
+                [ ! "$is_quiet" ] &&
+                >&2 printf '==============\n%s\n' "${links[@]}"
+                exit 1
+            fi
+        elif [ ${#links[@]} = 1 ]; then
             if [ "$thumb" ]
             then cmd+=("${argv[@]}" -i "${links[0]}" -i "$thumb" -map 0 -map 1 -c copy -disposition:v:1 attached_pic)
             else cmd+=("${argv[@]}" -i "${links[0]}")
@@ -344,6 +385,9 @@ build-ffmpeg-command() {
     cmd=(ffmpeg)
     convert_cmd=(convert)
     whisper_cmd=(whisper)
+    video_filters=()
+    audio_filters=()
+    output_target="$output"
 
     # Quiet logs
     [ "$is_quiet" ] && cmd+=(-loglevel error)
@@ -365,19 +409,33 @@ build-ffmpeg-command() {
     # Speed
     if [ "$speed" ]; then
         echo-debug "⏩️  ... speedup the cut video x$speed"
-        cmd+=(-filter:v "setpts=PTS/$speed" -filter:a "atempo=$speed")
+        [ ! "$is_audio_only" ] && video_filters+=("setpts=PTS/$speed")
+        [ ! "$mute_audio" ] && audio_filters+=("atempo=$speed")
     fi
 
     # Crop
     if [ "$crop" ]; then
+        [ "$is_audio_only" ] && echo-debug "error: --crop can\'t be used with --audio" && exit 2
         echo-debug "🖼️  ... crop the video with $crop"
-        cmd+=(-vf "crop=$crop")
+        video_filters+=("crop=$crop")
+    fi
+
+    if [ "${#video_filters[@]}" -gt 0 ]; then
+        cmd+=(-vf "$(IFS=,; echo "${video_filters[*]}")")
+    fi
+    if [ "${#audio_filters[@]}" -gt 0 ]; then
+        cmd+=(-af "$(IFS=,; echo "${audio_filters[*]}")")
     fi
 
     # Mute audio
     if [ "$mute_audio" ]; then
         echo-debug "🔇 ... mute the audio"
         cmd+=(-an)
+    fi
+
+    if [ "$is_audio_only" ]; then
+        echo-debug "🎵 ... output audio only"
+        cmd+=(-vn -c:a mp3 -b:a 128k)
     fi
 
     exclusive=0
@@ -396,6 +454,8 @@ build-ffmpeg-command() {
 
     # GIF conversion
     if [ "$is_gif" ]; then
+        [ "$is_audio_only" ] && echo-debug "error: --gif can\'t be used with --audio" && exit 1
+        [ "$split_period" ] && echo-debug "error: --gif can\'t be used with --split" && exit 1
         [ "$exclusive" = 1 ] && echo-debug "error: you using two options together like --gif --thumb" && exit 1
         exclusive=1
         echo-debug 📽️ ... generating a gif
@@ -414,7 +474,24 @@ build-ffmpeg-command() {
         whisper_cmd+=("$output" --verbose False --model medium --output_format txt --output_dir "$(dirname "$output")")
     fi
 
-    [ "${cmd[0]}" = ffmpeg ] && cmd+=("$output")
+    if [ "$split_period" ] && [ "${cmd[0]}" = ffmpeg ]; then
+        output_dir="$(dirname "$output")"
+        output_name="$(basename "$output")"
+        if [[ "$output_name" == *.* ]]; then
+            split_base="${output_name%.*}"
+            split_ext=".${output_name##*.}"
+        else
+            split_base="$output_name"
+            split_ext=""
+        fi
+        split_dir="${output_dir}/${split_base}"
+        mkdir -p "$split_dir"
+        output_target="${split_dir}/${split_base}_%03d${split_ext}"
+        echo-debug "🧩 ... split output every ${split_period} into ${split_dir}"
+        cmd+=(-f segment -segment_time "$split_period" -reset_timestamps 1 "$output_target")
+    elif [ "${cmd[0]}" = ffmpeg ]; then
+        cmd+=("$output_target")
+    fi
 
     final_cmd="$(get-final-cmd)"
     get-user-acceptance

@@ -39,6 +39,9 @@
 [pull]
     rebase = true
 
+[push]
+    autoSetupRemote = true
+
 [core]
     pager = delta
 
